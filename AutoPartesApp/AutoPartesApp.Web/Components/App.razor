@@ -1,23 +1,158 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="es" class="dark">
 
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <base href="/" />
-    <ResourcePreloader />
+
+    <!-- Tailwind CSS - ANTES que cualquier otro CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&display=swap" rel="stylesheet" />
+
+    <!-- Bootstrap (si lo necesitas) -->
     <link rel="stylesheet" href="_content/AutoPartesApp.Shared/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <!-- CSS compartido -->
     <link rel="stylesheet" href="_content/AutoPartesApp.Shared/app.css" />
+
+    <!-- Bundle CSS del proyecto Web -->
     <link rel="stylesheet" href="AutoPartesApp.Web.styles.css" />
+
+    <!-- Bundle CSS del proyecto Shared -->
+    <link rel="stylesheet" href="_content/AutoPartesApp.Shared/AutoPartesApp.Shared.styles.css" />
+
+    <ResourcePreloader />
     <ImportMap />
     <link rel="icon" type="image/png" href="_content/AutoPartesApp.Shared/favicon.png" />
+
+    <!-- HeadOutlet para componentes -->
     <HeadOutlet @rendermode="InteractiveAuto" />
+
+    <!-- Estilos globales INLINE -->
+    <style>
+        body {
+            font-family: 'Manrope', sans-serif;
+            min-height: max(884px, 100dvh);
+            margin: 0;
+            padding: 0;
+            background-color: #f6f7f8;
+        }
+
+        .dark body {
+            background-color: #101922;
+        }
+
+        .industrial-gradient {
+            background: linear-gradient(135deg, #101922 0%, #1a2a3a 100%);
+        }
+
+        /* Asegurar que Material Icons funcionen */
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+        }
+
+        #app {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+    </style>
 </head>
 
-<body>
+<body class="bg-background-light dark:bg-background-dark">
+    <!-- El componente Routes renderiza tu aplicación -->
     <Routes @rendermode="InteractiveAuto" />
+
+    <!-- Modal de reconexión para Blazor Server -->
     <ReconnectModal />
+
+    <!-- Scripts de Blazor -->
     <script src="@Assets["_framework/blazor.web.js"]"></script>
+
+    <!-- Script para verificar Tailwind -->
+    <script>
+        // Verificar que Tailwind se cargó
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                if (typeof tailwind === 'undefined') {
+                    console.error('⚠️ Tailwind CSS no se cargó');
+
+                    // Crear un mensaje visual de error
+                    const errorDiv = document.createElement('div');
+                    errorDiv.style.cssText = `
+                        position: fixed;
+                        top: 10px;
+                        right: 10px;
+                        background: #ef4444;
+                        color: white;
+                        padding: 10px;
+                        border-radius: 5px;
+                        z-index: 9999;
+                        display: none;
+                    `;
+                    errorDiv.innerHTML = 'Tailwind no se cargó. Recargue la página.';
+                    document.body.appendChild(errorDiv);
+                    errorDiv.style.display = 'block';
+
+                    setTimeout(() => errorDiv.style.display = 'none', 5000);
+                } else {
+                    console.log('✅ Tailwind CSS cargado correctamente');
+                }
+
+                // Aplicar modo oscuro
+                const isDark = localStorage.getItem('darkMode') === 'true' ||
+                              (!('darkMode' in localStorage) &&
+                               window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+                if (isDark) {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+            }, 1000);
+        });
+    </script>
 </body>
 
 </html>

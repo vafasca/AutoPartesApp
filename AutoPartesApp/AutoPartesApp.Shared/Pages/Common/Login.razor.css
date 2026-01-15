@@ -1,0 +1,16 @@
+﻿/* Variables personalizadas para el tema */
+:root {
+    --color-primary: #137fec;
+    --color-background-light: #f6f7f8;
+    --color-background-dark: #101922;
+}
+
+/* Gradiente industrial personalizado */
+.industrial-gradient {
+    background: linear-gradient(135deg, #101922 0%, #1a2a3a 100%);
+}
+
+/* Asegurar altura mínima del componente */
+::deep .min-h-screen {
+    min-height: max(884px, 100dvh);
+}

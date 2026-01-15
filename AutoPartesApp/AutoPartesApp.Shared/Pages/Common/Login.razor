@@ -1,0 +1,121 @@
+﻿@page "/"
+@page "/login"
+@namespace AutoPartesApp.Shared.Pages.Common
+
+<div class="min-h-screen bg-background-light dark:bg-background-dark flex items-center justify-center p-4">
+    <div class="w-full max-w-[430px] lg:max-w-[1200px] lg:grid lg:grid-cols-2 lg:gap-8 bg-background-light dark:bg-background-dark shadow-2xl rounded-2xl overflow-hidden">
+
+        <div class="hidden lg:flex flex-col justify-center items-center bg-gradient-to-br from-[#101922] via-[#1a2a3a] to-[#0f1419] p-12 relative overflow-hidden">
+            <div class="absolute inset-0 opacity-10">
+                <div class="absolute top-20 left-20 w-72 h-72 bg-primary rounded-full blur-3xl"></div>
+                <div class="absolute bottom-20 right-20 w-96 h-96 bg-blue-600 rounded-full blur-3xl"></div>
+            </div>
+            <div class="relative z-10 text-center">
+                <div class="bg-primary/20 p-8 rounded-full backdrop-blur-sm mb-8 inline-block">
+                    <span class="material-symbols-outlined text-primary text-8xl" style="font-variation-settings: 'FILL' 1">settings_suggest</span>
+                </div>
+                <h1 class="text-white text-5xl font-bold tracking-tight mb-4">AutoPartes Hub</h1>
+                <p class="text-slate-300 text-lg max-w-md">Sistema integral de gestión de autopartes y pedidos</p>
+                <div class="mt-12 space-y-4 text-left max-w-md">
+                    <div class="flex items-center gap-3 text-slate-300">
+                        <span class="material-symbols-outlined text-primary">check_circle</span>
+                        <span>Gestión de inventario en tiempo real</span>
+                    </div>
+                    <div class="flex items-center gap-3 text-slate-300">
+                        <span class="material-symbols-outlined text-primary">check_circle</span>
+                        <span>Control de pedidos y ventas</span>
+                    </div>
+                    <div class="flex items-center gap-3 text-slate-300">
+                        <span class="material-symbols-outlined text-primary">check_circle</span>
+                        <span>Reportes y análisis detallados</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-col min-h-screen lg:min-h-0 lg:py-12">
+            <div class="flex items-center bg-background-light dark:bg-background-dark p-4 pb-2 justify-between lg:hidden">
+                <h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Acceso AutoPartes Hub</h2>
+                <div class="w-6"></div>
+            </div>
+
+            <div class="px-4 pt-4 lg:hidden">
+                <div class="w-full bg-center bg-no-repeat bg-cover flex flex-col justify-center items-center overflow-hidden bg-primary/10 rounded-xl min-h-[200px] border border-slate-200 dark:border-slate-800" style='background-image: linear-gradient(rgba(16, 25, 34, 0.7), rgba(16, 25, 34, 0.7)), url("https://lh3.googleusercontent.com/aida-public/AB6AXuAJRTA_Ma8GoKC-aAznkJ5j98x6PTMsh2NFKTak-eHhl0_bqPA6jYNa7kcihgeVtbWuxNB9kwKfsB0M51jL7YMxsmWa9ujICgXbsum5pAaHBbTrZAD3IbD80oPYM6jnU-_uOIgLKEt25loFZ1DkRoOaN2EkEJavuwOFt6VkK64tbRKqMWue8nEOt1M7BKcBqD--6ftJWyHByo8DyDJLY3gGpCDdQEgfQnQaNEigJENyLC5xokkwtsQuc_cVFSCD3rmripu0WfO1ho0");'>
+                    <div class="bg-primary/20 p-4 rounded-full backdrop-blur-sm mb-4">
+                        <span class="material-symbols-outlined text-primary text-6xl" style="font-variation-settings: 'FILL' 1">settings_suggest</span>
+                    </div>
+                    <h1 class="text-white text-2xl font-bold tracking-tight">AutoPartes Hub</h1>
+                </div>
+            </div>
+
+            <div class="hidden lg:flex justify-center mb-6">
+                <div class="bg-primary/20 p-4 rounded-full backdrop-blur-sm">
+                    <span class="material-symbols-outlined text-primary text-5xl" style="font-variation-settings: 'FILL' 1">settings_suggest</span>
+                </div>
+            </div>
+
+            <div class="pt-6 pb-2">
+                <h2 class="text-slate-900 dark:text-white tracking-tight text-[28px] font-bold leading-tight px-6 text-center">Bienvenido</h2>
+                <p class="text-slate-500 dark:text-[#92adc9] text-sm font-normal leading-normal pb-3 pt-1 px-8 text-center">Accede a tu cuenta para gestionar piezas y pedidos. Los roles se asignan automáticamente.</p>
+            </div>
+
+            <div class="px-6 lg:px-12 pt-4 flex flex-col gap-4">
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-sm font-semibold text-slate-700 dark:text-slate-300 ml-1">Correo Electrónico</label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl">mail</span>
+                        <input class="w-full pl-10 pr-4 py-3 bg-white dark:bg-[#1a2a3a] border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600"
+                               placeholder="ejemplo@autopartes.com"
+                               type="email"
+                               @bind="Email" />
+                    </div>
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-sm font-semibold text-slate-700 dark:text-slate-300 ml-1">Contraseña</label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl">lock</span>
+                        <input class="w-full pl-10 pr-12 py-3 bg-white dark:bg-[#1a2a3a] border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600"
+                               placeholder="••••••••"
+                               type="@GetPasswordInputType()"
+                               @bind="Password" />
+                        <button class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-primary"
+                                type="button"
+                                @onclick="TogglePasswordVisibility">
+                            <span class="material-symbols-outlined text-xl">@GetVisibilityIcon()</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="flex justify-end">
+                    <a class="text-xs font-bold text-primary hover:underline" href="#" @onclick="ForgotPassword" @onclick:preventDefault>¿Olvidaste tu contraseña?</a>
+                </div>
+                <button class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl mt-4 shadow-lg shadow-primary/20 flex items-center justify-center gap-2 transition-transform active:scale-[0.98]"
+                        @onclick="HandleLogin">
+                    <span>Iniciar Sesión</span>
+                    <span class="material-symbols-outlined text-xl">login</span>
+                </button>
+            </div>
+
+            <div class="px-6 lg:px-12 py-6 flex items-center gap-4">
+                <div class="h-[1px] flex-1 bg-slate-200 dark:bg-slate-800"></div>
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">o bien</span>
+                <div class="h-[1px] flex-1 bg-slate-200 dark:bg-slate-800"></div>
+            </div>
+
+            <div class="px-6 lg:px-12 pb-8 flex flex-col gap-3">
+                <button class="w-full bg-transparent border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 hover:bg-slate-100 dark:hover:bg-white/5 transition-all"
+                        @onclick="CreateAccount">
+                    <span class="material-symbols-outlined text-xl">person_add</span>
+                    <span>Crear Cuenta Nueva</span>
+                </button>
+                <button class="w-full bg-slate-100 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 hover:bg-slate-200 dark:hover:bg-slate-800 transition-all"
+                        @onclick="ExploreAsGuest">
+                    <span class="material-symbols-outlined text-xl">explore</span>
+                    <span>Explorar como Visita</span>
+                </button>
+                <p class="text-center text-xs text-slate-500 dark:text-slate-500 mt-6 px-4">
+                    Al iniciar sesión, aceptas nuestros <a class="underline" href="#">Términos de Servicio</a> y <a class="underline" href="#">Política de Privacidad</a>.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

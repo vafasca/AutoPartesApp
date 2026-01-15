@@ -1,0 +1,11 @@
+<Solution>
+  <Project Path="AutoPartesApp.Application/AutoPartesApp.Application.csproj" />
+  <Project Path="AutoPartesApp.Domain/AutoPartesApp.Domain.csproj" />
+  <Project Path="AutoPartesApp.Infrastructure/AutoPartesApp.Infrastructure.csproj" />
+  <Project Path="AutoPartesApp/AutoPartesApp.Shared/AutoPartesApp.Shared.csproj" />
+  <Project Path="AutoPartesApp/AutoPartesApp.Web.Client/AutoPartesApp.Web.Client.csproj" />
+  <Project Path="AutoPartesApp/AutoPartesApp.Web/AutoPartesApp.Web.csproj" />
+  <Project Path="AutoPartesApp/AutoPartesApp/AutoPartesApp.csproj">
+    <Deploy Solution="Debug|*" />
+  </Project>
+</Solution>

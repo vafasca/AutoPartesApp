@@ -10,4 +10,8 @@
     <Folder Include="Dashboard\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\AutoPartesApp.Domain\AutoPartesApp.Domain.csproj" />
+  </ItemGroup>
+
 </Project>

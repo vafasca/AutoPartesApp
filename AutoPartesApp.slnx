@@ -1,5 +1,5 @@
 <Solution>
-  <Project Path="AutoPartesApp.Application/AutoPartesApp.Application.csproj" />
+  <Project Path="AutoPartesApp.Application/AutoPartesApp.Core.Application.csproj" />
   <Project Path="AutoPartesApp.Domain/AutoPartesApp.Domain.csproj" />
   <Project Path="AutoPartesApp.Infrastructure/AutoPartesApp.Infrastructure.csproj" />
   <Project Path="AutoPartesApp/AutoPartesApp.Shared/AutoPartesApp.Shared.csproj" />

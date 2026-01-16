@@ -1,6 +1,9 @@
-﻿using AutoPartesApp.Services;
+﻿using AutoPartesApp.Core.Application.Auth;
+using AutoPartesApp.Domain.Interfaces;
+using AutoPartesApp.Services;
 using AutoPartesApp.Shared.Services;
 using Microsoft.Extensions.Logging;
+using AutoPartesApp.Infrastructure.Identity;
 
 namespace AutoPartesApp
 {
@@ -20,6 +23,15 @@ namespace AutoPartesApp
             builder.Services.AddSingleton<IFormFactor, FormFactor>();
 
             builder.Services.AddMauiBlazorWebView();
+
+            //added
+            builder.Services.AddHttpClient<IAuthService, AuthService>(client =>
+            {
+                client.BaseAddress = new Uri("https://69691d6d69178471522ca1bb.mockapi.io/api/v1/");
+            });
+
+            builder.Services.AddScoped<LoginUseCase>();
+            builder.Services.AddScoped<LoginService>();
 
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace AutoPartesApp.Application.DTOs
+namespace AutoPartesApp.Core.Application.DTOs
 {
     internal class OrderDto
     {

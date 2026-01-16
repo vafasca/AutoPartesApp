@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace AutoPartesApp.Domain.Entities
+namespace AutoPartesApp.Shared.Models
 {
-    public class User
+    public class LoginViewModel
     {
-        public string Id { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+        public bool IsAuthenticated { get; set; }
         public string Role { get; set; } = string.Empty;
 
     }

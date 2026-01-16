@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Components;
 using System;
+using System.Threading.Tasks;
+using AutoPartesApp.Shared.Models;
+using AutoPartesApp.Shared.Services;
 
 namespace AutoPartesApp.Shared.Pages.Common
 {
@@ -8,70 +11,84 @@ namespace AutoPartesApp.Shared.Pages.Common
         [Inject]
         private NavigationManager? NavigationManager { get; set; }
 
-        private string Email { get; set; } = string.Empty;
-        private string Password { get; set; } = string.Empty;
+        [Inject]
+        private LoginService? LoginService { get; set; }
+
+        private LoginViewModel viewModel = new();
         private bool ShowPassword { get; set; } = false;
+        private bool showError = false;
 
-        private string GetPasswordInputType()
+        private string GetPasswordInputType() => ShowPassword ? "text" : "password";
+        private string GetVisibilityIcon() => ShowPassword ? "visibility_off" : "visibility";
+        private void TogglePasswordVisibility() => ShowPassword = !ShowPassword;
+
+        private async Task HandleLogin()
         {
-            return ShowPassword ? "text" : "password";
-        }
+            Console.WriteLine($"Login attempt with email: {viewModel.Email}");
 
-        private string GetVisibilityIcon()
-        {
-            return ShowPassword ? "visibility_off" : "visibility";
-        }
-
-        private void TogglePasswordVisibility()
-        {
-            ShowPassword = !ShowPassword;
-        }
-
-        private void HandleLogin()
-        {
-            // Implementar lógica de inicio de sesión
-            Console.WriteLine($"Login attempt with email: {Email}");
-
-            // Ejemplo de validación básica
-            if (string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(Password))
+            if (string.IsNullOrWhiteSpace(viewModel.Email) || string.IsNullOrWhiteSpace(viewModel.Password))
             {
                 Console.WriteLine("Email and password are required");
+                showError = true;
                 return;
             }
 
-            // Aquí irá tu lógica de autenticación
-            // Por ejemplo: await AuthService.LoginAsync(Email, Password);
+            try
+            {
+                viewModel = await LoginService!.LoginAsync(viewModel.Email, viewModel.Password);
 
-            // Ejemplo de navegación después del login exitoso:
-            // NavigationManager?.NavigateTo("/dashboard");
+                if (viewModel.IsAuthenticated)
+                {
+                    Console.WriteLine($"Login successful. Role: {viewModel.Role}");
+
+                    switch (viewModel.Role)
+                    {
+                        case "Admin":
+                            NavigationManager?.NavigateTo("/Counter");
+                            break;
+                        case "Delivery":
+                            NavigationManager?.NavigateTo("/Home");
+                            break;
+                        default:
+                            NavigationManager?.NavigateTo("Weather");
+                            break;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Invalid credentials or user not found");
+                    showError = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Login error: {ex.Message}");
+                showError = true;
+            }
         }
 
         private void ForgotPassword()
         {
-            // Implementar lógica de recuperación de contraseña
             Console.WriteLine("Forgot password clicked");
-            // NavigationManager?.NavigateTo("/forgot-password");
+            NavigationManager?.NavigateTo("/forgot-password");
         }
 
         private void CreateAccount()
         {
-            // Navegar a página de registro
             Console.WriteLine("Create account clicked");
-            // NavigationManager?.NavigateTo("/register");
+            NavigationManager?.NavigateTo("/register");
         }
 
         private void ExploreAsGuest()
         {
-            // Navegar como invitado
             Console.WriteLine("Explore as guest clicked");
-            // NavigationManager?.NavigateTo("/home");
+            NavigationManager?.NavigateTo("/home");
         }
 
         private void GoBack()
         {
-            // Navegar hacia atrás
             Console.WriteLine("Go back clicked");
-            // NavigationManager?.NavigateTo("/");
+            NavigationManager?.NavigateTo("/");
         }
     }
 }

@@ -1,6 +1,9 @@
+using AutoPartesApp.Core.Application.Auth;
+using AutoPartesApp.Domain.Interfaces;
 using AutoPartesApp.Shared.Services;
 using AutoPartesApp.Web.Components;
 using AutoPartesApp.Web.Services;
+using AutoPartesApp.Infrastructure.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +14,15 @@ builder.Services.AddRazorComponents()
 
 // Add device-specific services used by the AutoPartesApp.Shared project
 builder.Services.AddSingleton<IFormFactor, FormFactor>();
+
+//added
+builder.Services.AddHttpClient<IAuthService, AuthService>(client =>
+{
+    client.BaseAddress = new Uri("https://69691d6d69178471522ca1bb.mockapi.io/api/v1/");
+});
+
+builder.Services.AddScoped<LoginUseCase>();
+builder.Services.AddScoped<LoginService>();
 
 var app = builder.Build();
 

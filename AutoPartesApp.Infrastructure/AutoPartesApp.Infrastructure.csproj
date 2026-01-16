@@ -8,8 +8,11 @@
 
   <ItemGroup>
     <Folder Include="External\" />
-    <Folder Include="Identity\" />
     <Folder Include="Persistence\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AutoPartesApp.Domain\AutoPartesApp.Domain.csproj" />
   </ItemGroup>
 
 </Project>

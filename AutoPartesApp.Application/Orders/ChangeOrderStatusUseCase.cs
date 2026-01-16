@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace AutoPartesApp.Application.Orders
+namespace AutoPartesApp.Core.Application.Orders
 {
     internal class ChangeOrderStatusUseCase
     {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace AutoPartesApp.Application.Users
+namespace AutoPartesApp.Core.Application.Users
 {
     internal class BlockUserUseCase
     {

@@ -35,6 +35,9 @@
 
         <div class="flex flex-col min-h-screen lg:min-h-0 lg:py-12">
             <div class="flex items-center bg-background-light dark:bg-background-dark p-4 pb-2 justify-between lg:hidden">
+                <button class="text-slate-600 dark:text-slate-300" @onclick="GoBack">
+                    <span class="material-symbols-outlined">chevron_left</span>
+                </button>
                 <h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Acceso AutoPartes Hub</h2>
                 <div class="w-6"></div>
             </div>
@@ -67,7 +70,7 @@
                         <input class="w-full pl-10 pr-4 py-3 bg-white dark:bg-[#1a2a3a] border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600"
                                placeholder="ejemplo@autopartes.com"
                                type="email"
-                               @bind="Email" />
+                               @bind="viewModel.Email" />
                     </div>
                 </div>
                 <div class="flex flex-col gap-1.5">
@@ -77,7 +80,7 @@
                         <input class="w-full pl-10 pr-12 py-3 bg-white dark:bg-[#1a2a3a] border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600"
                                placeholder="••••••••"
                                type="@GetPasswordInputType()"
-                               @bind="Password" />
+                               @bind="viewModel.Password" />
                         <button class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-primary"
                                 type="button"
                                 @onclick="TogglePasswordVisibility">
@@ -85,6 +88,12 @@
                         </button>
                     </div>
                 </div>
+
+                @if (showError)
+                {
+                    <p class="text-red-500 text-sm mt-2">Credenciales inválidas o error de conexión</p>
+                }
+
                 <div class="flex justify-end">
                     <a class="text-xs font-bold text-primary hover:underline" href="#" @onclick="ForgotPassword" @onclick:preventDefault>¿Olvidaste tu contraseña?</a>
                 </div>
@@ -94,6 +103,8 @@
                     <span class="material-symbols-outlined text-xl">login</span>
                 </button>
             </div>
+
+
 
             <div class="px-6 lg:px-12 py-6 flex items-center gap-4">
                 <div class="h-[1px] flex-1 bg-slate-200 dark:bg-slate-800"></div>

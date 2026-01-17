@@ -33,6 +33,7 @@ namespace AutoPartesApp
 
             builder.Services.AddScoped<LoginUseCase>();
             builder.Services.AddScoped<LoginService>();
+            builder.Services.AddScoped<AuthState>();
 
             builder.Services.AddAutoPartesServices();
 

@@ -2,6 +2,7 @@
 using AutoPartesApp.Domain.Interfaces;
 using AutoPartesApp.Services;
 using AutoPartesApp.Shared.Services;
+using AutoPartesApp.Shared.Extensions;
 using Microsoft.Extensions.Logging;
 using AutoPartesApp.Infrastructure.Identity;
 
@@ -32,6 +33,8 @@ namespace AutoPartesApp
 
             builder.Services.AddScoped<LoginUseCase>();
             builder.Services.AddScoped<LoginService>();
+
+            builder.Services.AddAutoPartesServices();
 
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();

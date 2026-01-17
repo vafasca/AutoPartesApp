@@ -4,7 +4,35 @@ using System.Text;
 
 namespace AutoPartesApp.Domain.Enums
 {
-    internal class RoleType
+    public enum RoleType
     {
+        Admin = 1,
+        Delivery = 2,
+        Client = 3
+    }
+
+    public static class RoleTypeExtensions
+    {
+        public static string ToFriendlyString(this RoleType role)
+        {
+            return role switch
+            {
+                RoleType.Admin => "Administrador",
+                RoleType.Delivery => "Repartidor",
+                RoleType.Client => "Cliente",
+                _ => "Desconocido"
+            };
+        }
+
+        public static RoleType FromString(string role)
+        {
+            return role.ToLower() switch
+            {
+                "admin" => RoleType.Admin,
+                "delivery" => RoleType.Delivery,
+                "client" => RoleType.Client,
+                _ => RoleType.Client // Default
+            };
+        }
     }
 }

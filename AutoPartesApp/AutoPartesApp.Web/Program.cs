@@ -1,6 +1,7 @@
 using AutoPartesApp.Core.Application.Auth;
 using AutoPartesApp.Domain.Interfaces;
 using AutoPartesApp.Shared.Services;
+using AutoPartesApp.Shared.Extensions;
 using AutoPartesApp.Web.Components;
 using AutoPartesApp.Web.Services;
 using AutoPartesApp.Infrastructure.Identity;
@@ -23,6 +24,8 @@ builder.Services.AddHttpClient<IAuthService, AuthService>(client =>
 
 builder.Services.AddScoped<LoginUseCase>();
 builder.Services.AddScoped<LoginService>();
+
+builder.Services.AddAutoPartesServices();
 
 var app = builder.Build();
 

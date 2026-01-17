@@ -1,0 +1,75 @@
+﻿@using AutoPartesApp.Domain.Enums
+@using AutoPartesApp.Shared.Services
+@inject AuthState AuthState
+@inject NavigationManager Navigation
+
+
+@if (IsAuthorized)
+{
+    @ChildContent
+}
+else if (!AuthState.IsAuthenticated)
+{
+    <div class="flex items-center justify-center min-h-screen bg-background-dark">
+        <div class="text-center">
+            <span class="material-symbols-outlined text-6xl text-slate-600 mb-4">lock</span>
+            <h2 class="text-2xl font-bold text-white mb-2">Acceso Restringido</h2>
+            <p class="text-slate-400 mb-6">Debes iniciar sesión para acceder a esta página</p>
+            <button class="bg-primary hover:bg-primary/90 text-white font-bold py-3 px-6 rounded-xl"
+                    @onclick='() => Navigation.NavigateTo("/login")'>
+                Iniciar Sesión
+            </button>
+        </div>
+    </div>
+}
+else
+{
+    <div class="flex items-center justify-center min-h-screen bg-background-dark">
+        <div class="text-center">
+            <span class="material-symbols-outlined text-6xl text-red-500 mb-4">block</span>
+            <h2 class="text-2xl font-bold text-white mb-2">Sin Permisos</h2>
+            <p class="text-slate-400 mb-6">No tienes permisos para acceder a esta página</p>
+            <button class="bg-primary hover:bg-primary/90 text-white font-bold py-3 px-6 rounded-xl"
+                    @onclick="GoToHome">
+                Volver al Inicio
+            </button>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public RoleType[]? AllowedRoles { get; set; }
+
+    private bool IsAuthorized => 
+        AuthState.IsAuthenticated && 
+        (AllowedRoles == null || AuthState.HasAnyRole(AllowedRoles));
+
+    protected override void OnInitialized()
+    {
+        AuthState.OnAuthStateChanged += StateHasChanged;
+    }
+
+    private void GoToHome()
+    {
+        var role = AuthState.CurrentUser?.RoleType ?? RoleType.Client;
+
+        var route = role switch
+        {
+            RoleType.Admin => "/admin/dashboard",
+            RoleType.Delivery => "/delivery/orders",
+            RoleType.Client => "/catalog",
+            _ => "/catalog"
+        };
+
+        Navigation.NavigateTo(route);
+    }
+
+    public void Dispose()
+    {
+        AuthState.OnAuthStateChanged -= StateHasChanged;
+    }
+}

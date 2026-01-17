@@ -10,6 +10,10 @@ namespace AutoPartesApp.Shared.Models
         public string Password { get; set; } = string.Empty;
         public bool IsAuthenticated { get; set; }
         public string Role { get; set; } = string.Empty;
+        public string FullName { get; set; } = string.Empty;
+        public string UserId { get; set; } = string.Empty;
+        public string? ErrorMessage { get; set; }
+        public bool RememberMe { get; set; } = false;
 
     }
 }

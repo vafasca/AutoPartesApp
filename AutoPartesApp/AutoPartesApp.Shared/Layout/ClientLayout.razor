@@ -1,0 +1,38 @@
+﻿@inherits LayoutComponentBase
+@using AutoPartesApp.Domain.Enums
+@namespace AutoPartesApp.Shared.Layout
+
+<div class="min-h-screen bg-background-light dark:bg-background-dark text-slate-900 dark:text-white pb-24">
+    <!-- Contenido principal de cada página -->
+    @Body
+
+    <!-- Navegación inferior fija -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 pb-8 pt-3 px-2 z-[60]">
+        <div class="flex justify-between items-center max-w-md mx-auto">
+            <NavLink href="/client/dashboard" class="@GetNavLinkClass("/client/dashboard")" Match="NavLinkMatch.All">
+                <span class="material-symbols-outlined @GetIconFillClass("/client/dashboard")">home</span>
+                <span class="text-[9px] font-bold uppercase tracking-tighter">Principal</span>
+            </NavLink>
+
+            <NavLink href="/client/orders" class="@GetNavLinkClass("/client/orders")">
+                <span class="material-symbols-outlined @GetIconFillClass("/client/orders")">receipt_long</span>
+                <span class="text-[9px] font-bold uppercase tracking-tighter">Pedidos</span>
+            </NavLink>
+
+            <NavLink href="/client/tracking" class="@GetNavLinkClass("/client/tracking")">
+                <span class="material-symbols-outlined @GetIconFillClass("/client/tracking")">local_shipping</span>
+                <span class="text-[9px] font-bold uppercase tracking-tighter">Rastreo</span>
+            </NavLink>
+
+            <NavLink href="/client/catalog" class="@GetNavLinkClass("/client/catalog")">
+                <span class="material-symbols-outlined @GetIconFillClass("/client/catalog")">grid_view</span>
+                <span class="text-[9px] font-bold uppercase tracking-tighter">Catálogo</span>
+            </NavLink>
+
+            <NavLink href="/client/settings" class="@GetNavLinkClass("/client/settings")">
+                <span class="material-symbols-outlined @GetIconFillClass("/client/settings")">settings</span>
+                <span class="text-[9px] font-bold uppercase tracking-tighter">Ajustes</span>
+            </NavLink>
+        </div>
+    </nav>
+</div>

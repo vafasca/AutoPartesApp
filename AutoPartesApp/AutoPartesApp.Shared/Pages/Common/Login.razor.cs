@@ -84,7 +84,7 @@ namespace AutoPartesApp.Shared.Pages.Common
             {
                 "admin" => "/aa", //admin/dashboard
                 "delivery" => "/weather", //delivery/orders
-                "client" => "/counter", // client/catalog
+                "client" => "/client/dashboard", // client/catalog
                 _ => "/home"
             };
 

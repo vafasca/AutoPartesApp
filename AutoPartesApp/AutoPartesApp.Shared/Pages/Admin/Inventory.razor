@@ -1,5 +1,274 @@
-﻿<h3>Inventory</h3>
+﻿@page "/admin/inventory"
+@layout AdminLayout
+@namespace AutoPartesApp.Shared.Pages.Admin
 
-@code {
+<!-- Header / TopAppBar - Responsive -->
+<header class="sticky top-0 z-30 bg-background-light dark:bg-background-dark/95 backdrop-blur-md px-4 pt-4 pb-2 border-b border-slate-200 dark:border-slate-800">
+    <div class="max-w-7xl mx-auto">
+        <!-- Title and Actions Row -->
+        <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary text-2xl lg:text-3xl">inventory_2</span>
+                <h1 class="text-lg lg:text-xl font-extrabold leading-tight tracking-tight">Gestión Inventario</h1>
+            </div>
+            <div class="flex items-center gap-1">
+                <button class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors relative"
+                        @onclick="ToggleNotifications">
+                    <span class="material-symbols-outlined text-slate-600 dark:text-slate-300">notifications</span>
+                    @if (hasNotifications)
+                    {
+                        <span class="absolute top-2 right-2 flex h-2 w-2 rounded-full bg-red-500"></span>
+                    }
+                </button>
+                <button class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors lg:flex hidden"
+                        @onclick="ToggleMenu">
+                    <span class="material-symbols-outlined text-slate-600 dark:text-slate-300">more_vert</span>
+                </button>
+            </div>
+        </div>
 
-}
+        <!-- Stats / KPI Cards - Responsive Grid -->
+        <div class="flex lg:grid lg:grid-cols-2 gap-3 mb-4 overflow-x-auto lg:overflow-visible hide-scrollbar">
+            @foreach (var stat in inventoryStats)
+            {
+                <div class="flex-shrink-0 min-w-[160px] lg:min-w-0 flex-1 flex flex-col gap-1 rounded-xl p-4 bg-white dark:bg-surface-dark shadow-sm border border-slate-200 dark:border-border-dark">
+                    <p class="text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">@stat.Title</p>
+                    <p class="text-xl lg:text-2xl font-bold">@stat.Value</p>
+                    <div class="flex items-center gap-1 @stat.TrendColor text-xs font-bold">
+                        <span class="material-symbols-outlined text-[14px]">@stat.Icon</span>
+                        <span>@stat.TrendText</span>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</header>
+
+<!-- Scrollable Content -->
+<main class="flex-1 overflow-y-auto px-4 pb-24 lg:pb-8">
+    <div class="max-w-7xl mx-auto">
+        <!-- Action Buttons - Responsive Layout -->
+        <div class="flex flex-col lg:flex-row gap-3 py-4">
+            <button class="w-full lg:w-auto flex items-center justify-center gap-2 h-12 lg:h-10 rounded-xl bg-primary text-white font-bold text-base lg:text-sm shadow-lg shadow-primary/20 hover:opacity-90 active:scale-[0.98] transition-all px-6"
+                    @onclick="AddNewProduct">
+                <span class="material-symbols-outlined text-xl lg:text-base">add_circle</span>
+                <span>Nuevo Producto</span>
+            </button>
+            <div class="flex gap-3 lg:ml-auto">
+                <button class="flex-1 lg:flex-initial h-10 flex items-center justify-center gap-2 rounded-lg bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark text-slate-700 dark:text-white text-sm font-bold px-4 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                        @onclick="ImportProducts">
+                    <span class="material-symbols-outlined text-[20px]">upload</span>
+                    <span class="hidden lg:inline">Importar</span>
+                </button>
+                <button class="flex-1 lg:flex-initial h-10 flex items-center justify-center gap-2 rounded-lg bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark text-slate-700 dark:text-white text-sm font-bold px-4 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                        @onclick="ExportProducts">
+                    <span class="material-symbols-outlined text-[20px]">download</span>
+                    <span class="hidden lg:inline">Exportar</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Search & Filter - Sticky on mobile, normal on desktop -->
+        <div class="sticky lg:static top-0 z-20 py-2 bg-background-light dark:bg-background-dark">
+            <div class="flex flex-col lg:flex-row items-stretch lg:items-center gap-2">
+                <!-- Search Bar -->
+                <div class="flex-1 relative">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+                    <input @bind="searchQuery"
+                           @bind:event="oninput"
+                           @onkeyup="HandleSearch"
+                           class="w-full h-11 pl-10 pr-4 rounded-xl border-none bg-white dark:bg-surface-dark focus:ring-2 focus:ring-primary text-sm shadow-sm"
+                           placeholder="Buscar por SKU o nombre..."
+                           type="text" />
+                </div>
+
+                <!-- Filter Button -->
+                <button class="h-11 w-11 lg:w-11 flex items-center justify-center rounded-xl bg-white dark:bg-surface-dark shadow-sm border border-slate-200 dark:border-border-dark hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                        @onclick="ToggleFilters">
+                    <span class="material-symbols-outlined text-slate-600 dark:text-slate-300">filter_list</span>
+                </button>
+
+                <!-- View Toggle (Desktop only) -->
+                <div class="hidden lg:flex h-11 bg-slate-100 dark:bg-slate-800 rounded-lg p-1 gap-1">
+                    <button class="@GetViewButtonClass("grid")" @onclick='() => ChangeView("grid")'>
+                        <span class="material-symbols-outlined text-lg">grid_view</span>
+                    </button>
+                    <button class="@GetViewButtonClass("list")" @onclick='() => ChangeView("list")'>
+                        <span class="material-symbols-outlined text-lg">view_list</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filter Pills - Horizontal Scroll -->
+            <div class="flex gap-2 mt-4 overflow-x-auto hide-scrollbar">
+                @foreach (var filter in filters)
+                {
+                    <button class="@GetFilterPillClass(filter.Value)" @onclick="() => ApplyFilter(filter.Value)">
+                        @filter.Label
+                        @if (filter.Count > 0)
+                        {
+                            <span class="ml-1">(@filter.Count)</span>
+                        }
+                    </button>
+                }
+            </div>
+        </div>
+
+        <!-- Product List/Grid - Responsive -->
+        @if (isLoading)
+        {
+            <div class="flex flex-col items-center justify-center py-16">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
+                <p class="text-slate-500 dark:text-slate-400 text-sm">Cargando productos...</p>
+            </div>
+        }
+        else if (filteredProducts.Count == 0)
+        {
+            <div class="flex flex-col items-center justify-center py-16 text-center">
+                <div class="bg-slate-100 dark:bg-slate-800 p-6 rounded-full mb-4">
+                    <span class="material-symbols-outlined text-slate-400 text-5xl">inventory_2</span>
+                </div>
+                <h3 class="text-slate-900 dark:text-white text-lg font-bold mb-2">No se encontraron productos</h3>
+                <p class="text-slate-500 dark:text-slate-400 text-sm max-w-sm mb-6">
+                    No hay productos que coincidan con los filtros seleccionados
+                </p>
+                <button class="bg-primary text-white px-6 py-3 rounded-lg font-bold hover:bg-primary/90 transition-colors"
+                        @onclick="ClearFilters">
+                    Limpiar Filtros
+                </button>
+            </div>
+        }
+        else
+        {
+            <!-- Desktop: Grid/List View -->
+            <div class="hidden lg:block mt-4">
+                @if (currentView == "grid")
+                {
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                        @foreach (var product in filteredProducts)
+                        {
+                            <div class="bg-white dark:bg-surface-dark rounded-xl border border-slate-200 dark:border-border-dark shadow-sm hover:shadow-lg transition-all cursor-pointer"
+                                 @onclick="() => ViewProductDetails(product.Id)">
+                                <div class="relative w-full aspect-square bg-slate-100 dark:bg-slate-800 rounded-t-xl overflow-hidden">
+                                    <img src="@product.ImageUrl" alt="@product.Name" class="w-full h-full object-cover" />
+                                    @if (product.StockStatus == "Sin stock")
+                                    {
+                                        <div class="absolute inset-0 bg-red-500/20 flex items-center justify-center">
+                                            <span class="material-symbols-outlined text-red-600 text-4xl">block</span>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="p-4">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <h3 class="text-sm font-bold line-clamp-2">@product.Name</h3>
+                                        <span class="text-primary font-bold text-sm ml-2">@product.Price.ToString("C")</span>
+                                    </div>
+                                    <p class="text-[10px] text-slate-500 dark:text-slate-400 font-medium mb-2">SKU: @product.Sku</p>
+                                    <div class="flex items-center justify-between">
+                                        <span class="px-2 py-0.5 rounded text-[10px] bg-slate-100 dark:bg-slate-700 font-bold uppercase tracking-wider">
+                                            @product.Category
+                                        </span>
+                                        <span class="@GetStockBadgeClass(product.StockStatus, product.Stock)">
+                                            @if (product.StockStatus == "Sin stock")
+                                            {
+                                                <text>Sin stock</text>
+                                            }
+                                            else
+                                            {
+                                                <text>@product.Stock units</text>
+                                            }
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="space-y-3">
+                        @foreach (var product in filteredProducts)
+                        {
+                            <div class="flex items-center gap-4 p-4 rounded-xl bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark shadow-sm hover:shadow-md transition-all cursor-pointer"
+                                 @onclick="() => ViewProductDetails(product.Id)">
+                                <img src="@product.ImageUrl" alt="@product.Name"
+                                     class="w-20 h-20 rounded-lg object-cover bg-slate-100 @(product.StockStatus == "Sin stock" ? "grayscale" : "")" />
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex justify-between items-start mb-1">
+                                        <h3 class="text-sm font-bold">@product.Name</h3>
+                                        <span class="text-primary font-bold text-sm ml-2">@product.Price.ToString("C")</span>
+                                    </div>
+                                    <p class="text-[10px] text-slate-500 dark:text-slate-400 font-medium mb-2">SKU: @product.Sku</p>
+                                    <div class="flex items-center justify-between">
+                                        <span class="px-2 py-0.5 rounded text-[10px] bg-slate-100 dark:bg-slate-700 font-bold uppercase tracking-wider">
+                                            @product.Category
+                                        </span>
+                                        <span class="@GetStockBadgeClass(product.StockStatus, product.Stock)">
+                                            @if (product.StockStatus == "Sin stock")
+                                            {
+                                                <text>Sin stock</text>
+                                            }
+                                            else
+                                            {
+                                                <text>@product.Stock units</text>
+                                            }
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+
+            <!-- Mobile: List View Only -->
+            <div class="lg:hidden mt-4 space-y-3">
+                @foreach (var product in filteredProducts)
+                {
+                    <div class="flex items-center gap-3 p-3 rounded-xl bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark shadow-sm active:scale-[0.98] transition-transform"
+                         @onclick="() => ViewProductDetails(product.Id)">
+                        <div class="relative w-16 h-16 shrink-0">
+                            <img src="@product.ImageUrl" alt="@product.Name"
+                                 class="w-full h-full rounded-lg object-cover bg-slate-100 @(product.StockStatus == "Sin stock" ? "grayscale" : "")" />
+                            @if (product.StockStatus == "Sin stock")
+                            {
+                                <div class="absolute inset-0 bg-red-500/20 rounded-lg flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-red-600 text-xl">block</span>
+                                </div>
+                            }
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between items-start">
+                                <h3 class="text-sm font-bold truncate">@product.Name</h3>
+                                <span class="text-primary font-bold text-sm ml-2">@product.Price.ToString("C")</span>
+                            </div>
+                            <p class="text-[10px] text-slate-500 dark:text-slate-400 font-medium">SKU: @product.Sku</p>
+                            <div class="flex items-center justify-between mt-2">
+                                <span class="px-2 py-0.5 rounded text-[10px] bg-slate-100 dark:bg-slate-700 font-bold uppercase tracking-wider">
+                                    @product.Category
+                                </span>
+                                <span class="@GetStockBadgeClass(product.StockStatus, product.Stock)">
+                                    @if (product.StockStatus == "Sin stock")
+                                    {
+                                        <text>Sin stock</text>
+                                    }
+                                    else
+                                    {
+                                        <text>@product.Stock units</text>
+                                    }
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Pagination Info -->
+            <div class="py-8 flex justify-center">
+                <p class="text-slate-400 text-xs lg:text-sm font-medium italic">
+                    Mostrando @filteredProducts.Count de @totalProducts productos
+                </p>
+            </div>
+        }
+    </div>
+</main>

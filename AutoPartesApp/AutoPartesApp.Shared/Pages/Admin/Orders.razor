@@ -1,5 +1,282 @@
-﻿<h3>Orders</h3>
+﻿@page "/admin/orders"
+@layout AdminLayout
+@namespace AutoPartesApp.Shared.Pages.Admin
 
-@code {
+<!-- Top App Bar - Responsive -->
+<div class="sticky top-0 z-30 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header Row -->
+        <div class="flex items-center p-4 pb-2 justify-between">
+            <div class="flex items-center gap-3">
+                <button class="lg:flex size-10 shrink-0 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white hidden"
+                        @onclick="ToggleMenu">
+                    <span class="material-symbols-outlined">menu</span>
+                </button>
+                <div>
+                    <h2 class="text-slate-900 dark:text-white text-lg lg:text-xl font-bold leading-tight tracking-tight">
+                        Órdenes y Logística
+                    </h2>
+                    <div class="flex items-center gap-1.5">
+                        <span class="relative flex h-2 w-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                        </span>
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-green-500">Live</span>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button class="flex size-10 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                        @onclick="ToggleSearch">
+                    <span class="material-symbols-outlined">search</span>
+                </button>
+                <button class="flex size-10 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white relative hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                        @onclick="ToggleNotifications">
+                    <span class="material-symbols-outlined">notifications</span>
+                    @if (hasNotifications)
+                    {
+                        <span class="absolute top-2 right-2 flex h-2 w-2 rounded-full bg-primary"></span>
+                    }
+                </button>
+            </div>
+        </div>
 
+        <!-- Search Bar (Collapsible on mobile) -->
+        @if (showSearch || isDesktop)
+        {
+            <div class="px-4 pb-3">
+                <div class="relative">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+                    <input @bind="searchQuery"
+                           @bind:event="oninput"
+                           @onkeyup="HandleSearch"
+                           class="w-full h-11 pl-10 pr-4 rounded-xl border-none bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary text-sm shadow-sm"
+                           placeholder="Buscar por ID, cliente o producto..."
+                           type="text" />
+                </div>
+            </div>
+        }
+
+        <!-- Filter Chips - Horizontal Scroll -->
+        <div class="flex gap-3 px-4 pb-3 overflow-x-auto hide-scrollbar">
+            @foreach (var filter in filters)
+            {
+                <button class="@GetFilterChipClass(filter.Value)"
+                        @onclick="() => ApplyFilter(filter.Value)">
+                    @filter.Label
+                </button>
+            }
+        </div>
+    </div>
+</div>
+
+<main class="pb-24 lg:pb-8">
+    <div class="max-w-7xl mx-auto">
+        <!-- Real-time Map Preview Section -->
+        <div class="px-4 pt-4 pb-2">
+            <div class="flex items-center justify-between mb-2">
+                <h3 class="text-slate-900 dark:text-white text-base lg:text-lg font-bold leading-tight tracking-tight">
+                    Rastreo en Tiempo Real
+                </h3>
+                <button class="text-primary text-xs lg:text-sm font-semibold hover:underline"
+                        @onclick="ViewFullMap">
+                    Ver Mapa Full
+                </button>
+            </div>
+        </div>
+
+        <!-- Map Container - Responsive -->
+        <div class="px-4 pb-4">
+            <div class="relative w-full aspect-[16/9] lg:aspect-[21/9] bg-slate-200 dark:bg-slate-800 rounded-xl lg:rounded-2xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-800">
+                <div class="absolute inset-0 bg-center bg-no-repeat bg-cover"
+                     style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCkjtbHHFGmLwsbPmOpS7rhyo1qZo791Ra4koVnL1YLrNhaCcGqUHz7LMq9ziHhd5HMlN2ClyOPAYKbo_SCTgROC_6ucv--JwjEqsVAuP7JaJ_RdKY8ellZd4aYJ8VG-8BRwMZ-Paa_wd4HQGliFw8OGe9N5moAdGVQ2c909oayJdzcfU7TnfISkHCjJ0ZjG8pyGR7RZbw1RJN_8ZzrWOcllfBLrIV2msHoB4kOi0vreqD5JPEesvG6YXlmTpQ5UjezxMiprtiUbCw");'>
+                </div>
+                <!-- Map Overlay Info -->
+                <div class="absolute top-4 left-4 bg-background-dark/80 backdrop-blur-sm p-2 lg:p-3 rounded-lg text-[10px] lg:text-xs text-white border border-slate-700">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-primary"></span>
+                        <span>@activeDriversCount Repartidores activos</span>
+                    </div>
+                </div>
+                <!-- Center Location Pin -->
+                <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <span class="material-symbols-outlined text-primary scale-150 drop-shadow-md">location_on</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Orders Section -->
+        <div class="px-4 pt-4 pb-2">
+            <h3 class="text-slate-900 dark:text-white text-base lg:text-lg font-bold leading-tight tracking-tight">
+                Pedidos Activos
+            </h3>
+        </div>
+
+        @if (isLoading)
+        {
+            <!-- Loading State -->
+            <div class="flex flex-col items-center justify-center py-16">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
+                <p class="text-slate-500 dark:text-slate-400 text-sm">Cargando pedidos...</p>
+            </div>
+        }
+        else if (filteredOrders.Count == 0)
+        {
+            <!-- Empty State -->
+            <div class="flex flex-col items-center justify-center py-16 text-center px-4">
+                <div class="bg-slate-100 dark:bg-slate-800 p-6 rounded-full mb-4">
+                    <span class="material-symbols-outlined text-slate-400 text-5xl">receipt_long</span>
+                </div>
+                <h3 class="text-slate-900 dark:text-white text-lg font-bold mb-2">No se encontraron pedidos</h3>
+                <p class="text-slate-500 dark:text-slate-400 text-sm max-w-sm mb-6">
+                    No hay pedidos que coincidan con los filtros seleccionados
+                </p>
+                <button class="bg-primary text-white px-6 py-3 rounded-lg font-bold hover:bg-primary/90 transition-colors"
+                        @onclick="ClearFilters">
+                    Limpiar Filtros
+                </button>
+            </div>
+        }
+        else
+        {
+            <!-- Orders List - Responsive Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3 lg:gap-4 px-4 pb-6">
+                @foreach (var order in filteredOrders)
+                {
+                    <div class="@GetOrderCardClass(order.Status)"
+                         @onclick="() => ViewOrderDetails(order.Id)">
+                        <!-- Order Header -->
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                                    ID @order.OrderNumber
+                                </span>
+                                <h4 class="text-slate-900 dark:text-white font-bold text-sm lg:text-base mt-0.5">
+                                    @order.ProductName
+                                </h4>
+                                <p class="text-slate-500 dark:text-slate-400 text-xs mt-1">
+                                    Cliente: @order.CustomerName • @order.Location
+                                </p>
+                            </div>
+                            <div class="@GetStatusBadgeClass(order.Status)">
+                                @order.Status
+                            </div>
+                        </div>
+
+                        <!-- Driver Info (if assigned) -->
+                        @if (order.Status == "En Ruta" && !string.IsNullOrEmpty(order.DriverName))
+                        {
+                            <div class="bg-slate-100 dark:bg-slate-800/50 rounded-lg p-3 mb-4 flex items-center gap-3">
+                                <div class="size-8 lg:size-10 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden shrink-0">
+                                    <img class="w-full h-full object-cover" src="@order.DriverAvatar" alt="Driver" />
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-none">
+                                        Repartidor asignado
+                                    </p>
+                                    <p class="text-xs font-bold text-slate-900 dark:text-white truncate">
+                                        @order.DriverName • @order.VehicleType
+                                    </p>
+                                </div>
+                                <div class="text-right shrink-0">
+                                    <p class="text-[10px] text-primary font-bold leading-none">ETA</p>
+                                    <p class="text-xs font-bold text-slate-900 dark:text-white">@order.EstimatedTime</p>
+                                </div>
+                            </div>
+                        }
+
+                        <!-- Action Buttons -->
+                        <div class="@GetActionButtonsGridClass(order.Status) pt-3 border-t border-slate-100 dark:border-slate-800">
+                            @if (order.Status == "Pendiente")
+                            {
+                                <button class="h-9 flex items-center justify-center rounded-lg bg-primary text-white text-xs lg:text-sm font-bold gap-1 lg:gap-2 hover:bg-primary/90 transition-colors col-span-2"
+                                        @onclick:stopPropagation="true"
+                                        @onclick="() => AssignDriver(order.Id)">
+                                    <span class="material-symbols-outlined text-sm lg:text-base">person_add</span>
+                                    <span class="hidden sm:inline">Asignar repartidor</span>
+                                    <span class="sm:hidden">Asignar</span>
+                                </button>
+                                <button class="h-9 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                                        @onclick:stopPropagation="true"
+                                        @onclick="() => ShowOrderMenu(order.Id)">
+                                    <span class="material-symbols-outlined text-lg">more_horiz</span>
+                                </button>
+                            }
+                            else if (order.Status == "En Ruta")
+                            {
+                                <button class="h-9 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white text-xs lg:text-sm font-bold gap-2 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                                        @onclick:stopPropagation="true"
+                                        @onclick="() => ViewOrderDetails(order.Id)">
+                                    <span class="hidden sm:inline">Ver detalle</span>
+                                    <span class="sm:hidden">Detalle</span>
+                                </button>
+                                <button class="h-9 flex items-center justify-center rounded-lg bg-primary/20 text-primary text-xs lg:text-sm font-bold gap-2 hover:bg-primary/30 transition-colors"
+                                        @onclick:stopPropagation="true"
+                                        @onclick="() => TrackOrder(order.Id)">
+                                    <span class="hidden sm:inline">Rastrear</span>
+                                    <span class="sm:hidden">Track</span>
+                                </button>
+                            }
+                            else
+                            {
+                                <button class="h-9 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 text-primary text-xs lg:text-sm font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors col-span-2"
+                                        @onclick:stopPropagation="true"
+                                        @onclick="() => ViewOrderDetails(order.Id)">
+                                    Ver Resumen
+                                </button>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Pagination Info -->
+            <div class="py-8 flex justify-center">
+                <p class="text-slate-400 text-xs lg:text-sm font-medium italic">
+                    Mostrando @filteredOrders.Count de @totalOrders pedidos
+                </p>
+            </div>
+        }
+    </div>
+</main>
+
+<!-- Driver Assignment Modal (Bottom Sheet) - Hidden by default -->
+@if (showAssignDriverModal)
+{
+    <div class="fixed inset-0 z-50 flex flex-col justify-end lg:justify-center lg:items-center bg-black/60 backdrop-blur-sm"
+         @onclick="CloseAssignModal">
+        <div class="bg-background-light dark:bg-background-dark rounded-t-3xl lg:rounded-2xl p-6 max-w-2xl w-full lg:mx-4"
+             @onclick:stopPropagation="true">
+            <div class="w-12 h-1.5 bg-slate-300 dark:bg-slate-700 rounded-full mx-auto mb-6 lg:hidden"></div>
+            <h3 class="text-slate-900 dark:text-white text-lg lg:text-xl font-bold mb-4">Asignar Repartidor</h3>
+
+            <div class="space-y-3 max-h-96 overflow-y-auto">
+                @foreach (var driver in availableDrivers)
+                {
+                    <div class="flex items-center gap-4 p-3 rounded-xl border @(driver.IsSelected ? "border-primary bg-primary/5" : "border-slate-200 dark:border-slate-800 hover:border-primary/50") transition-colors cursor-pointer"
+                         @onclick="() => SelectDriver(driver.Id)">
+                        <div class="size-12 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden shrink-0">
+                            <img class="w-full h-full object-cover" src="@driver.AvatarUrl" alt="@driver.Name" />
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="font-bold text-sm">@driver.Name</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">
+                                Cerca de su ubicación (@driver.Distance)
+                            </p>
+                        </div>
+                        <button class="px-4 py-2 bg-primary text-white text-xs font-bold rounded-lg hover:bg-primary/90 transition-colors"
+                                @onclick:stopPropagation="true"
+                                @onclick="() => ConfirmAssignment(driver.Id)">
+                            Asignar
+                        </button>
+                    </div>
+                }
+            </div>
+
+            <button class="w-full mt-6 py-4 text-slate-500 dark:text-slate-400 font-bold text-sm hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
+                    @onclick="CloseAssignModal">
+                Cancelar
+            </button>
+        </div>
+    </div>
 }

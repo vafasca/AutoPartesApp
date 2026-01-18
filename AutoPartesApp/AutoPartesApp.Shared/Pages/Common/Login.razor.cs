@@ -82,7 +82,7 @@ namespace AutoPartesApp.Shared.Pages.Common
         {
             var route = role.ToLower() switch
             {
-                "admin" => "/aa", //admin/dashboard
+                "admin" => "/admin/dashboard", //admin/dashboard
                 "delivery" => "/weather", //delivery/orders
                 "client" => "/client/dashboard", // client/catalog
                 _ => "/home"

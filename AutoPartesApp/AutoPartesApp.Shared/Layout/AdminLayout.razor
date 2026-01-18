@@ -1,0 +1,43 @@
+﻿@inherits LayoutComponentBase
+@using AutoPartesApp.Domain.Enums
+@namespace AutoPartesApp.Shared.Layout
+
+<div class="min-h-screen bg-background-light dark:bg-background-dark text-slate-900 dark:text-white pb-24">
+    <!-- Contenido principal de cada página -->
+    @Body
+
+    <!-- Navegación inferior fija -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 pb-8 pt-3 px-2 z-[60]">
+        <div class="flex justify-between items-center max-w-md mx-auto">
+            <NavLink href="/admin/dashboard" class="@GetNavLinkClass("/admin/dashboard")" Match="NavLinkMatch.All">
+                <span class="material-symbols-outlined @GetIconFillClass("/admin/dashboard")">dashboard</span>
+                <span class="text-[9px] font-bold uppercase tracking-tighter">Principal</span>
+            </NavLink>
+
+            <NavLink href="/admin/inventory" class="@GetNavLinkClass("/admin/inventory")">
+                <span class="material-symbols-outlined @GetIconFillClass("/admin/inventory")">inventory_2</span>
+                <span class="text-[9px] font-bold uppercase tracking-tighter">Inventario</span>
+            </NavLink>
+
+            <NavLink href="/admin/users" class="@GetNavLinkClass("/admin/users")">
+                <span class="material-symbols-outlined @GetIconFillClass("/admin/users")">group</span>
+                <span class="text-[9px] font-bold uppercase tracking-tighter">Usuarios</span>
+            </NavLink>
+
+            <NavLink href="/admin/orders" class="@GetNavLinkClass("/admin/orders")">
+                <span class="material-symbols-outlined @GetIconFillClass("/admin/orders")">receipt_long</span>
+                <span class="text-[9px] font-bold uppercase tracking-tighter">Pedidos</span>
+            </NavLink>
+
+            <NavLink href="/admin/reports" class="@GetNavLinkClass("/admin/reports")">
+                <span class="material-symbols-outlined @GetIconFillClass("/admin/reports")">bar_chart</span>
+                <span class="text-[9px] font-bold uppercase tracking-tighter">Reportes</span>
+            </NavLink>
+
+            <NavLink href="/admin/settings" class="@GetNavLinkClass("/admin/settings")">
+                <span class="material-symbols-outlined @GetIconFillClass("/admin/settings")">settings</span>
+                <span class="text-[9px] font-bold uppercase tracking-tighter">Ajustes</span>
+            </NavLink>
+        </div>
+    </nav>
+</div>

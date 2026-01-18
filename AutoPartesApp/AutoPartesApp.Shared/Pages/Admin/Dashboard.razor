@@ -1,0 +1,137 @@
+﻿@page "/admin/dashboard"
+@layout AdminLayout
+@namespace AutoPartesApp.Shared.Pages.Admin
+
+<!-- Top App Bar -->
+<header class="sticky top-0 z-50 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+    <div class="flex items-center p-4 justify-between max-w-md mx-auto">
+        <div class="flex items-center gap-3">
+            <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-primary"
+                 style='background-image: url("@adminProfile.AvatarUrl");'></div>
+            <div>
+                <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Hola, Admin</p>
+                <h2 class="text-slate-900 dark:text-white text-base font-bold leading-tight">Dashboard Principal</h2>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <button class="relative p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                    @onclick="ToggleNotifications">
+                <span class="material-symbols-outlined text-slate-600 dark:text-slate-300">notifications</span>
+                @if (hasNotifications)
+                {
+                    <span class="absolute top-2 right-2 flex h-2 w-2 rounded-full bg-red-500 border border-background-dark"></span>
+                }
+            </button>
+        </div>
+    </div>
+</header>
+
+<main class="max-w-md mx-auto px-4 py-6 space-y-6">
+    <!-- KPI Metrics -->
+    <section class="grid grid-cols-1 gap-4">
+        <div class="flex gap-3 overflow-x-auto no-scrollbar pb-2">
+            @foreach (var kpi in kpiMetrics)
+            {
+                <div class="flex min-w-[160px] flex-1 flex-col gap-1 rounded-xl p-4 bg-white dark:bg-[#1e2a35] shadow-sm border border-slate-100 dark:border-slate-800">
+                    <div class="flex justify-between items-start">
+                        <p class="text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">@kpi.Title</p>
+                        <span class="material-symbols-outlined @kpi.IconColor text-sm">@kpi.Icon</span>
+                    </div>
+                    <p class="text-slate-900 dark:text-white text-2xl font-extrabold">@kpi.Value</p>
+                    <p class="@kpi.ChangeColor text-xs font-bold @kpi.ChangeBgColor w-fit px-2 py-0.5 rounded-full">
+                        @kpi.ChangeText
+                    </p>
+                </div>
+            }
+        </div>
+    </section>
+
+    <!-- Trends Chart -->
+    <section class="bg-white dark:bg-[#1e2a35] rounded-xl p-5 shadow-sm border border-slate-100 dark:border-slate-800">
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h3 class="text-slate-900 dark:text-white text-lg font-bold">Tendencias</h3>
+                <p class="text-slate-500 dark:text-slate-400 text-sm">Evolución de ventas</p>
+            </div>
+            <div class="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
+                <button class="@GetPeriodButtonClass("week")" @onclick='() => ChangePeriod("week")'>SEM</button>
+                <button class="@GetPeriodButtonClass("month")" @onclick='() => ChangePeriod("month")'>MES</button>
+            </div>
+        </div>
+
+        <!-- Chart SVG -->
+        <div class="w-full h-40">
+            <svg fill="none" height="100%" preserveAspectRatio="none" viewBox="0 0 478 150" width="100%" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient gradientUnits="userSpaceOnUse" id="chartGradient" x1="239" x2="239" y1="0" y2="150">
+                        <stop stop-color="#137fec" stop-opacity="0.3"></stop>
+                        <stop offset="1" stop-color="#137fec" stop-opacity="0"></stop>
+                    </linearGradient>
+                </defs>
+                <path d="M0 120C40 110 80 40 120 40C160 40 200 90 240 85C280 80 320 20 360 25C400 30 440 70 478 60V150H0V120Z"
+                      fill="url(#chartGradient)"></path>
+                <path d="M0 120C40 110 80 40 120 40C160 40 200 90 240 85C280 80 320 20 360 25C400 30 440 70 478 60"
+                      stroke="#137fec" stroke-linecap="round" stroke-width="4"></path>
+            </svg>
+        </div>
+
+        <div class="flex justify-between mt-4">
+            @foreach (var day in chartDays)
+            {
+                <p class="@(day == "HOY" ? "text-primary" : "text-slate-400") text-[11px] font-bold">@day</p>
+            }
+        </div>
+    </section>
+
+    <!-- Quick Actions -->
+    <section class="space-y-3">
+        <h3 class="text-slate-900 dark:text-white text-lg font-bold">Acciones Rápidas</h3>
+        <div class="grid grid-cols-3 gap-3">
+            <button class="flex flex-col items-center justify-center gap-2 p-4 rounded-xl bg-primary text-white shadow-lg shadow-primary/20 active:scale-95 transition-transform"
+                    @onclick="GoToOrders">
+                <span class="material-symbols-outlined">shopping_cart</span>
+                <span class="text-[10px] font-bold uppercase tracking-tight">Ver Pedidos</span>
+            </button>
+            <button class="flex flex-col items-center justify-center gap-2 p-4 rounded-xl bg-white dark:bg-[#1e2a35] text-slate-700 dark:text-white border border-slate-100 dark:border-slate-800 active:scale-95 transition-transform"
+                    @onclick="GoToInventory">
+                <span class="material-symbols-outlined text-primary">inventory_2</span>
+                <span class="text-[10px] font-bold uppercase tracking-tight">Inventario</span>
+            </button>
+            <button class="flex flex-col items-center justify-center gap-2 p-4 rounded-xl bg-white dark:bg-[#1e2a35] text-slate-700 dark:text-white border border-slate-100 dark:border-slate-800 active:scale-95 transition-transform"
+                    @onclick="GoToReports">
+                <span class="material-symbols-outlined text-primary">analytics</span>
+                <span class="text-[10px] font-bold uppercase tracking-tight">Reportes</span>
+            </button>
+        </div>
+    </section>
+
+    <!-- Recent Orders -->
+    <section class="space-y-4">
+        <div class="flex justify-between items-center">
+            <h3 class="text-slate-900 dark:text-white text-lg font-bold">Pedidos Recientes</h3>
+            <button class="text-primary text-xs font-bold hover:underline" @onclick="ViewAllOrders">Ver todos</button>
+        </div>
+
+        <div class="space-y-3">
+            @foreach (var order in recentOrders)
+            {
+                <div class="flex items-center justify-between p-4 bg-white dark:bg-[#1e2a35] rounded-xl border border-slate-100 dark:border-slate-800 hover:shadow-md transition-shadow cursor-pointer"
+                     @onclick="() => ViewOrderDetail(order.Id)">
+                    <div class="flex items-center gap-3">
+                        <div class="size-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-slate-500">@order.Icon</span>
+                        </div>
+                        <div>
+                            <p class="text-slate-900 dark:text-white text-sm font-bold">@order.OrderNumber</p>
+                            <p class="text-slate-500 dark:text-slate-400 text-xs">@order.CustomerName • @order.TimeAgo</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-end gap-1">
+                        <p class="text-slate-900 dark:text-white text-sm font-extrabold">@order.Total.ToString("C")</p>
+                        <span class="@GetStatusBadgeClass(order.Status)">@order.Status</span>
+                    </div>
+                </div>
+            }
+        </div>
+    </section>
+</main>

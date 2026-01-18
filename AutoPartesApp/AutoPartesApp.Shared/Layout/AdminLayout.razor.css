@@ -1,0 +1,27 @@
+﻿.nav-link-admin {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    flex: 1;
+    padding: 0.5rem;
+    color: rgb(148, 163, 184); /* slate-400 */
+    transition: all 0.2s;
+    text-decoration: none;
+}
+
+.dark .nav-link-admin {
+    color: rgb(100, 116, 139); /* slate-500 */
+}
+
+.nav-link-admin.active {
+    color: #137fec; /* primary */
+}
+
+.nav-link-admin .material-symbols-outlined {
+    font-size: 24px;
+}
+
+.nav-link-admin .icon-fill {
+    font-variation-settings: 'FILL' 1;
+}

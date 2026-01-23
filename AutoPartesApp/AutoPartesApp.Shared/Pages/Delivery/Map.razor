@@ -1,0 +1,118 @@
+﻿@page "/delivery/map"
+@layout DeliveryLayout
+@namespace AutoPartesApp.Shared.Pages.Delivery
+
+<!-- Top AppBar (iOS Style) -->
+<header class="relative z-20 flex items-center bg-background-dark/90 backdrop-blur-md px-4 py-3 border-b border-slate-700">
+    <div class="flex-1 flex items-center">
+        <button class="p-2 -ml-2 hover:bg-slate-800 rounded-full transition-colors"
+                @onclick="GoBack">
+            <span class="material-symbols-outlined text-white">arrow_back_ios</span>
+        </button>
+    </div>
+    <h2 class="text-white text-lg font-bold leading-tight tracking-tight flex-1 text-center">Ruta de Entrega</h2>
+    <div class="flex-1 flex justify-end">
+        <button class="p-2 hover:bg-slate-800 rounded-full transition-colors"
+                @onclick="ToggleBattery">
+            <span class="material-symbols-outlined text-white">battery_charging_full</span>
+        </button>
+    </div>
+</header>
+
+<!-- Main Map Content -->
+<main class="relative flex-1 overflow-hidden h-[calc(100vh-140px)]">
+    <!-- Simulated Map Background -->
+    <div class="absolute inset-0 z-0 bg-cover bg-center"
+         style='background-image: url("@currentDelivery.MapImageUrl");'>
+        <!-- Visual Route Elements (Simulated) -->
+        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div class="relative w-full h-full">
+                <!-- Start Point -->
+                <div class="absolute top-[60%] left-[30%] w-6 h-6 bg-primary rounded-full border-4 border-white shadow-lg animate-pulse"></div>
+                <!-- Destination Pin -->
+                <div class="absolute top-[35%] left-[65%] text-red-500">
+                    <span class="material-symbols-outlined text-4xl icon-fill">location_on</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating UI Components -->
+    <div class="relative z-10 h-full flex flex-col p-4 justify-between pointer-events-none">
+        <!-- Top Search / Next Action -->
+        <div class="pointer-events-auto">
+            <div class="bg-background-dark/95 border border-slate-700 shadow-xl rounded-xl p-3 flex items-center gap-3">
+                <div class="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center text-primary">
+                    <span class="material-symbols-outlined">directions</span>
+                </div>
+                <div class="flex-1">
+                    <p class="text-xs text-slate-400 uppercase font-bold tracking-wider">Próximo Giro</p>
+                    <p class="text-white font-bold">@currentDelivery.NextTurn</p>
+                </div>
+                <button class="p-2 bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-colors"
+                        @onclick="SearchLocation">
+                    <span class="material-symbols-outlined">search</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Bottom Floating Controls -->
+        <div class="flex flex-col gap-4 pointer-events-auto">
+            <!-- Map Controls (Zoom/Location) -->
+            <div class="flex flex-col items-end gap-2">
+                <div class="flex flex-col rounded-xl overflow-hidden shadow-lg border border-slate-700">
+                    <button class="bg-background-dark/90 p-3 hover:bg-slate-800 border-b border-slate-700 transition-colors"
+                            @onclick="ZoomIn">
+                        <span class="material-symbols-outlined text-white">add</span>
+                    </button>
+                    <button class="bg-background-dark/90 p-3 hover:bg-slate-800 transition-colors"
+                            @onclick="ZoomOut">
+                        <span class="material-symbols-outlined text-white">remove</span>
+                    </button>
+                </div>
+                <button class="bg-primary p-3 rounded-xl shadow-lg shadow-primary/30 hover:bg-primary/90 transition-colors active:scale-95"
+                        @onclick="CenterLocation">
+                    <span class="material-symbols-outlined text-white icon-fill">navigation</span>
+                </button>
+            </div>
+
+            <!-- Status Card -->
+            <div class="bg-background-dark/95 border border-slate-700 rounded-xl p-4 shadow-2xl">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex flex-col">
+                        <span class="text-slate-400 text-xs font-bold uppercase tracking-widest">En Ruta</span>
+                        <div class="flex items-baseline gap-1">
+                            <span class="text-2xl font-extrabold text-white">@currentDelivery.EstimatedTime</span>
+                            <span class="text-sm text-slate-400">@currentDelivery.Distance</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="flex -space-x-3">
+                            <img class="w-10 h-10 rounded-full border-2 border-background-dark"
+                                 src="@currentDelivery.CustomerAvatar"
+                                 alt="Foto del cliente" />
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm font-bold text-white">@currentDelivery.CustomerName</p>
+                            <p class="text-[10px] text-slate-400">Entrega #@currentDelivery.OrderId</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-col gap-2">
+                    <button class="w-full bg-primary hover:bg-primary/90 h-12 rounded-lg flex items-center justify-center gap-2 font-bold transition-all active:scale-[0.98] shadow-md"
+                            @onclick="ShareLocation">
+                        <span class="material-symbols-outlined">share_location</span>
+                        Compartir ubicación GPS
+                    </button>
+                    <button class="w-full bg-slate-700 hover:bg-slate-600 h-12 rounded-lg flex items-center justify-center gap-2 font-bold transition-all active:scale-[0.98] text-white"
+                            @onclick="UpdateRoute">
+                        <span class="material-symbols-outlined">sync</span>
+                        Actualizar ruta
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>

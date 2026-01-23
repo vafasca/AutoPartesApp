@@ -2,22 +2,18 @@
 @layout ClientLayout
 @namespace AutoPartesApp.Shared.Pages.Client
 
-<!-- Header Responsive -->
-<header class="sticky top-0 z-50 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+<header class="sticky top-0 z-50 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
     <div class="flex items-center p-4 justify-between max-w-4xl mx-auto">
-        <!-- Back Button - Solo móvil -->
         <button class="lg:hidden flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"
                 @onclick="GoBack">
             <span class="material-symbols-outlined text-slate-900 dark:text-white">chevron_left</span>
         </button>
 
-        <!-- Title -->
         <div class="flex items-center gap-2 flex-1 justify-center lg:justify-start">
             <span class="material-symbols-outlined text-primary">settings</span>
-            <h1 class="text-lg lg:text-2xl font-bold leading-tight tracking-tight">Ajustes</h1>
+            <h1 class="text-lg lg:text-2xl font-bold leading-tight tracking-tight text-slate-900 dark:text-white">Ajustes</h1>
         </div>
 
-        <!-- Save Button -->
         <button class="text-primary font-bold text-sm lg:text-base hover:underline"
                 @onclick="SaveSettings">
             Guardar
@@ -26,10 +22,9 @@
 </header>
 
 <main class="max-w-4xl mx-auto px-4 lg:px-6 py-6 pb-24 lg:pb-8 space-y-6">
-    <!-- Profile Header Card - Responsive -->
-    <div class="bg-white dark:bg-[#1a242d] rounded-xl p-6 lg:p-8 shadow-sm border border-slate-200 dark:border-slate-800">
+    <!-- Profile Header Card -->
+    <div class="bg-slate-50 dark:bg-slate-800 rounded-xl p-6 lg:p-8 shadow-sm border border-slate-200 dark:border-slate-700">
         <div class="flex flex-col lg:flex-row items-center lg:items-start gap-6">
-            <!-- Profile Picture -->
             <div class="relative flex-shrink-0">
                 <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-24 w-24 lg:h-32 lg:w-32 border-2 border-primary/30"
                      style='background-image: url("@userProfile.AvatarUrl");'></div>
@@ -39,106 +34,97 @@
                 </button>
             </div>
 
-            <!-- User Info -->
             <div class="text-center lg:text-left flex-1">
-                <h2 class="text-xl lg:text-2xl font-bold mb-1">@userProfile.FullName</h2>
-                <p class="text-slate-500 dark:text-[#92adc9] text-sm lg:text-base mb-3">@userProfile.Email</p>
+                <h2 class="text-xl lg:text-2xl font-bold text-slate-900 dark:text-white mb-1">@userProfile.FullName</h2>
+                <p class="text-slate-600 dark:text-slate-400 text-sm lg:text-base mb-3">@userProfile.Email</p>
 
-                <!-- Stats - Only Desktop -->
                 <div class="hidden lg:flex gap-6 mt-4">
                     <div class="flex flex-col">
                         <span class="text-2xl font-bold text-primary">@userProfile.TotalOrders</span>
-                        <span class="text-xs text-slate-500 dark:text-slate-400">Pedidos</span>
+                        <span class="text-xs text-slate-600 dark:text-slate-400">Pedidos</span>
                     </div>
                     <div class="flex flex-col">
                         <span class="text-2xl font-bold text-primary">@userProfile.SavedVehicles</span>
-                        <span class="text-xs text-slate-500 dark:text-slate-400">Vehículos</span>
+                        <span class="text-xs text-slate-600 dark:text-slate-400">Vehículos</span>
                     </div>
                     <div class="flex flex-col">
                         <span class="text-2xl font-bold text-primary">@userProfile.FavoriteProducts</span>
-                        <span class="text-xs text-slate-500 dark:text-slate-400">Favoritos</span>
+                        <span class="text-xs text-slate-600 dark:text-slate-400">Favoritos</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Edit Profile Button - Desktop -->
-            <button class="hidden lg:flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-white font-medium hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+            <button class="hidden lg:flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-white font-medium hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
                     @onclick="EditProfile">
                 <span class="material-symbols-outlined text-sm">edit</span>
                 <span>Editar Perfil</span>
             </button>
         </div>
 
-        <!-- Stats Mobile -->
-        <div class="lg:hidden flex justify-around mt-6 pt-6 border-t border-slate-200 dark:border-slate-800">
+        <div class="lg:hidden flex justify-around mt-6 pt-6 border-t border-slate-200 dark:border-slate-700">
             <div class="flex flex-col items-center">
                 <span class="text-xl font-bold text-primary">@userProfile.TotalOrders</span>
-                <span class="text-xs text-slate-500 dark:text-slate-400">Pedidos</span>
+                <span class="text-xs text-slate-600 dark:text-slate-400">Pedidos</span>
             </div>
             <div class="flex flex-col items-center">
                 <span class="text-xl font-bold text-primary">@userProfile.SavedVehicles</span>
-                <span class="text-xs text-slate-500 dark:text-slate-400">Vehículos</span>
+                <span class="text-xs text-slate-600 dark:text-slate-400">Vehículos</span>
             </div>
             <div class="flex flex-col items-center">
                 <span class="text-xl font-bold text-primary">@userProfile.FavoriteProducts</span>
-                <span class="text-xs text-slate-500 dark:text-slate-400">Favoritos</span>
+                <span class="text-xs text-slate-600 dark:text-slate-400">Favoritos</span>
             </div>
         </div>
     </div>
 
-    <!-- Grid Layout for Desktop -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Left Column -->
+        <!-- Mi Perfil Section -->
         <div class="space-y-6">
-            <!-- Mi Perfil Section -->
             <section>
-                <h3 class="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-widest px-1 mb-3">Mi Perfil</h3>
-                <div class="bg-white dark:bg-[#1a242d] rounded-xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-800">
-                    <!-- Name -->
-                    <button class="w-full flex items-center gap-4 px-4 min-h-[64px] hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors border-b border-slate-100 dark:border-slate-800"
+                <h3 class="text-slate-600 dark:text-slate-400 text-xs font-bold uppercase tracking-widest px-1 mb-3">Mi Perfil</h3>
+                <div class="bg-slate-800 dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm border border-slate-700 dark:border-slate-700">
+                    <button class="w-full flex items-center gap-4 px-4 min-h-[64px] hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors border-b border-slate-200 dark:border-slate-700"
                             @onclick="EditName">
                         <div class="text-primary flex items-center justify-center rounded-lg bg-primary/10 shrink-0 size-10">
                             <span class="material-symbols-outlined">person</span>
                         </div>
                         <div class="flex flex-col flex-1 text-left">
-                            <p class="text-xs text-slate-400">Nombre Completo</p>
-                            <p class="text-sm font-medium">@userProfile.FullName</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Nombre Completo</p>
+                            <p class="text-sm font-medium text-slate-900 dark:text-white">@userProfile.FullName</p>
                         </div>
-                        <span class="material-symbols-outlined text-slate-300 dark:text-slate-600">chevron_right</span>
+                        <span class="material-symbols-outlined text-slate-400 dark:text-slate-600">chevron_right</span>
                     </button>
 
-                    <!-- Phone -->
-                    <button class="w-full flex items-center gap-4 px-4 min-h-[64px] hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors border-b border-slate-100 dark:border-slate-800"
+                    <button class="w-full flex items-center gap-4 px-4 min-h-[64px] hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors border-b border-slate-200 dark:border-slate-700"
                             @onclick="EditPhone">
                         <div class="text-primary flex items-center justify-center rounded-lg bg-primary/10 shrink-0 size-10">
                             <span class="material-symbols-outlined">call</span>
                         </div>
                         <div class="flex flex-col flex-1 text-left">
-                            <p class="text-xs text-slate-400">Teléfono</p>
-                            <p class="text-sm font-medium">@userProfile.Phone</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Teléfono</p>
+                            <p class="text-sm font-medium text-slate-900 dark:text-white">@userProfile.Phone</p>
                         </div>
-                        <span class="material-symbols-outlined text-slate-300 dark:text-slate-600">chevron_right</span>
+                        <span class="material-symbols-outlined text-slate-400 dark:text-slate-600">chevron_right</span>
                     </button>
 
-                    <!-- Shipping Address -->
-                    <button class="w-full flex items-center gap-4 px-4 min-h-[64px] hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                    <button class="w-full flex items-center gap-4 px-4 min-h-[64px] hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
                             @onclick="EditAddress">
                         <div class="text-primary flex items-center justify-center rounded-lg bg-primary/10 shrink-0 size-10">
                             <span class="material-symbols-outlined">local_shipping</span>
                         </div>
                         <div class="flex flex-col flex-1 text-left">
-                            <p class="text-xs text-slate-400">Dirección de Envío</p>
-                            <p class="text-sm font-medium line-clamp-1">@userProfile.Address</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Dirección de Envío</p>
+                            <p class="text-sm font-medium line-clamp-1 text-slate-900 dark:text-white">@userProfile.Address</p>
                         </div>
-                        <span class="material-symbols-outlined text-slate-300 dark:text-slate-600">chevron_right</span>
+                        <span class="material-symbols-outlined text-slate-400 dark:text-slate-600">chevron_right</span>
                     </button>
                 </div>
             </section>
 
-            <!-- Vehículos Guardados Section -->
+            <!-- Vehículos Guardados -->
             <section>
                 <div class="flex justify-between items-center mb-3 px-1">
-                    <h3 class="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-widest">Vehículos Guardados</h3>
+                    <h3 class="text-slate-600 dark:text-slate-400 text-xs font-bold uppercase tracking-widest">Vehículos Guardados</h3>
                     <button class="text-primary text-xs font-bold hover:underline"
                             @onclick="AddVehicle">
                         + AGREGAR
@@ -152,12 +138,12 @@
                                 <span class="material-symbols-outlined text-3xl">directions_car</span>
                             </div>
                             <div class="flex-1">
-                                <p class="font-bold text-sm">@vehicle.Name</p>
-                                <p class="text-xs text-slate-500 dark:text-slate-400">
+                                <p class="font-bold text-sm text-slate-900 dark:text-white">@vehicle.Name</p>
+                                <p class="text-xs text-slate-600 dark:text-slate-400">
                                     @(vehicle.IsPrimary ? "Principal • " : "")@vehicle.Type
                                 </p>
                             </div>
-                            <button class="text-slate-400 hover:text-primary transition-colors"
+                            <button class="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors"
                                     @onclick="() => EditVehicle(vehicle.Id)">
                                 <span class="material-symbols-outlined">settings_applications</span>
                             </button>
@@ -167,26 +153,25 @@
             </section>
         </div>
 
-        <!-- Right Column -->
+        <!-- Seguridad y Preferencias -->
         <div class="space-y-6">
-            <!-- Seguridad Section -->
             <section>
-                <h3 class="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-widest px-1 mb-3">Seguridad</h3>
-                <div class="bg-white dark:bg-[#1a242d] rounded-xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-800">
-                    <button class="w-full flex items-center gap-4 px-4 min-h-[64px] border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                <h3 class="text-slate-600 dark:text-slate-400 text-xs font-bold uppercase tracking-widest px-1 mb-3">Seguridad</h3>
+                <div class="bg-slate-800 dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm border border-slate-700 dark:border-slate-700">
+                    <button class="w-full flex items-center gap-4 px-4 min-h-[64px] border-b border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
                             @onclick="ChangePassword">
-                        <div class="text-slate-400 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 shrink-0 size-10">
+                        <div class="text-slate-600 dark:text-slate-400 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-700 shrink-0 size-10">
                             <span class="material-symbols-outlined">lock</span>
                         </div>
-                        <p class="text-sm font-medium flex-1 text-left">Cambiar Contraseña</p>
-                        <span class="material-symbols-outlined text-slate-300 dark:text-slate-600">chevron_right</span>
+                        <p class="text-sm font-medium flex-1 text-left text-slate-900 dark:text-white">Cambiar Contraseña</p>
+                        <span class="material-symbols-outlined text-slate-400 dark:text-slate-600">chevron_right</span>
                     </button>
 
                     <div class="flex items-center gap-4 px-4 min-h-[64px]">
-                        <div class="text-slate-400 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 shrink-0 size-10">
+                        <div class="text-slate-600 dark:text-slate-400 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-700 shrink-0 size-10">
                             <span class="material-symbols-outlined">fingerprint</span>
                         </div>
-                        <p class="text-sm font-medium flex-1">Acceso Biométrico</p>
+                        <p class="text-sm font-medium flex-1 text-slate-900 dark:text-white">Acceso Biométrico</p>
                         <button class="@(biometricEnabled ? "bg-primary" : "bg-slate-300 dark:bg-slate-600") w-12 h-6 rounded-full relative transition-colors"
                                 @onclick="ToggleBiometric">
                             <div class="absolute @(biometricEnabled ? "right-0.5" : "left-0.5") top-0.5 size-5 bg-white rounded-full shadow-sm transition-all"></div>
@@ -195,63 +180,38 @@
                 </div>
             </section>
 
-            <!-- Preferencias Section -->
             <section>
-                <h3 class="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-widest px-1 mb-3">Preferencias</h3>
-                <div class="bg-white dark:bg-[#1a242d] rounded-xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-800">
-                    <div class="flex items-center gap-4 px-4 min-h-[64px] border-b border-slate-100 dark:border-slate-800">
-                        <div class="text-slate-400 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 shrink-0 size-10">
+                <h3 class="text-slate-600 dark:text-slate-400 text-xs font-bold uppercase tracking-widest px-1 mb-3">Preferencias</h3>
+                <div class="bg-slate-800 dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm border border-slate-700 dark:border-slate-700">
+                    <div class="flex items-center gap-4 px-4 min-h-[64px] border-b border-slate-200 dark:border-slate-700">
+                        <div class="text-slate-600 dark:text-slate-400 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-700 shrink-0 size-10">
                             <span class="material-symbols-outlined">dark_mode</span>
                         </div>
-                        <p class="text-sm font-medium flex-1">Modo Oscuro</p>
+                        <p class="text-sm font-medium flex-1 text-slate-900 dark:text-white">Modo Oscuro</p>
                         <button class="@(darkModeEnabled ? "bg-primary" : "bg-slate-300 dark:bg-slate-600") w-12 h-6 rounded-full relative transition-colors"
                                 @onclick="ToggleDarkMode">
                             <div class="absolute @(darkModeEnabled ? "right-0.5" : "left-0.5") top-0.5 size-5 bg-white rounded-full shadow-sm transition-all"></div>
                         </button>
                     </div>
 
-                    <button class="w-full flex items-center gap-4 px-4 min-h-[64px] border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                    <button class="w-full flex items-center gap-4 px-4 min-h-[64px] border-b border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
                             @onclick="ManageNotifications">
-                        <div class="text-slate-400 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 shrink-0 size-10">
+                        <div class="text-slate-600 dark:text-slate-400 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-700 shrink-0 size-10">
                             <span class="material-symbols-outlined">notifications</span>
                         </div>
-                        <p class="text-sm font-medium flex-1 text-left">Notificaciones</p>
+                        <p class="text-sm font-medium flex-1 text-left text-slate-900 dark:text-white">Notificaciones</p>
                         <span class="text-xs text-primary font-bold mr-1">@notificationMode</span>
-                        <span class="material-symbols-outlined text-slate-300 dark:text-slate-600">chevron_right</span>
+                        <span class="material-symbols-outlined text-slate-400 dark:text-slate-600">chevron_right</span>
                     </button>
 
-                    <button class="w-full flex items-center gap-4 px-4 min-h-[64px] hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                    <button class="w-full flex items-center gap-4 px-4 min-h-[64px] hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
                             @onclick="ChangeLanguage">
-                        <div class="text-slate-400 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 shrink-0 size-10">
+                        <div class="text-slate-600 dark:text-slate-400 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-700 shrink-0 size-10">
                             <span class="material-symbols-outlined">language</span>
                         </div>
-                        <p class="text-sm font-medium flex-1 text-left">Idioma</p>
-                        <span class="text-xs text-slate-400 mr-1">@selectedLanguage</span>
-                        <span class="material-symbols-outlined text-slate-300 dark:text-slate-600">chevron_right</span>
-                    </button>
-                </div>
-            </section>
-
-            <!-- Ayuda y Soporte - Desktop Only -->
-            <section class="hidden lg:block">
-                <h3 class="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-widest px-1 mb-3">Ayuda y Soporte</h3>
-                <div class="bg-white dark:bg-[#1a242d] rounded-xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-800">
-                    <button class="w-full flex items-center gap-4 px-4 min-h-[64px] border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
-                            @onclick="ContactSupport">
-                        <div class="text-slate-400 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 shrink-0 size-10">
-                            <span class="material-symbols-outlined">support_agent</span>
-                        </div>
-                        <p class="text-sm font-medium flex-1 text-left">Contactar Soporte</p>
-                        <span class="material-symbols-outlined text-slate-300 dark:text-slate-600">chevron_right</span>
-                    </button>
-
-                    <button class="w-full flex items-center gap-4 px-4 min-h-[64px] hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
-                            @onclick="ViewFAQ">
-                        <div class="text-slate-400 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 shrink-0 size-10">
-                            <span class="material-symbols-outlined">help</span>
-                        </div>
-                        <p class="text-sm font-medium flex-1 text-left">Preguntas Frecuentes</p>
-                        <span class="material-symbols-outlined text-slate-300 dark:text-slate-600">chevron_right</span>
+                        <p class="text-sm font-medium flex-1 text-left text-slate-900 dark:text-white">Idioma</p>
+                        <span class="text-xs text-slate-500 dark:text-slate-400 mr-1">@selectedLanguage</span>
+                        <span class="material-symbols-outlined text-slate-400 dark:text-slate-600">chevron_right</span>
                     </button>
                 </div>
             </section>
@@ -266,7 +226,6 @@
             Cerrar Sesión
         </button>
 
-        <!-- App Version -->
         <p class="text-center text-[10px] text-slate-500 mt-6 uppercase tracking-widest">
             AutoParts Marketplace v@appVersion
         </p>

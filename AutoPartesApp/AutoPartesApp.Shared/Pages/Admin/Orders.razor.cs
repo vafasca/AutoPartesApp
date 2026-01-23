@@ -259,7 +259,7 @@ namespace AutoPartesApp.Shared.Pages.Admin
 
         private string GetOrderCardClass(string status)
         {
-            var baseClass = "bg-white dark:bg-slate-900/50 rounded-xl p-4 border shadow-sm hover:shadow-lg transition-all cursor-pointer";
+            var baseClass = "bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 dark:bg-slate-900/50 rounded-xl p-4 border shadow-sm hover:shadow-lg transition-all cursor-pointer";
 
             if (status == "En Ruta")
             {

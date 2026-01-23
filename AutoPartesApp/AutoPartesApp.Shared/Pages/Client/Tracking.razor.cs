@@ -235,6 +235,17 @@ namespace AutoPartesApp.Shared.Pages.Client
             public bool IsLast { get; set; }
         }
 
+        private string GetStepIconColor(TrackingStep step)
+        {
+            return step.Status switch
+            {
+                TrackingStepStatus.Completed => "text-primary",
+                TrackingStepStatus.Active => "text-white",
+                TrackingStepStatus.Pending => "text-slate-400 dark:text-slate-500",
+                _ => "text-slate-500 dark:text-[#92adc9]"
+            };
+        }
+
         private enum TrackingStepStatus
         {
             Completed,

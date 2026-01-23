@@ -6,7 +6,7 @@ using System.Text;
 
 namespace AutoPartesApp.Shared.Layout
 {
-    public partial class ClientLayout : LayoutComponentBase, IDisposable
+    public partial class DeliveryLayout : LayoutComponentBase, IDisposable
     {
         [Inject]
         private NavigationManager? NavigationManager { get; set; }
@@ -28,27 +28,17 @@ namespace AutoPartesApp.Shared.Layout
             StateHasChanged();
         }
 
-        // Mobile Navigation Classes (mantiene tu lógica original)
         private string GetNavLinkClass(string href)
         {
             var isActive = IsActiveRoute(href);
-            return $"nav-link-client {(isActive ? "active" : "")}";
+            return $"nav-link-delivery {(isActive ? "active" : "")}";
         }
 
-        // Desktop Navigation Classes (nuevo método)
-        private string GetDesktopNavClass(string href)
-        {
-            var isActive = IsActiveRoute(href);
-            return $"nav-link-desktop {(isActive ? "active" : "")}";
-        }
-
-        // Icon Fill Class (mantiene tu lógica original)
         private string GetIconFillClass(string href)
         {
             return IsActiveRoute(href) ? "icon-fill" : "";
         }
 
-        // Active Route Logic (mantiene tu lógica original)
         private bool IsActiveRoute(string href)
         {
             if (NavigationManager == null) return false;

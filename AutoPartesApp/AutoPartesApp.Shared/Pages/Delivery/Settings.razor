@@ -1,0 +1,256 @@
+﻿@page "/delivery/settings"
+@layout DeliveryLayout
+@namespace AutoPartesApp.Shared.Pages.Delivery
+
+<!-- Top Navigation Bar - Responsive -->
+<div class="sticky top-0 z-50 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+    <div class="max-w-7xl mx-auto">
+        <div class="flex items-center p-4 pb-2 justify-between">
+            <div class="flex items-center gap-3">
+                <div class="text-primary flex size-10 shrink-0 items-center justify-center bg-primary/10 rounded-full">
+                    <span class="material-symbols-outlined">settings</span>
+                </div>
+                <h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-tight">
+                    Ajustes
+                </h2>
+            </div>
+            <button class="flex size-10 cursor-pointer items-center justify-center rounded-full bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-white hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors"
+                    @onclick="ShowHelp">
+                <span class="material-symbols-outlined">help_outline</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<main class="max-w-7xl mx-auto pb-6">
+
+    <!-- Profile Header Component - Responsive -->
+    <div class="flex p-4 pb-6">
+        <div class="flex w-full flex-col gap-4 sm:gap-6 items-center">
+            <div class="flex gap-4 sm:gap-6 flex-col items-center">
+                <div class="relative">
+                    <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full min-h-24 w-24 sm:min-h-32 sm:w-32 lg:min-h-40 lg:w-40 border-4 border-primary/20"
+                         style='background-image: url("@deliveryProfile.AvatarUrl");'>
+                    </div>
+                    <div class="absolute bottom-0 right-0 sm:bottom-1 sm:right-1 bg-primary p-1.5 sm:p-2 rounded-full border-2 border-background-dark">
+                        <span class="material-symbols-outlined text-white text-sm sm:text-base">verified</span>
+                    </div>
+                </div>
+                <div class="flex flex-col items-center justify-center">
+                    <p class="text-slate-900 dark:text-white text-xl sm:text-2xl lg:text-3xl font-extrabold leading-tight tracking-tight text-center">
+                        @deliveryProfile.Name
+                    </p>
+                    <p class="text-primary font-semibold text-xs sm:text-sm tracking-wide uppercase mt-1">
+                        Repartidor Verificado
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Layout Responsivo: 1 columna móvil, 2 columnas desktop -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 px-4">
+
+        <!-- Columna Izquierda: Datos Personales -->
+        <div>
+            <p class="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3 px-1">
+                Datos Personales
+            </p>
+            <div class="bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 rounded-xl overflow-hidden divide-y divide-slate-200 dark:divide-slate-800 border border-slate-200 dark:border-slate-800">
+                <!-- ListItem: Name -->
+                <div class="flex items-center gap-3 sm:gap-4 px-3 sm:px-4 min-h-[64px] sm:min-h-[72px] py-2 hover:bg-slate-50 dark:hover:bg-white/5 cursor-pointer transition-colors"
+                     @onclick="EditName">
+                    <div class="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                        <div class="text-primary flex items-center justify-center rounded-lg bg-primary/10 shrink-0 size-10 sm:size-12">
+                            <span class="material-symbols-outlined text-xl sm:text-2xl">person</span>
+                        </div>
+                        <div class="flex flex-col justify-center min-w-0 flex-1">
+                            <p class="text-slate-500 dark:text-slate-400 text-[10px] sm:text-xs font-medium uppercase tracking-wider">
+                                Nombre
+                            </p>
+                            <p class="text-slate-900 dark:text-white text-sm sm:text-base font-bold leading-normal truncate">
+                                @deliveryProfile.Name
+                            </p>
+                        </div>
+                    </div>
+                    <span class="material-symbols-outlined text-slate-400 text-xl sm:text-2xl flex-shrink-0">chevron_right</span>
+                </div>
+
+                <!-- ListItem: Phone -->
+                <div class="flex items-center gap-3 sm:gap-4 px-3 sm:px-4 min-h-[64px] sm:min-h-[72px] py-2 hover:bg-slate-50 dark:hover:bg-white/5 cursor-pointer transition-colors"
+                     @onclick="EditPhone">
+                    <div class="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                        <div class="text-primary flex items-center justify-center rounded-lg bg-primary/10 shrink-0 size-10 sm:size-12">
+                            <span class="material-symbols-outlined text-xl sm:text-2xl">phone_iphone</span>
+                        </div>
+                        <div class="flex flex-col justify-center min-w-0 flex-1">
+                            <p class="text-slate-500 dark:text-slate-400 text-[10px] sm:text-xs font-medium uppercase tracking-wider">
+                                Teléfono
+                            </p>
+                            <p class="text-slate-900 dark:text-white text-sm sm:text-base font-bold leading-normal truncate">
+                                @deliveryProfile.Phone
+                            </p>
+                        </div>
+                    </div>
+                    <span class="material-symbols-outlined text-slate-400 text-xl sm:text-2xl flex-shrink-0">chevron_right</span>
+                </div>
+
+                <!-- ListItem: Email -->
+                <div class="flex items-center gap-3 sm:gap-4 px-3 sm:px-4 min-h-[64px] sm:min-h-[72px] py-2 hover:bg-slate-50 dark:hover:bg-white/5 cursor-pointer transition-colors"
+                     @onclick="EditEmail">
+                    <div class="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                        <div class="text-primary flex items-center justify-center rounded-lg bg-primary/10 shrink-0 size-10 sm:size-12">
+                            <span class="material-symbols-outlined text-xl sm:text-2xl">mail</span>
+                        </div>
+                        <div class="flex flex-col justify-center min-w-0 flex-1">
+                            <p class="text-slate-500 dark:text-slate-400 text-[10px] sm:text-xs font-medium uppercase tracking-wider">
+                                Correo Electrónico
+                            </p>
+                            <p class="text-slate-900 dark:text-white text-sm sm:text-base font-bold leading-normal truncate">
+                                @deliveryProfile.Email
+                            </p>
+                        </div>
+                    </div>
+                    <span class="material-symbols-outlined text-slate-400 text-xl sm:text-2xl flex-shrink-0">chevron_right</span>
+                </div>
+
+                <!-- ListItem: Vehicle -->
+                <div class="flex items-center gap-3 sm:gap-4 px-3 sm:px-4 min-h-[64px] sm:min-h-[72px] py-2 hover:bg-slate-50 dark:hover:bg-white/5 cursor-pointer transition-colors"
+                     @onclick="EditVehicle">
+                    <div class="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                        <div class="text-primary flex items-center justify-center rounded-lg bg-primary/10 shrink-0 size-10 sm:size-12">
+                            <span class="material-symbols-outlined text-xl sm:text-2xl">two_wheeler</span>
+                        </div>
+                        <div class="flex flex-col justify-center min-w-0 flex-1">
+                            <p class="text-slate-500 dark:text-slate-400 text-[10px] sm:text-xs font-medium uppercase tracking-wider">
+                                Vehículo
+                            </p>
+                            <p class="text-slate-900 dark:text-white text-sm sm:text-base font-bold leading-normal truncate">
+                                @deliveryProfile.Vehicle
+                            </p>
+                        </div>
+                    </div>
+                    <span class="material-symbols-outlined text-slate-400 text-xl sm:text-2xl flex-shrink-0">chevron_right</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Columna Derecha: Preferencias -->
+        <div>
+            <p class="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3 px-1">
+                Preferencias
+            </p>
+            <div class="bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 dark:bg-slate-900/50 rounded-xl overflow-hidden divide-y divide-slate-200 dark:divide-slate-800 border border-slate-200 dark:border-slate-800">
+                <!-- ListItem: Language -->
+                <div class="flex items-center gap-3 sm:gap-4 px-3 sm:px-4 min-h-[64px] sm:min-h-[72px] py-2 hover:bg-slate-50 dark:hover:bg-white/5 cursor-pointer transition-colors"
+                     @onclick="ChangeLanguage">
+                    <div class="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                        <div class="text-emerald-500 flex items-center justify-center rounded-lg bg-emerald-500/10 shrink-0 size-10 sm:size-12">
+                            <span class="material-symbols-outlined text-xl sm:text-2xl">language</span>
+                        </div>
+                        <div class="flex flex-col justify-center min-w-0 flex-1">
+                            <p class="text-slate-900 dark:text-white text-sm sm:text-base font-medium">
+                                Idioma
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1 flex-shrink-0">
+                        <span class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm font-medium">@selectedLanguage</span>
+                        <span class="material-symbols-outlined text-slate-400 text-xl sm:text-2xl">chevron_right</span>
+                    </div>
+                </div>
+
+                <!-- ListItem: Dark/Light Mode -->
+                <div class="flex items-center gap-3 sm:gap-4 px-3 sm:px-4 min-h-[64px] sm:min-h-[72px] py-2">
+                    <div class="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                        <div class="text-amber-500 flex items-center justify-center rounded-lg bg-amber-500/10 shrink-0 size-10 sm:size-12">
+                            <span class="material-symbols-outlined text-xl sm:text-2xl">dark_mode</span>
+                        </div>
+                        <div class="flex flex-col justify-center min-w-0 flex-1">
+                            <p class="text-slate-900 dark:text-white text-sm sm:text-base font-medium">
+                                Modo Oscuro
+                            </p>
+                        </div>
+                    </div>
+                    <button class="@GetToggleClass(darkModeEnabled) flex-shrink-0"
+                            @onclick="ToggleDarkMode">
+                        <span class="@GetToggleKnobClass(darkModeEnabled)"></span>
+                    </button>
+                </div>
+
+                <!-- ListItem: Notifications -->
+                <div class="flex items-center gap-3 sm:gap-4 px-3 sm:px-4 min-h-[64px] sm:min-h-[72px] py-2">
+                    <div class="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                        <div class="text-purple-500 flex items-center justify-center rounded-lg bg-purple-500/10 shrink-0 size-10 sm:size-12">
+                            <span class="material-symbols-outlined text-xl sm:text-2xl">notifications_active</span>
+                        </div>
+                        <div class="flex flex-col justify-center min-w-0 flex-1">
+                            <p class="text-slate-900 dark:text-white text-sm sm:text-base font-medium">
+                                Notificaciones
+                            </p>
+                        </div>
+                    </div>
+                    <button class="@GetToggleClass(notificationsEnabled) flex-shrink-0"
+                            @onclick="ToggleNotifications">
+                        <span class="@GetToggleKnobClass(notificationsEnabled)"></span>
+                    </button>
+                </div>
+
+                <!-- ListItem: Sound -->
+                <div class="flex items-center gap-3 sm:gap-4 px-3 sm:px-4 min-h-[64px] sm:min-h-[72px] py-2">
+                    <div class="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                        <div class="text-blue-500 flex items-center justify-center rounded-lg bg-blue-500/10 shrink-0 size-10 sm:size-12">
+                            <span class="material-symbols-outlined text-xl sm:text-2xl">volume_up</span>
+                        </div>
+                        <div class="flex flex-col justify-center min-w-0 flex-1">
+                            <p class="text-slate-900 dark:text-white text-sm sm:text-base font-medium">
+                                Sonidos
+                            </p>
+                        </div>
+                    </div>
+                    <button class="@GetToggleClass(soundEnabled) flex-shrink-0"
+                            @onclick="ToggleSound">
+                        <span class="@GetToggleKnobClass(soundEnabled)"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estadísticas del Repartidor -->
+    <div class="px-4 pt-6">
+        <p class="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3 px-1">
+            Mis Estadísticas
+        </p>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            @foreach (var stat in driverStats)
+            {
+                <div class="flex flex-col gap-1 rounded-xl p-4 bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 border border-slate-200 dark:border-slate-800 hover:shadow-md transition-shadow">
+                    <p class="text-slate-500 dark:text-slate-400 text-xs font-medium leading-normal truncate">@stat.Label</p>
+                    <p class="text-slate-900 dark:text-white text-2xl font-extrabold leading-tight">@stat.Value</p>
+                    <p class="@stat.ColorClass text-xs font-bold">@stat.Change</p>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Action Buttons - Responsive -->
+    <div class="px-4 pt-6 space-y-3 sm:space-y-4">
+        <button class="w-full flex items-center justify-center gap-2 cursor-pointer overflow-hidden rounded-lg h-12 px-6 bg-primary text-white text-sm font-bold leading-normal shadow-lg shadow-primary/20 hover:bg-primary/90 active:scale-95 transition-all"
+                @onclick="UpdateProfile">
+            <span class="material-symbols-outlined">save</span>
+            Guardar Cambios
+        </button>
+        <button class="w-full flex items-center justify-center gap-2 cursor-pointer overflow-hidden rounded-lg h-12 px-6 bg-transparent border-2 border-red-500/30 text-red-500 text-sm font-bold leading-normal hover:bg-red-500/5 active:scale-95 transition-all"
+                @onclick="Logout">
+            <span class="material-symbols-outlined">logout</span>
+            Cerrar Sesión
+        </button>
+    </div>
+</main>
+
+<style>
+    .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+</style>

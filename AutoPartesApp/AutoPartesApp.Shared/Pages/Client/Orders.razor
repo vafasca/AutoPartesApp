@@ -3,20 +3,17 @@
 @namespace AutoPartesApp.Shared.Pages.Client
 
 <!-- Header Responsive -->
-<header class="sticky top-0 z-50 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+<header class="sticky top-0 z-50 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
     <div class="flex items-center p-4 justify-between max-w-7xl mx-auto">
-        <!-- Back Button - Solo móvil -->
         <button class="lg:hidden flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
                 @onclick="GoBack">
             <span class="material-symbols-outlined text-slate-900 dark:text-white">chevron_left</span>
         </button>
 
-        <!-- Title -->
         <h1 class="text-slate-900 dark:text-white text-lg lg:text-2xl font-bold leading-tight tracking-tight flex-1 text-center lg:text-left">
             Mis Pedidos
         </h1>
 
-        <!-- Action Buttons -->
         <div class="flex items-center justify-end gap-1 lg:gap-2">
             <button class="relative flex size-10 items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                     @onclick="ToggleNotifications">
@@ -38,11 +35,11 @@
     <!-- Search Bar - Responsive -->
     <div class="px-4 pt-4">
         <div class="relative flex items-center max-w-2xl mx-auto lg:max-w-none">
-            <span class="material-symbols-outlined absolute left-3 text-slate-400 dark:text-[#92adc9] text-xl">search</span>
+            <span class="material-symbols-outlined absolute left-3 text-slate-600 dark:text-slate-400 text-xl">search</span>
             <input @bind="searchQuery"
                    @bind:event="oninput"
                    @onkeyup="HandleSearch"
-                   class="w-full h-11 pl-10 pr-4 rounded-xl bg-slate-100 dark:bg-[#192633] border-none focus:ring-2 focus:ring-primary text-sm placeholder:text-slate-400 dark:placeholder:text-[#92adc9] text-slate-900 dark:text-white"
+                   class="w-full h-11 pl-10 pr-4 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-primary text-sm placeholder:text-slate-500 dark:placeholder:text-slate-500 text-slate-900 dark:text-white"
                    placeholder="Buscar por pedido o pieza..."
                    type="text" />
         </div>
@@ -51,10 +48,10 @@
     <!-- Filters - Responsive -->
     <div class="px-4 py-4">
         <div class="max-w-2xl mx-auto lg:max-w-none">
-            <div class="flex h-11 items-center justify-center rounded-xl bg-slate-200 dark:bg-[#192633] p-1 overflow-x-auto hide-scrollbar">
+            <div class="flex h-11 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 p-1 overflow-x-auto hide-scrollbar">
                 @foreach (var filter in filters)
                 {
-                    <label class="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-lg px-2 lg:px-4 @(selectedFilter == filter ? "bg-white dark:bg-background-dark shadow-sm text-primary dark:text-white" : "text-slate-500 dark:text-[#92adc9]") text-[11px] lg:text-sm font-bold transition-all whitespace-nowrap">
+                    <label class="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-lg px-2 lg:px-4 @(selectedFilter == filter ? "bg-white dark:bg-slate-700 shadow-sm text-primary" : "text-slate-600 dark:text-slate-400") text-[11px] lg:text-sm font-bold transition-all whitespace-nowrap">
                         <span class="truncate">@filter</span>
                         <input checked="@(selectedFilter == filter)"
                                class="hidden"
@@ -73,21 +70,19 @@
         <div class="max-w-2xl mx-auto lg:max-w-none">
             @if (isLoading)
             {
-                <!-- Loading State -->
                 <div class="flex flex-col items-center justify-center py-16">
                     <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
-                    <p class="text-slate-500 dark:text-slate-400 text-sm">Cargando pedidos...</p>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm">Cargando pedidos...</p>
                 </div>
             }
             else if (filteredOrders.Count == 0)
             {
-                <!-- Empty State -->
                 <div class="flex flex-col items-center justify-center py-16 text-center">
                     <div class="bg-slate-100 dark:bg-slate-800 p-6 rounded-full mb-4">
                         <span class="material-symbols-outlined text-slate-400 text-5xl">receipt_long</span>
                     </div>
                     <h3 class="text-slate-900 dark:text-white text-lg font-bold mb-2">No hay pedidos</h3>
-                    <p class="text-slate-500 dark:text-slate-400 text-sm max-w-sm">
+                    <p class="text-slate-600 dark:text-slate-400 text-sm max-w-sm">
                         @if (string.IsNullOrEmpty(searchQuery))
                         {
                             <text>No tienes pedidos en esta categoría. ¡Comienza a comprar!</text>
@@ -99,7 +94,7 @@
                     </p>
                     @if (string.IsNullOrEmpty(searchQuery))
                     {
-                        <button class="mt-6 bg-primary text-white px-6 py-3 rounded-lg font-bold hover:bg-primary/90 transition-colors"
+                        <button class="mt-6 bg-primary text-white px-6 py-3 rounded-lg font-bold hover:bg-primary/90 transition-colors shadow-md"
                                 @onclick="GoToCatalog">
                             Explorar Catálogo
                         </button>
@@ -108,46 +103,34 @@
             }
             else
             {
-                <!-- Orders List/Grid - Responsive -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3 lg:gap-4">
                     @foreach (var order in filteredOrders)
                     {
-                        <div class="group relative flex flex-col lg:flex-row items-stretch justify-between gap-4 rounded-xl bg-white dark:bg-[#192633] p-4 shadow-sm border border-slate-100 dark:border-slate-800 hover:shadow-lg hover:border-primary/30 transition-all cursor-pointer"
+                        <div class="group relative flex flex-col rounded-xl bg-slate-50 dark:bg-slate-800 p-4 shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-lg hover:border-primary/50 transition-all cursor-pointer"
                              @onclick="() => ViewOrderDetails(order.Id)">
 
-                            <!-- Order Info -->
-                            <div class="flex flex-col lg:flex-[2_2_0px] justify-between gap-3">
-                                <div class="flex flex-col gap-1">
-                                    <div class="flex items-center gap-2 flex-wrap">
+                            <!-- Header con imagen -->
+                            <div class="flex items-start gap-3 mb-3">
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-2 flex-wrap mb-1">
                                         <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider @GetStatusBadgeClass(order.Status)">
                                             @order.Status
                                         </span>
-                                        <span class="text-slate-400 dark:text-[#92adc9] text-xs font-medium">@order.TimeAgo</span>
+                                        <span class="text-slate-600 dark:text-slate-400 text-xs font-medium">@order.TimeAgo</span>
                                     </div>
-                                    <p class="text-slate-900 dark:text-white text-lg font-bold leading-tight mt-1">#@order.OrderNumber</p>
-                                    <p class="text-slate-500 dark:text-[#92adc9] text-sm font-medium">@order.Date • @order.ItemsCount pieza@(order.ItemsCount > 1 ? "s" : "")</p>
+                                    <p class="text-slate-900 dark:text-white text-lg font-bold leading-tight">#@order.OrderNumber</p>
+                                    <p class="text-slate-600 dark:text-slate-400 text-sm font-medium">@order.Date • @order.ItemsCount pieza@(order.ItemsCount > 1 ? "s" : "")</p>
                                 </div>
 
-                                <!-- Desktop: Price and Action -->
-                                <div class="hidden lg:flex items-center justify-between mt-4">
-                                    <div class="text-primary font-bold text-lg">@order.Total.ToString("C")</div>
-                                    <button class="flex items-center justify-center rounded-lg h-9 px-4 @GetActionButtonClass(order.Status) gap-1 text-sm font-bold transition-colors group-hover:bg-primary group-hover:text-white"
-                                            @onclick:stopPropagation="true"
-                                            @onclick="() => HandleOrderAction(order)">
-                                        <span>@GetActionButtonText(order.Status)</span>
-                                        <span class="material-symbols-outlined text-sm">@GetActionButtonIcon(order.Status)</span>
-                                    </button>
-                                </div>
+                                <!-- Imagen alineada a la derecha -->
+                                <div class="w-20 h-20 bg-center bg-no-repeat bg-cover rounded-lg shrink-0 border border-slate-200 dark:border-slate-700"
+                                     style='background-image: url("@order.ImageUrl");'></div>
                             </div>
 
-                            <!-- Order Image -->
-                            <div class="w-full lg:w-24 h-24 lg:h-24 bg-center bg-no-repeat bg-cover rounded-lg shrink-0 border border-slate-100 dark:border-slate-700"
-                                 style='background-image: url("@order.ImageUrl");'></div>
-
-                            <!-- Mobile: Price and Action -->
-                            <div class="flex lg:hidden items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800">
+                            <!-- Footer con precio y botón -->
+                            <div class="flex items-center justify-between pt-3 border-t border-slate-200 dark:border-slate-700">
                                 <div class="text-primary font-bold text-lg">@order.Total.ToString("C")</div>
-                                <button class="flex items-center justify-center rounded-lg h-9 px-4 @GetActionButtonClass(order.Status) gap-1 text-sm font-bold transition-colors"
+                                <button class="flex items-center justify-center rounded-lg h-9 px-4 @GetActionButtonClass(order.Status) gap-1 text-sm font-bold transition-all duration-200 shadow-sm hover:shadow-md hover:scale-105"
                                         @onclick:stopPropagation="true"
                                         @onclick="() => HandleOrderAction(order)">
                                     <span>@GetActionButtonText(order.Status)</span>
@@ -158,9 +141,8 @@
                     }
                 </div>
 
-                <!-- Pagination Info -->
                 <div class="p-8 flex justify-center">
-                    <p class="text-slate-400 text-xs lg:text-sm font-medium italic">
+                    <p class="text-slate-500 dark:text-slate-400 text-xs lg:text-sm font-medium italic">
                         Mostrando @filteredOrders.Count de @totalOrders pedidos
                     </p>
                 </div>

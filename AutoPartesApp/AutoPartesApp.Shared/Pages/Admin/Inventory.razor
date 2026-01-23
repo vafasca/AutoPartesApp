@@ -3,7 +3,7 @@
 @namespace AutoPartesApp.Shared.Pages.Admin
 
 <!-- Header / TopAppBar - Responsive -->
-<header class="sticky top-0 z-30 bg-background-light dark:bg-background-dark/95 backdrop-blur-md px-4 pt-4 pb-2 border-b border-slate-200 dark:border-slate-800">
+<header class="sticky top-0 z-30 bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 backdrop-blur-md px-4 pt-4 pb-2 border-b border-slate-200 dark:border-slate-800">
     <div class="max-w-7xl mx-auto">
         <!-- Title and Actions Row -->
         <div class="flex items-center justify-between mb-4">
@@ -31,7 +31,7 @@
         <div class="flex lg:grid lg:grid-cols-2 gap-3 mb-4 overflow-x-auto lg:overflow-visible hide-scrollbar">
             @foreach (var stat in inventoryStats)
             {
-                <div class="flex-shrink-0 min-w-[160px] lg:min-w-0 flex-1 flex flex-col gap-1 rounded-xl p-4 bg-white dark:bg-surface-dark shadow-sm border border-slate-200 dark:border-border-dark">
+                <div class="flex-shrink-0 min-w-[160px] lg:min-w-0 flex-1 flex flex-col gap-1 rounded-xl p-4 bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 shadow-sm border border-slate-200 dark:border-border-dark">
                     <p class="text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">@stat.Title</p>
                     <p class="text-xl lg:text-2xl font-bold">@stat.Value</p>
                     <div class="flex items-center gap-1 @stat.TrendColor text-xs font-bold">
@@ -55,12 +55,12 @@
                 <span>Nuevo Producto</span>
             </button>
             <div class="flex gap-3 lg:ml-auto">
-                <button class="flex-1 lg:flex-initial h-10 flex items-center justify-center gap-2 rounded-lg bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark text-slate-700 dark:text-white text-sm font-bold px-4 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                <button class="flex-1 lg:flex-initial h-10 flex items-center justify-center gap-2 rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 border border-slate-200 dark:border-border-dark text-slate-700 dark:text-white text-sm font-bold px-4 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
                         @onclick="ImportProducts">
                     <span class="material-symbols-outlined text-[20px]">upload</span>
                     <span class="hidden lg:inline">Importar</span>
                 </button>
-                <button class="flex-1 lg:flex-initial h-10 flex items-center justify-center gap-2 rounded-lg bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark text-slate-700 dark:text-white text-sm font-bold px-4 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                <button class="flex-1 lg:flex-initial h-10 flex items-center justify-center gap-2 rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 border border-slate-200 dark:border-border-dark text-slate-700 dark:text-white text-sm font-bold px-4 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
                         @onclick="ExportProducts">
                     <span class="material-symbols-outlined text-[20px]">download</span>
                     <span class="hidden lg:inline">Exportar</span>
@@ -77,13 +77,13 @@
                     <input @bind="searchQuery"
                            @bind:event="oninput"
                            @onkeyup="HandleSearch"
-                           class="w-full h-11 pl-10 pr-4 rounded-xl border-none bg-white dark:bg-surface-dark focus:ring-2 focus:ring-primary text-sm shadow-sm"
+                           class="w-full h-11 pl-10 pr-4 rounded-xl border border-white bg-white focus:ring-2 focus:ring-primary text-sm shadow-sm placeholder:text-slate-500 dark:placeholder:text-slate-500 text-slate-900 dark:text-black"
                            placeholder="Buscar por SKU o nombre..."
                            type="text" />
                 </div>
 
                 <!-- Filter Button -->
-                <button class="h-11 w-11 lg:w-11 flex items-center justify-center rounded-xl bg-white dark:bg-surface-dark shadow-sm border border-slate-200 dark:border-border-dark hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                <button class="h-11 w-11 lg:w-11 flex items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 shadow-sm border border-slate-200 dark:border-border-dark hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
                         @onclick="ToggleFilters">
                     <span class="material-symbols-outlined text-slate-600 dark:text-slate-300">filter_list</span>
                 </button>
@@ -147,7 +147,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                         @foreach (var product in filteredProducts)
                         {
-                            <div class="bg-white dark:bg-surface-dark rounded-xl border border-slate-200 dark:border-border-dark shadow-sm hover:shadow-lg transition-all cursor-pointer"
+                            <div class="bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 rounded-xl border border-slate-200 dark:border-border-dark shadow-sm hover:shadow-lg transition-all cursor-pointer"
                                  @onclick="() => ViewProductDetails(product.Id)">
                                 <div class="relative w-full aspect-square bg-slate-100 dark:bg-slate-800 rounded-t-xl overflow-hidden">
                                     <img src="@product.ImageUrl" alt="@product.Name" class="w-full h-full object-cover" />
@@ -189,7 +189,7 @@
                     <div class="space-y-3">
                         @foreach (var product in filteredProducts)
                         {
-                            <div class="flex items-center gap-4 p-4 rounded-xl bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark shadow-sm hover:shadow-md transition-all cursor-pointer"
+                            <div class="flex items-center gap-4 p-4 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 border border-slate-200 dark:border-border-dark shadow-sm hover:shadow-md transition-all cursor-pointer"
                                  @onclick="() => ViewProductDetails(product.Id)">
                                 <img src="@product.ImageUrl" alt="@product.Name"
                                      class="w-20 h-20 rounded-lg object-cover bg-slate-100 @(product.StockStatus == "Sin stock" ? "grayscale" : "")" />
@@ -225,7 +225,7 @@
             <div class="lg:hidden mt-4 space-y-3">
                 @foreach (var product in filteredProducts)
                 {
-                    <div class="flex items-center gap-3 p-3 rounded-xl bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark shadow-sm active:scale-[0.98] transition-transform"
+                    <div class="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 border border-slate-200 dark:border-border-dark shadow-sm active:scale-[0.98] transition-transform"
                          @onclick="() => ViewProductDetails(product.Id)">
                         <div class="relative w-16 h-16 shrink-0">
                             <img src="@product.ImageUrl" alt="@product.Name"

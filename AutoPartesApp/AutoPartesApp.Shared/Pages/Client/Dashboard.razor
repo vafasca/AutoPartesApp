@@ -2,35 +2,35 @@
 @layout ClientLayout
 @namespace AutoPartesApp.Shared.Pages.Client
 
-<header class="sticky top-0 z-50 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md">
-    <div class="flex items-center p-4 justify-between">
+<header class="sticky top-0 z-50 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+    <div class="flex items-center p-4 justify-between max-w-7xl mx-auto">
         <div class="flex items-center gap-2">
             <div class="bg-primary p-1.5 rounded-lg">
                 <span class="material-symbols-outlined text-white text-2xl">precision_manufacturing</span>
             </div>
-            <h2 class="text-lg font-extrabold leading-tight tracking-tight">AutoParts Market</h2>
+            <h2 class="text-lg font-extrabold leading-tight tracking-tight text-slate-900 dark:text-white">AutoParts Market</h2>
         </div>
         <div class="flex gap-2">
-            <button class="flex items-center justify-center rounded-full h-10 w-10 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-white">
+            <button class="flex items-center justify-center rounded-full h-10 w-10 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
                 <span class="material-symbols-outlined">notifications</span>
             </button>
-            <button class="flex items-center justify-center rounded-full h-10 w-10 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-white relative">
+            <button class="flex items-center justify-center rounded-full h-10 w-10 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors relative">
                 <span class="material-symbols-outlined">shopping_cart</span>
                 <span class="absolute top-1 right-1 bg-primary text-white text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full">@cartItemsCount</span>
             </button>
         </div>
     </div>
 
-    <div class="px-4 pb-3">
+    <div class="px-4 pb-3 max-w-7xl mx-auto">
         <label class="flex flex-col w-full">
-            <div class="flex w-full items-stretch rounded-xl h-12 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
-                <div class="text-slate-400 dark:text-slate-500 flex items-center justify-center pl-4">
+            <div class="flex w-full items-stretch rounded-xl h-12 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 overflow-hidden shadow-sm">
+                <div class="text-slate-600 dark:text-slate-400 flex items-center justify-center pl-4">
                     <span class="material-symbols-outlined">search</span>
                 </div>
                 <input @bind="searchQuery"
-                       class="form-input flex-1 border-none bg-transparent focus:ring-0 text-base placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                       class="form-input flex-1 border-none bg-transparent focus:ring-0 text-base placeholder:text-slate-500 dark:placeholder:text-slate-500 text-slate-900 dark:text-white"
                        placeholder="Busca por pieza, SKU o VIN..." />
-                <button class="px-4 text-primary">
+                <button class="px-4 text-primary hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
                     <span class="material-symbols-outlined">tune</span>
                 </button>
             </div>
@@ -38,21 +38,22 @@
     </div>
 </header>
 
-<main>
+<main class="pb-24 lg:pb-8">
     <!-- Mi Garaje -->
-    <div class="px-4 py-2">
-        <div class="flex items-center justify-between gap-4 rounded-xl bg-primary/10 dark:bg-primary/20 border border-primary/20 p-4">
-            <div class="flex flex-col">
-                <p class="text-primary text-[10px] font-extrabold uppercase tracking-wider mb-1">Mi Garaje</p>
-                <p class="text-slate-900 dark:text-white text-lg font-bold">@userVehicle</p>
-                <div class="flex items-center gap-1.5 mt-1">
+    <div class="px-4 py-4 max-w-7xl mx-auto">
+        <div class="flex flex-col lg:flex-row items-center lg:items-start gap-6 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 border border-primary/30 dark:border-primary/40 p-6 lg:p-8">
+            <div class="flex flex-col flex-1 text-center lg:text-left">
+                <p class="text-primary text-[11px] font-extrabold uppercase tracking-wider mb-2">Mi Garaje</p>
+                <p class="text-slate-900 dark:text-white text-xl lg:text-2xl font-bold mb-2">@userVehicle</p>
+                <div class="flex items-center justify-center lg:justify-start gap-1.5">
                     <span class="material-symbols-outlined text-primary text-sm">verified</span>
-                    <p class="text-slate-600 dark:text-slate-400 text-xs font-medium leading-normal">Filtros activos para tu vehículo</p>
+                    <p class="text-slate-700 dark:text-slate-300 text-sm font-medium leading-normal">Filtros activos para tu vehículo</p>
                 </div>
             </div>
-            <div class="flex flex-col items-end gap-2">
-                <div class="w-20 h-12 bg-center bg-no-repeat bg-contain" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC7lJzcgHiofy_XCBM_5pdtQCLtUKhCa_cQY4NDZleYF7Xip5USMzEPCOyllpn7kTQ7f8NtjpBd8YShvc7yYPJFFh_vZ6FRpm1OhvYw9_ZJxtKd-R48Ll8ik6_zaO8ICz63FSeOfcRmjd3AYVH_sPj_rXifxwgdpXI7KklfAeTr4d-jAYNhaNvNiJcoXesFqUVssrhKYtrogv-CAJ8Y4onX_m1y3wPQnWDz0gzJYCfyGGSPvcjXmjMorRYQx1sSdYLw6dmWArLQX1k");'></div>
-                <button class="flex items-center justify-center rounded-lg h-7 px-3 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-bold border border-slate-200 dark:border-slate-700"
+
+            <div class="flex flex-col items-center lg:items-end gap-3">
+                <div class="w-24 h-16 lg:w-32 lg:h-20 bg-center bg-no-repeat bg-contain" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC7lJzcgHiofy_XCBM_5pdtQCLtUKhCa_cQY4NDZleYF7Xip5USMzEPCOyllpn7kTQ7f8NtjpBd8YShvc7yYPJFFh_vZ6FRpm1OhvYw9_ZJxtKd-R48Ll8ik6_zaO8ICz63FSeOfcRmjd3AYVH_sPj_rXifxwgdpXI7KklfAeTr4d-jAYNhaNvNiJcoXesFqUVssrhKYtrogv-CAJ8Y4onX_m1y3wPQnWDz0gzJYCfyGGSPvcjXmjMorRYQx1sSdYLw6dmWArLQX1k");'></div>
+                <button class="flex items-center justify-center rounded-lg h-9 px-5 bg-slate-800 dark:bg-slate-700 text-white hover:bg-slate-900 dark:hover:bg-slate-600 text-sm font-bold border border-slate-700 dark:border-slate-600 transition-all"
                         @onclick="ChangeVehicle">
                     Cambiar
                 </button>
@@ -61,17 +62,17 @@
     </div>
 
     <!-- Promociones -->
-    <div class="mt-4">
+    <div class="mt-4 max-w-7xl mx-auto">
         <div class="flex overflow-x-auto gap-4 px-4 hide-scrollbar snap-x">
             @foreach (var promo in promotions)
             {
-                <div class="min-w-[85%] snap-center relative rounded-2xl overflow-hidden aspect-[21/9] @promo.GradientClass">
+                <div class="min-w-[85%] lg:min-w-[400px] snap-center relative rounded-2xl overflow-hidden aspect-[21/9] @promo.GradientClass shadow-lg">
                     <div class="absolute inset-0 bg-cover bg-center opacity-60" style='background-image: url("@promo.ImageUrl");'></div>
                     <div class="absolute inset-0 p-5 flex flex-col justify-center">
                         <span class="bg-@promo.BadgeColor text-white text-[10px] font-black px-2 py-0.5 rounded w-fit mb-2">@promo.Badge</span>
                         <h3 class="text-white text-xl font-extrabold leading-tight mb-1">@promo.Title</h3>
-                        <p class="text-white/80 text-sm font-medium mb-3">@promo.Description</p>
-                        <button class="@promo.ButtonClass text-xs font-bold py-2 px-4 rounded-lg w-fit"
+                        <p class="text-white/90 text-sm font-medium mb-3">@promo.Description</p>
+                        <button class="@promo.ButtonClass text-xs font-bold py-2 px-4 rounded-lg w-fit shadow-lg"
                                 @onclick="() => ViewPromotion(promo.Id)">
                             @promo.ButtonText
                         </button>
@@ -81,37 +82,37 @@
         </div>
     </div>
 
-    <!-- Categorías -->
-    <section class="mt-6">
+    <!-- Categorías - FONDO OSCURO CORREGIDO -->
+    <section class="mt-6 max-w-7xl mx-auto">
         <div class="flex items-center justify-between px-4 mb-4">
             <h3 class="text-slate-900 dark:text-white text-lg font-extrabold tracking-tight">Categorías</h3>
-            <button class="text-primary text-sm font-bold" @onclick="ViewAllCategories">Ver Todo</button>
+            <button class="text-primary text-sm font-bold hover:underline" @onclick="ViewAllCategories">Ver Todo</button>
         </div>
-        <div class="grid grid-cols-3 gap-3 px-4">
+        <div class="grid grid-cols-3 lg:grid-cols-6 gap-3 px-4">
             @foreach (var category in categories)
             {
-                <button class="flex flex-col items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/50 p-4 shadow-sm hover:shadow-md transition-shadow"
+                <button class="flex flex-col items-center gap-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-800 dark:bg-slate-800 p-4 shadow-sm hover:shadow-md hover:border-primary/50 transition-all"
                         @onclick="() => ViewCategory(category.Id)">
                     <div class="@category.BgClass p-2.5 rounded-full @category.TextClass">
                         <span class="material-symbols-outlined">@category.Icon</span>
                     </div>
-                    <span class="text-slate-700 dark:text-slate-300 text-xs font-bold text-center">@category.Name</span>
+                    <span class="text-slate-200 dark:text-slate-200 text-xs font-bold text-center">@category.Name</span>
                 </button>
             }
         </div>
     </section>
 
     <!-- Productos Recomendados -->
-    <section class="mt-8">
+    <section class="mt-8 max-w-7xl mx-auto">
         <div class="flex items-center justify-between px-4 mb-4">
             <h3 class="text-slate-900 dark:text-white text-lg font-extrabold tracking-tight">Recomendado para tu Toyota</h3>
-            <button class="text-primary text-sm font-bold" @onclick="RefreshRecommendations">Actualizar</button>
+            <button class="text-primary text-sm font-bold hover:underline" @onclick="RefreshRecommendations">Actualizar</button>
         </div>
-        <div class="space-y-4 px-4 pb-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 px-4 pb-8">
             @foreach (var product in recommendedProducts)
             {
-                <div class="flex gap-4 p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow">
-                    <div class="w-24 h-24 rounded-lg bg-slate-100 dark:bg-slate-700 flex-shrink-0 bg-cover bg-center"
+                <div class="flex gap-4 p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md hover:border-primary/50 transition-all">
+                    <div class="w-24 h-24 rounded-lg bg-slate-200 dark:bg-slate-700 flex-shrink-0 bg-cover bg-center"
                          style='background-image: url("@product.ImageUrl");'></div>
                     <div class="flex-1 flex flex-col justify-between py-0.5">
                         <div>
@@ -120,13 +121,13 @@
                                 <span class="text-[10px] font-bold uppercase tracking-tight">Calce Garantizado</span>
                             </div>
                             <h4 class="text-slate-900 dark:text-white text-sm font-bold leading-tight">@product.Name</h4>
-                            <p class="text-slate-500 text-xs mt-1">SKU: @product.Sku</p>
+                            <p class="text-slate-600 dark:text-slate-400 text-xs mt-1">SKU: @product.Sku</p>
                         </div>
                         <div class="flex items-center justify-between mt-2">
                             @if (product.OriginalPrice.HasValue)
                             {
                                 <div class="flex flex-col">
-                                    <span class="text-slate-400 text-[10px] line-through">@product.OriginalPrice.Value.ToString("C")</span>
+                                    <span class="text-slate-500 dark:text-slate-500 text-[10px] line-through">@product.OriginalPrice.Value.ToString("C")</span>
                                     <span class="text-primary text-lg font-extrabold">@product.Price.ToString("C")</span>
                                 </div>
                             }
@@ -134,7 +135,7 @@
                             {
                                 <span class="text-primary text-lg font-extrabold">@product.Price.ToString("C")</span>
                             }
-                            <button class="bg-primary text-white h-8 w-8 rounded-lg flex items-center justify-center hover:bg-primary/90 transition-colors"
+                            <button class="bg-primary text-white h-9 w-9 rounded-lg flex items-center justify-center hover:bg-primary/90 transition-colors shadow-md"
                                     @onclick="() => AddToCart(product.Id)">
                                 <span class="material-symbols-outlined">add_shopping_cart</span>
                             </button>

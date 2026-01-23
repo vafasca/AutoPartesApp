@@ -238,7 +238,7 @@ namespace AutoPartesApp.Shared.Pages.Admin
             {
                 return $"{baseClass} bg-primary text-white";
             }
-            return $"{baseClass} bg-white dark:bg-surface-dark text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-border-dark hover:border-primary/50";
+            return $"{baseClass} bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 dark:bg-surface-dark text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-border-dark hover:border-primary/50";
         }
 
         private string GetViewButtonClass(string view)
@@ -246,7 +246,7 @@ namespace AutoPartesApp.Shared.Pages.Admin
             var baseClass = "h-9 w-9 flex items-center justify-center rounded-md transition-all";
             if (currentView == view)
             {
-                return $"{baseClass} bg-white dark:bg-slate-700 shadow-sm";
+                return $"{baseClass} bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 dark:bg-slate-700 shadow-sm";
             }
             return $"{baseClass} text-slate-500 dark:text-slate-400 hover:text-primary";
         }

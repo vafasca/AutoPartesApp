@@ -1,0 +1,128 @@
+﻿/* ========================================
+   DELIVERY NOTIFICATIONS STYLES
+   ======================================== */
+
+/* Active Tab Styles */
+.active-tab {
+    font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Notification Cards */
+.notification-card {
+    transition: all 0.2s ease;
+}
+
+    .notification-card:hover {
+        transform: translateY(-2px);
+    }
+
+/* Unread Indicator Pulse */
+@keyframes pulse-dot {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.7;
+        transform: scale(1.2);
+    }
+}
+
+.size-2.bg-primary {
+    animation: pulse-dot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Tab Transitions */
+button[class*="border-b-[3px]"] {
+    transition: all 0.3s ease;
+}
+
+/* Smooth Opacity Transitions */
+.opacity-70 {
+    transition: opacity 0.3s ease;
+}
+
+    .opacity-70:hover {
+        opacity: 0.9;
+    }
+
+/* Backdrop Blur */
+.backdrop-blur-md {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+/* Safe Area for iOS */
+.pb-24 {
+    padding-bottom: max(6rem, env(safe-area-inset-bottom));
+}
+
+/* ========================================
+   RESPONSIVE ADJUSTMENTS
+   ======================================== */
+
+@media (min-width: 1024px) {
+    /* Desktop spacing */
+    .space-y-1 {
+        gap: 0.75rem;
+    }
+
+    /* Hover effects only on desktop */
+    @media (hover: hover) {
+        .notification-card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+    }
+}
+
+/* ========================================
+   DARK MODE SPECIFIC
+   ======================================== */
+
+@media (prefers-color-scheme: dark) {
+    .bg-white\/90 {
+        background-color: rgba(16, 25, 34, 0.9);
+    }
+
+    .border-slate-800\/50 {
+        border-color: rgba(30, 41, 59, 0.5);
+    }
+}
+
+/* ========================================
+   ANIMATIONS
+   ======================================== */
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.notification-card {
+    animation: slideDown 0.3s ease-out;
+}
+
+    /* Stagger animation for list items */
+    .notification-card:nth-child(1) {
+        animation-delay: 0s;
+    }
+
+    .notification-card:nth-child(2) {
+        animation-delay: 0.05s;
+    }
+
+    .notification-card:nth-child(3) {
+        animation-delay: 0.1s;
+    }
+
+    .notification-card:nth-child(4) {
+        animation-delay: 0.15s;
+    }

@@ -1,0 +1,38 @@
+﻿@inherits LayoutComponentBase
+@using AutoPartesApp.Domain.Enums
+@namespace AutoPartesApp.Shared.Layout
+
+<div class="min-h-screen bg-background-light dark:bg-background-dark text-slate-900 dark:text-white pb-24">
+    <!-- Contenido principal de cada página -->
+    @Body
+
+    <!-- Navegación inferior fija -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-background-dark/95 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 pb-8 pt-3 px-2 z-[60]">
+        <div class="flex justify-between items-center max-w-md mx-auto">
+            <NavLink href="/delivery/dashboard" class="@GetNavLinkClass("/delivery/dashboard")" Match="NavLinkMatch.All">
+                <span class="material-symbols-outlined @GetIconFillClass("/delivery/dashboard")">home</span>
+                <span class="text-[9px] font-bold uppercase tracking-tighter">Principal</span>
+            </NavLink>
+
+            <NavLink href="/delivery/map" class="@GetNavLinkClass("/delivery/map")">
+                <span class="material-symbols-outlined @GetIconFillClass("/delivery/map")">map</span>
+                <span class="text-[9px] font-bold uppercase tracking-tighter">Mapa</span>
+            </NavLink>
+
+            <NavLink href="/delivery/notifications" class="@GetNavLinkClass("/delivery/notifications")">
+                <span class="material-symbols-outlined @GetIconFillClass("/delivery/notifications")">notifications</span>
+                <span class="text-[9px] font-bold uppercase tracking-tighter">Avisos</span>
+            </NavLink>
+
+            <NavLink href="/delivery/history" class="@GetNavLinkClass("/delivery/history")">
+                <span class="material-symbols-outlined @GetIconFillClass("/delivery/history")">history</span>
+                <span class="text-[9px] font-bold uppercase tracking-tighter">Historial</span>
+            </NavLink>
+
+            <NavLink href="/delivery/settings" class="@GetNavLinkClass("/delivery/settings")">
+                <span class="material-symbols-outlined @GetIconFillClass("/delivery/settings")">settings</span>
+                <span class="text-[9px] font-bold uppercase tracking-tighter">Ajustes</span>
+            </NavLink>
+        </div>
+    </nav>
+</div>

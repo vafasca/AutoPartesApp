@@ -120,7 +120,7 @@ namespace AutoPartesApp.Shared.Pages.Admin
         private string GetPeriodButtonClass(string period)
         {
             return selectedPeriod == period
-                ? "px-3 py-1 text-xs font-bold rounded-md bg-white dark:bg-[#233648] shadow-sm"
+                ? "px-3 py-1 text-xs font-bold rounded-md bg-slate-300 dark:bg-slate-700 shadow-sm"
                 : "px-3 py-1 text-xs font-bold text-slate-500 dark:text-slate-400";
         }
 

@@ -6,3 +6,18 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
 }
+
+/* Mejoras responsivas adicionales */
+@@media (max-width: 640px) {
+    /* Asegurar que las cards de KPI tengan un ancho mínimo en móvil */
+    .flex.min-w-\[160px\] {
+        min-width: 140px;
+    }
+}
+
+/* Smooth transitions para cambios de tamaño */
+* {
+    transition-property: padding, margin, font-size;
+    transition-duration: 150ms;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}

@@ -1,5 +1,312 @@
-﻿<h3>Settings</h3>
+﻿@page "/admin/settings"
+@layout AdminLayout
+@namespace AutoPartesApp.Shared.Pages.Admin
 
-@code {
+<!-- Top Navigation Bar - Responsive -->
+<header class="sticky top-0 z-50 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+    <div class="max-w-7xl mx-auto">
+        <div class="flex items-center p-4 justify-between">
+            <div class="flex items-center gap-3">
+                <button class="lg:flex items-center justify-center rounded-full size-10 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors hidden"
+                        @onclick="GoBack">
+                    <span class="material-symbols-outlined text-primary">arrow_back_ios</span>
+                </button>
+                <h1 class="text-lg lg:text-xl font-bold tracking-tight">Configuración Global</h1>
+            </div>
+            <div class="flex items-center gap-2 lg:gap-4">
+                <button class="relative p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                        @onclick="ToggleNotifications">
+                    <span class="material-symbols-outlined text-slate-500 dark:text-slate-400">notifications</span>
+                    @if (hasNotifications)
+                    {
+                        <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                    }
+                </button>
+                <div class="w-8 h-8 lg:w-10 lg:h-10 rounded-full overflow-hidden border border-primary/30 hidden sm:block">
+                    <img alt="Admin Profile"
+                         class="w-full h-full object-cover"
+                         src="@adminProfile.AvatarUrl" />
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
 
-}
+<main class="pb-24 lg:pb-8">
+    <div class="max-w-7xl mx-auto px-4 py-4 lg:py-6">
+
+        <!-- Grid Layout para Desktop -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+
+            <!-- Left Column -->
+            <div class="space-y-6">
+                <!-- Admin Profile Card (Mobile/Tablet only) -->
+                <div class="lg:hidden bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 rounded-xl p-4 border border-slate-200 dark:border-slate-800 flex items-center gap-4">
+                    <div class="w-16 h-16 rounded-full overflow-hidden border-2 border-primary/30 shrink-0">
+                        <img alt="Admin" class="w-full h-full object-cover" src="@adminProfile.AvatarUrl" />
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="text-base font-bold truncate">@adminProfile.Name</h3>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 truncate">@adminProfile.Email</p>
+                        <p class="text-xs text-primary font-bold mt-1">Administrador Principal</p>
+                    </div>
+                </div>
+
+                <!-- Section: Parámetros Globales -->
+                <section>
+                    <h3 class="text-primary text-xs font-bold uppercase tracking-wider mb-3 px-1">
+                        Parámetros Globales
+                    </h3>
+                    <div class="space-y-1 bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800">
+
+                        <!-- Currency -->
+                        <button class="w-full flex items-center gap-3 lg:gap-4 px-4 min-h-[72px] py-3 justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                                @onclick="OpenCurrencySelector">
+                            <div class="flex items-center gap-3 lg:gap-4 flex-1 min-w-0">
+                                <div class="text-primary flex items-center justify-center rounded-lg bg-primary/10 shrink-0 size-10 lg:size-11">
+                                    <span class="material-symbols-outlined text-lg lg:text-xl">payments</span>
+                                </div>
+                                <div class="flex flex-col text-left flex-1 min-w-0">
+                                    <p class="text-sm font-semibold truncate">Moneda del sistema</p>
+                                    <p class="text-slate-500 dark:text-slate-400 text-xs truncate">Moneda base transaccional</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 shrink-0">
+                                <span class="text-sm font-medium text-slate-700 dark:text-slate-300">@selectedCurrency</span>
+                                <span class="material-symbols-outlined text-slate-400 text-sm">chevron_right</span>
+                            </div>
+                        </button>
+
+                        <!-- Taxes -->
+                        <button class="w-full flex items-center gap-3 lg:gap-4 px-4 min-h-[72px] py-3 justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors border-t border-slate-100 dark:border-slate-800"
+                                @onclick="OpenTaxEditor">
+                            <div class="flex items-center gap-3 lg:gap-4 flex-1 min-w-0">
+                                <div class="text-primary flex items-center justify-center rounded-lg bg-primary/10 shrink-0 size-10 lg:size-11">
+                                    <span class="material-symbols-outlined text-lg lg:text-xl">percent</span>
+                                </div>
+                                <div class="flex flex-col text-left flex-1 min-w-0">
+                                    <p class="text-sm font-semibold truncate">Impuestos (IVA)</p>
+                                    <p class="text-slate-500 dark:text-slate-400 text-xs truncate">Tasa impositiva general</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 shrink-0">
+                                <span class="text-sm font-medium text-slate-700 dark:text-slate-300">@taxRate%</span>
+                                <span class="material-symbols-outlined text-slate-400 text-sm">edit</span>
+                            </div>
+                        </button>
+
+                        <!-- Language -->
+                        <button class="w-full flex items-center gap-3 lg:gap-4 px-4 min-h-[72px] py-3 justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors border-t border-slate-100 dark:border-slate-800"
+                                @onclick="OpenLanguageSelector">
+                            <div class="flex items-center gap-3 lg:gap-4 flex-1 min-w-0">
+                                <div class="text-primary flex items-center justify-center rounded-lg bg-primary/10 shrink-0 size-10 lg:size-11">
+                                    <span class="material-symbols-outlined text-lg lg:text-xl">translate</span>
+                                </div>
+                                <div class="flex flex-col text-left flex-1 min-w-0">
+                                    <p class="text-sm font-semibold truncate">Idioma Predeterminado</p>
+                                    <p class="text-slate-500 dark:text-slate-400 text-xs truncate">Idioma para comunicaciones</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 shrink-0">
+                                <span class="text-sm font-medium text-slate-700 dark:text-slate-300">@selectedLanguage</span>
+                                <span class="material-symbols-outlined text-slate-400 text-sm">chevron_right</span>
+                            </div>
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Section: Roles y Permisos -->
+                <section>
+                    <h3 class="text-primary text-xs font-bold uppercase tracking-wider mb-3 px-1">
+                        Roles y Permisos
+                    </h3>
+                    <div class="space-y-1 bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800">
+
+                        <!-- Manage Roles -->
+                        <button class="w-full flex items-center gap-3 lg:gap-4 px-4 min-h-[72px] py-3 justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                                @onclick="ManageRoles">
+                            <div class="flex items-center gap-3 lg:gap-4 flex-1 min-w-0">
+                                <div class="text-primary flex items-center justify-center rounded-lg bg-primary/10 shrink-0 size-10 lg:size-11">
+                                    <span class="material-symbols-outlined text-lg lg:text-xl">manage_accounts</span>
+                                </div>
+                                <div class="flex flex-col text-left flex-1 min-w-0">
+                                    <p class="text-sm font-semibold truncate">Administrar Roles</p>
+                                    <p class="text-slate-500 dark:text-slate-400 text-xs truncate">Editar jerarquías de acceso</p>
+                                </div>
+                            </div>
+                            <span class="material-symbols-outlined text-slate-400 text-sm">chevron_right</span>
+                        </button>
+
+                        <!-- Seller Permissions -->
+                        <button class="w-full flex items-center gap-3 lg:gap-4 px-4 min-h-[72px] py-3 justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors border-t border-slate-100 dark:border-slate-800"
+                                @onclick="ManageSellerPermissions">
+                            <div class="flex items-center gap-3 lg:gap-4 flex-1 min-w-0">
+                                <div class="text-primary flex items-center justify-center rounded-lg bg-primary/10 shrink-0 size-10 lg:size-11">
+                                    <span class="material-symbols-outlined text-lg lg:text-xl">storefront</span>
+                                </div>
+                                <div class="flex flex-col text-left flex-1 min-w-0">
+                                    <p class="text-sm font-semibold truncate">Permisos de Vendedor</p>
+                                    <p class="text-slate-500 dark:text-slate-400 text-xs truncate">Límites de inventario y ventas</p>
+                                </div>
+                            </div>
+                            <span class="material-symbols-outlined text-slate-400 text-sm">chevron_right</span>
+                        </button>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Right Column -->
+            <div class="space-y-6">
+                <!-- Section: Integraciones Externas -->
+                <section>
+                    <h3 class="text-primary text-xs font-bold uppercase tracking-wider mb-3 px-1">
+                        Integraciones Externas
+                    </h3>
+                    <div class="space-y-1 bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800">
+
+                        <!-- GPS Provider -->
+                        <div class="flex items-center gap-3 lg:gap-4 px-4 min-h-[72px] py-3 justify-between">
+                            <div class="flex items-center gap-3 lg:gap-4 flex-1 min-w-0">
+                                <div class="text-primary flex items-center justify-center rounded-lg bg-primary/10 shrink-0 size-10 lg:size-11">
+                                    <span class="material-symbols-outlined text-lg lg:text-xl">location_on</span>
+                                </div>
+                                <div class="flex flex-col text-left flex-1 min-w-0">
+                                    <p class="text-sm font-semibold truncate">Proveedor GPS</p>
+                                    <p class="text-slate-500 dark:text-slate-400 text-xs truncate">
+                                        @(gpsEnabled ? "API de Google Maps activa" : "GPS desactivado")
+                                    </p>
+                                </div>
+                            </div>
+                            <button class="@GetToggleClass(gpsEnabled) shrink-0"
+                                    @onclick="ToggleGPS">
+                                <div class="@GetToggleButtonClass(gpsEnabled)"></div>
+                            </button>
+                        </div>
+
+                        <!-- Payment Gateways -->
+                        <button class="w-full flex items-center gap-3 lg:gap-4 px-4 min-h-[72px] py-3 justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors border-t border-slate-100 dark:border-slate-800"
+                                @onclick="ManagePaymentGateways">
+                            <div class="flex items-center gap-3 lg:gap-4 flex-1 min-w-0">
+                                <div class="text-primary flex items-center justify-center rounded-lg bg-primary/10 shrink-0 size-10 lg:size-11">
+                                    <span class="material-symbols-outlined text-lg lg:text-xl">account_balance</span>
+                                </div>
+                                <div class="flex flex-col text-left flex-1 min-w-0">
+                                    <p class="text-sm font-semibold truncate">Pasarelas de Pago</p>
+                                    <p class="text-slate-500 dark:text-slate-400 text-xs truncate">Stripe, PayPal configurados</p>
+                                </div>
+                            </div>
+                            <span class="material-symbols-outlined text-slate-400 text-sm">chevron_right</span>
+                        </button>
+
+                        <!-- Email Notifications -->
+                        <div class="flex items-center gap-3 lg:gap-4 px-4 min-h-[72px] py-3 justify-between border-t border-slate-100 dark:border-slate-800">
+                            <div class="flex items-center gap-3 lg:gap-4 flex-1 min-w-0">
+                                <div class="text-primary flex items-center justify-center rounded-lg bg-primary/10 shrink-0 size-10 lg:size-11">
+                                    <span class="material-symbols-outlined text-lg lg:text-xl">mail</span>
+                                </div>
+                                <div class="flex flex-col text-left flex-1 min-w-0">
+                                    <p class="text-sm font-semibold truncate">Notificaciones Email</p>
+                                    <p class="text-slate-500 dark:text-slate-400 text-xs truncate">
+                                        @(emailNotificationsEnabled ? "Envío automático habilitado" : "Notificaciones desactivadas")
+                                    </p>
+                                </div>
+                            </div>
+                            <button class="@GetToggleClass(emailNotificationsEnabled) shrink-0"
+                                    @onclick="ToggleEmailNotifications">
+                                <div class="@GetToggleButtonClass(emailNotificationsEnabled)"></div>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section: Seguridad y Backup -->
+                <section>
+                    <h3 class="text-primary text-xs font-bold uppercase tracking-wider mb-3 px-1">
+                        Seguridad y Backup
+                    </h3>
+                    <div class="space-y-1 bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800">
+
+                        <!-- Two Factor Auth -->
+                        <div class="flex items-center gap-3 lg:gap-4 px-4 min-h-[72px] py-3 justify-between">
+                            <div class="flex items-center gap-3 lg:gap-4 flex-1 min-w-0">
+                                <div class="text-slate-400 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 shrink-0 size-10 lg:size-11">
+                                    <span class="material-symbols-outlined text-lg lg:text-xl">security</span>
+                                </div>
+                                <div class="flex flex-col text-left flex-1 min-w-0">
+                                    <p class="text-sm font-semibold truncate">Autenticación 2FA</p>
+                                    <p class="text-slate-500 dark:text-slate-400 text-xs truncate">Seguridad adicional</p>
+                                </div>
+                            </div>
+                            <button class="@GetToggleClass(twoFactorEnabled) shrink-0"
+                                    @onclick="ToggleTwoFactor">
+                                <div class="@GetToggleButtonClass(twoFactorEnabled)"></div>
+                            </button>
+                        </div>
+
+                        <!-- Automatic Backup -->
+                        <div class="flex items-center gap-3 lg:gap-4 px-4 min-h-[72px] py-3 justify-between border-t border-slate-100 dark:border-slate-800">
+                            <div class="flex items-center gap-3 lg:gap-4 flex-1 min-w-0">
+                                <div class="text-slate-400 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 shrink-0 size-10 lg:size-11">
+                                    <span class="material-symbols-outlined text-lg lg:text-xl">backup</span>
+                                </div>
+                                <div class="flex flex-col text-left flex-1 min-w-0">
+                                    <p class="text-sm font-semibold truncate">Backup Automático</p>
+                                    <p class="text-slate-500 dark:text-slate-400 text-xs truncate">
+                                        @(autoBackupEnabled ? "Diario a las 3:00 AM" : "Backup desactivado")
+                                    </p>
+                                </div>
+                            </div>
+                            <button class="@GetToggleClass(autoBackupEnabled) shrink-0"
+                                    @onclick="ToggleAutoBackup">
+                                <div class="@GetToggleButtonClass(autoBackupEnabled)"></div>
+                            </button>
+                        </div>
+
+                        <!-- Manual Backup -->
+                        <button class="w-full flex items-center gap-3 lg:gap-4 px-4 min-h-[72px] py-3 justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors border-t border-slate-100 dark:border-slate-800"
+                                @onclick="CreateBackup">
+                            <div class="flex items-center gap-3 lg:gap-4 flex-1 min-w-0">
+                                <div class="text-slate-400 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 shrink-0 size-10 lg:size-11">
+                                    <span class="material-symbols-outlined text-lg lg:text-xl">cloud_download</span>
+                                </div>
+                                <div class="flex flex-col text-left flex-1 min-w-0">
+                                    <p class="text-sm font-semibold truncate">Crear Backup Manual</p>
+                                    <p class="text-slate-500 dark:text-slate-400 text-xs truncate">Último: @lastBackupDate</p>
+                                </div>
+                            </div>
+                            <span class="material-symbols-outlined text-slate-400 text-sm">chevron_right</span>
+                        </button>
+                    </div>
+                </section>
+
+                <!-- App Info (Mobile only) -->
+                <div class="lg:hidden text-center py-4">
+                    <p class="text-xs text-slate-400 uppercase tracking-widest">
+                        AutoParts Marketplace v@appVersion
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons - Full Width on Mobile, Centered on Desktop -->
+        <div class="mt-8 lg:mt-12 grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4 lg:max-w-2xl lg:mx-auto">
+            <button class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
+                    @onclick="SaveChanges">
+                <span class="material-symbols-outlined">save</span>
+                Guardar cambios
+            </button>
+            <button class="w-full bg-transparent border-2 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold py-4 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
+                    @onclick="ConfigureSecurity">
+                <span class="material-symbols-outlined">shield_lock</span>
+                Configurar seguridad
+            </button>
+        </div>
+
+        <!-- App Version (Desktop only) -->
+        <div class="hidden lg:block text-center py-8">
+            <p class="text-xs text-slate-400 uppercase tracking-widest">
+                AutoParts Marketplace v@appVersion
+            </p>
+        </div>
+    </div>
+</main>

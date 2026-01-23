@@ -7,7 +7,21 @@
     scrollbar-width: none;
 }
 
-/* Smooth transitions */
-.group:hover .group-hover\:bg-primary {
-    transition: all 0.2s ease;
+/* Hover suave para los botones de acción */
+button[class*="bg-primary/10"]:hover,
+button[class*="bg-primary/20"]:hover {
+    background-color: rgba(var(--primary-rgb, 59, 130, 246), 0.15);
+}
+
+button[class*="bg-slate-100"]:hover {
+    background-color: rgba(148, 163, 184, 0.2);
+}
+
+.dark button[class*="bg-primary/10"]:hover,
+.dark button[class*="bg-primary/20"]:hover {
+    background-color: rgba(var(--primary-rgb, 59, 130, 246), 0.25);
+}
+
+.dark button[class*="bg-slate-800"]:hover {
+    background-color: rgba(71, 85, 105, 0.5);
 }

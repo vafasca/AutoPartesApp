@@ -1,0 +1,189 @@
+﻿/* ========================================
+   DELIVERY HISTORY STYLES
+   ======================================== */
+
+/* Safe Area for iOS */
+.safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Stats Cards */
+.stats-card {
+    transition: all 0.3s ease;
+}
+
+    .stats-card:hover {
+        transform: translateY(-2px);
+    }
+
+/* Status Dot Glow Effect */
+.size-2\.5 {
+    transition: all 0.3s ease;
+}
+
+.bg-green-500 {
+    animation: pulse-green 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.bg-red-500 {
+    animation: pulse-red 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse-green {
+    0%, 100% {
+        box-shadow: 0 0 8px rgba(11, 218, 91, 0.5);
+    }
+
+    50% {
+        box-shadow: 0 0 12px rgba(11, 218, 91, 0.7);
+    }
+}
+
+@keyframes pulse-red {
+    0%, 100% {
+        box-shadow: 0 0 8px rgba(250, 98, 56, 0.5);
+    }
+
+    50% {
+        box-shadow: 0 0 12px rgba(250, 98, 56, 0.7);
+    }
+}
+
+/* History List Items */
+.history-item {
+    transition: all 0.2s ease;
+}
+
+    .history-item:hover {
+        transform: translateX(4px);
+    }
+
+/* Smooth Transitions */
+.transition-colors {
+    transition-property: color, background-color, border-color;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 300ms;
+}
+
+.transition-all {
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 300ms;
+}
+
+/* Backdrop Blur */
+.backdrop-blur-md {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+/* ========================================
+   RESPONSIVE ADJUSTMENTS
+   ======================================== */
+
+@media (min-width: 1024px) {
+    /* Desktop Layout */
+    .max-w-4xl {
+        max-width: 56rem;
+    }
+
+    /* Enhanced hover effects on desktop */
+    @media (hover: hover) {
+        .history-item:hover {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+    }
+
+    /* Grid layout for stats on large screens */
+    .flex-wrap {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+}
+
+/* ========================================
+   DARK MODE SPECIFIC
+   ======================================== */
+
+@media (prefers-color-scheme: dark) {
+    .bg-slate-800\/40 {
+        background-color: rgba(30, 41, 59, 0.4);
+    }
+}
+
+/* ========================================
+   ANIMATIONS
+   ======================================== */
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Stagger animation for history items */
+.history-item {
+    animation: slideInUp 0.4s ease-out;
+}
+
+    .history-item:nth-child(1) {
+        animation-delay: 0s;
+    }
+
+    .history-item:nth-child(2) {
+        animation-delay: 0.05s;
+    }
+
+    .history-item:nth-child(3) {
+        animation-delay: 0.1s;
+    }
+
+    .history-item:nth-child(4) {
+        animation-delay: 0.15s;
+    }
+
+    .history-item:nth-child(5) {
+        animation-delay: 0.2s;
+    }
+
+/* iOS Home Indicator */
+.home-indicator {
+    width: 8rem;
+    height: 0.375rem;
+    background-color: #cbd5e1;
+    margin: 1rem auto 0;
+    border-radius: 9999px;
+}
+
+@media (prefers-color-scheme: dark) {
+    .home-indicator {
+        background-color: #475569;
+    }
+}
+
+/* ========================================
+   ACCESSIBILITY
+   ======================================== */
+
+/* Focus visible for keyboard navigation */
+.cursor-pointer:focus-visible {
+    outline: 2px solid #137fec;
+    outline-offset: 2px;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

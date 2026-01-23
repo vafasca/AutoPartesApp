@@ -1,0 +1,116 @@
+﻿@page "/delivery/history"
+@layout DeliveryLayout
+@namespace AutoPartesApp.Shared.Pages.Delivery
+
+<!-- TopAppBar -->
+<header class="sticky top-0 z-30 flex items-center bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md p-4 pb-2 justify-between border-b border-slate-200 dark:border-slate-800">
+    <button class="text-primary flex size-12 shrink-0 items-center justify-start cursor-pointer lg:hidden"
+            @onclick="GoBack">
+        <span class="material-symbols-outlined text-2xl">arrow_back_ios</span>
+    </button>
+    <h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-tight flex-1 text-center lg:text-left lg:pr-0 pr-12">
+        Historial de Entregas
+    </h2>
+</header>
+
+<!-- Main Content -->
+<div class="relative flex min-h-screen w-full flex-col max-w-4xl mx-auto overflow-x-hidden bg-background-light dark:bg-background-dark pb-24 lg:pb-8">
+
+    <!-- Stats Section - Responsive -->
+    <section class="mt-4">
+        <div class="flex flex-wrap gap-4 p-4">
+            <div class="flex min-w-[158px] flex-1 flex-col gap-2 rounded-xl p-5 bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition-shadow">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary text-xl">schedule</span>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm font-medium leading-normal">Tiempo Promedio</p>
+                </div>
+                <div class="flex items-baseline gap-2">
+                    <p class="text-slate-900 dark:text-white tracking-light text-2xl font-bold leading-tight">@stats.AverageTime</p>
+                    <p class="@(stats.TimeChange < 0 ? "text-red-500" : "text-green-500") text-sm font-semibold leading-normal">
+                        @(stats.TimeChange > 0 ? "+" : "")@stats.TimeChange%
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex min-w-[158px] flex-1 flex-col gap-2 rounded-xl p-5 bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition-shadow">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary text-xl">package_2</span>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm font-medium leading-normal">Total Entregas</p>
+                </div>
+                <div class="flex items-baseline gap-2">
+                    <p class="text-slate-900 dark:text-white tracking-light text-2xl font-bold leading-tight">@stats.TotalDeliveries</p>
+                    <p class="@(stats.DeliveriesChange > 0 ? "text-green-500" : "text-red-500") text-sm font-semibold leading-normal">
+                        @(stats.DeliveriesChange > 0 ? "+" : "")@stats.DeliveriesChange%
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section Header -->
+    <div class="px-4 pb-2 pt-4">
+        <h3 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-tight">Entregas Pasadas</h3>
+        <p class="text-slate-500 dark:text-slate-400 text-sm">Registro detallado de tus servicios</p>
+    </div>
+
+    <!-- History List - Responsive -->
+    <div class="flex flex-col gap-1 lg:gap-2 px-2 lg:px-4">
+        @foreach (var delivery in deliveryHistory)
+        {
+            <div class="flex gap-4 bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all rounded-xl px-4 py-4 justify-between items-center border border-transparent hover:border-slate-100 dark:hover:border-slate-700 cursor-pointer mb-1 hover:shadow-md"
+                 @onclick="() => ViewDeliveryDetails(delivery.Id)">
+
+                <div class="flex items-start gap-4 flex-1">
+                    <div class="@GetStatusIconClass(delivery.Status) flex items-center justify-center rounded-lg shrink-0 size-12">
+                        <span class="material-symbols-outlined">@GetStatusIcon(delivery.Status)</span>
+                    </div>
+
+                    <div class="flex flex-1 flex-col justify-center">
+                        <p class="text-slate-900 dark:text-white text-base font-bold leading-none mb-1">Pedido #@delivery.OrderNumber</p>
+                        <p class="@GetStatusTextClass(delivery.Status) text-xs font-medium uppercase tracking-wider mb-1">
+                            @delivery.Status
+                        </p>
+                        <p class="text-slate-400 dark:text-slate-500 text-xs font-normal leading-none">
+                            @delivery.Date • @delivery.Duration
+                        </p>
+                    </div>
+                </div>
+
+                <div class="shrink-0 flex flex-col items-end gap-1">
+                    <div class="flex size-7 items-center justify-center">
+                        <div class="size-2.5 rounded-full @GetStatusDotClass(delivery.Status)"></div>
+                    </div>
+                    <span class="@GetAmountTextClass(delivery.Status) font-bold text-sm">
+                        @delivery.Amount.ToString("C")
+                    </span>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Empty State -->
+    @if (deliveryHistory.Count == 0)
+    {
+        <div class="flex flex-col items-center justify-center py-16 px-4 text-center">
+            <div class="bg-slate-100 dark:bg-slate-800 p-6 rounded-full mb-4">
+                <span class="material-symbols-outlined text-slate-400 text-5xl">history</span>
+            </div>
+            <h3 class="text-slate-900 dark:text-white text-lg font-bold mb-2">No hay historial</h3>
+            <p class="text-slate-600 dark:text-slate-400 text-sm max-w-sm">
+                Tus entregas completadas aparecerán aquí.
+            </p>
+        </div>
+    }
+
+    <!-- Load More Button (Desktop) -->
+    @if (deliveryHistory.Count > 0 && hasMore)
+    {
+        <div class="flex justify-center p-6">
+            <button class="hidden lg:flex items-center gap-2 px-6 py-3 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                    @onclick="LoadMore">
+                <span class="material-symbols-outlined">expand_more</span>
+                Cargar más
+            </button>
+        </div>
+    }
+</div>

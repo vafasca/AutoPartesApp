@@ -2,34 +2,101 @@
 @using AutoPartesApp.Domain.Enums
 @namespace AutoPartesApp.Shared.Layout
 
-<div class="min-h-screen bg-background-light dark:bg-background-dark text-slate-900 dark:text-white pb-24">
-    <!-- Contenido principal de cada página -->
-    @Body
+<div class="layout-wrapper min-h-screen bg-background-light dark:bg-background-dark text-slate-900 dark:text-white">
 
-    <!-- Navegación inferior fija -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 pb-8 pt-3 px-2 z-[60]">
-        <div class="flex justify-between items-center max-w-md mx-auto">
-            <NavLink href="/client/dashboard" class="@GetNavLinkClass("/client/dashboard")" Match="NavLinkMatch.All">
+    <!-- Desktop Sidebar Navigation - FONDO OSCURO CORREGIDO -->
+    <nav class="hidden lg:flex fixed left-0 top-0 bottom-0 w-64 bg-slate-900 dark:bg-slate-900 border-r border-slate-700 dark:border-slate-700 flex-col z-50 shadow-2xl">
+        <!-- Logo -->
+        <div class="flex items-center gap-3 p-6 border-b border-slate-700 dark:border-slate-700">
+            <div class="bg-primary p-2 rounded-lg">
+                <span class="material-symbols-outlined text-white text-2xl">precision_manufacturing</span>
+            </div>
+            <h1 class="text-lg font-extrabold text-white dark:text-white">AutoParts</h1>
+        </div>
+
+        <!-- Navigation Links -->
+        <div class="flex-1 overflow-y-auto py-6 flex flex-col gap-2 px-3">
+            <NavLink href="/client/dashboard"
+                     class="@GetDesktopNavClass("/client/dashboard")"
+                     Match="NavLinkMatch.All">
+                <span class="material-symbols-outlined text-2xl">home</span>
+                <span class="text-sm font-bold uppercase tracking-wide">Principal</span>
+            </NavLink>
+
+            <NavLink href="/client/orders"
+                     class="@GetDesktopNavClass("/client/orders")">
+                <span class="material-symbols-outlined text-2xl">receipt_long</span>
+                <span class="text-sm font-bold uppercase tracking-wide">Pedidos</span>
+            </NavLink>
+
+            <NavLink href="/client/tracking"
+                     class="@GetDesktopNavClass("/client/tracking")">
+                <span class="material-symbols-outlined text-2xl">local_shipping</span>
+                <span class="text-sm font-bold uppercase tracking-wide">Rastreo</span>
+            </NavLink>
+
+            <NavLink href="/client/catalog"
+                     class="@GetDesktopNavClass("/client/catalog")">
+                <span class="material-symbols-outlined text-2xl">grid_view</span>
+                <span class="text-sm font-bold uppercase tracking-wide">Catálogo</span>
+            </NavLink>
+
+            <NavLink href="/client/settings"
+                     class="@GetDesktopNavClass("/client/settings")">
+                <span class="material-symbols-outlined text-2xl">settings</span>
+                <span class="text-sm font-bold uppercase tracking-wide">Ajustes</span>
+            </NavLink>
+        </div>
+
+        <!-- User Profile Section -->
+        <div class="p-4 border-t border-slate-700 dark:border-slate-700">
+            <div class="flex items-center gap-3 p-3 rounded-lg bg-slate-800 dark:bg-slate-800 hover:bg-slate-700 dark:hover:bg-slate-700 transition-colors cursor-pointer">
+                <div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-primary">person</span>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-bold text-white dark:text-white truncate">Carlos Rodríguez</p>
+                    <p class="text-xs text-slate-400 dark:text-slate-400 truncate">carlos@example.com</p>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <div class="main-content lg:ml-64 pb-24 lg:pb-0">
+        @Body
+    </div>
+
+    <!-- Mobile Bottom Navigation (Vertical: Icon Top, Text Bottom) -->
+    <nav class="lg:hidden fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 pb-8 pt-3 px-2 z-[60]">
+        <div class="grid grid-cols-5 max-w-md mx-auto">
+            <NavLink href="/client/dashboard"
+                     class="@GetNavLinkClass("/client/dashboard")"
+                     Match="NavLinkMatch.All">
                 <span class="material-symbols-outlined @GetIconFillClass("/client/dashboard")">home</span>
                 <span class="text-[9px] font-bold uppercase tracking-tighter">Principal</span>
             </NavLink>
 
-            <NavLink href="/client/orders" class="@GetNavLinkClass("/client/orders")">
+            <NavLink href="/client/orders"
+                     class="@GetNavLinkClass("/client/orders")">
                 <span class="material-symbols-outlined @GetIconFillClass("/client/orders")">receipt_long</span>
                 <span class="text-[9px] font-bold uppercase tracking-tighter">Pedidos</span>
             </NavLink>
 
-            <NavLink href="/client/tracking" class="@GetNavLinkClass("/client/tracking")">
+            <NavLink href="/client/tracking"
+                     class="@GetNavLinkClass("/client/tracking")">
                 <span class="material-symbols-outlined @GetIconFillClass("/client/tracking")">local_shipping</span>
                 <span class="text-[9px] font-bold uppercase tracking-tighter">Rastreo</span>
             </NavLink>
 
-            <NavLink href="/client/catalog" class="@GetNavLinkClass("/client/catalog")">
+            <NavLink href="/client/catalog"
+                     class="@GetNavLinkClass("/client/catalog")">
                 <span class="material-symbols-outlined @GetIconFillClass("/client/catalog")">grid_view</span>
                 <span class="text-[9px] font-bold uppercase tracking-tighter">Catálogo</span>
             </NavLink>
 
-            <NavLink href="/client/settings" class="@GetNavLinkClass("/client/settings")">
+            <NavLink href="/client/settings"
+                     class="@GetNavLinkClass("/client/settings")">
                 <span class="material-symbols-outlined @GetIconFillClass("/client/settings")">settings</span>
                 <span class="text-[9px] font-bold uppercase tracking-tighter">Ajustes</span>
             </NavLink>

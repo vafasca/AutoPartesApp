@@ -1,0 +1,157 @@
+﻿@page "/delivery/notifications"
+@layout DeliveryLayout
+@namespace AutoPartesApp.Shared.Pages.Delivery
+
+<!-- Top Navigation Bar -->
+<header class="sticky top-0 z-50 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+    <div class="flex items-center justify-between px-4 py-4 max-w-4xl mx-auto">
+        <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary">notifications_active</span>
+            <h1 class="text-xl font-bold tracking-tight text-slate-900 dark:text-white">Avisos y Alertas</h1>
+        </div>
+        <button class="text-primary text-sm font-bold hover:opacity-80 transition-opacity"
+                @onclick="MarkAllAsRead">
+            Marcar todo
+        </button>
+    </div>
+
+    <!-- Tabs Component - Responsive -->
+    <div class="px-4 max-w-4xl mx-auto">
+        <div class="flex border-b border-slate-200 dark:border-slate-800 gap-4 lg:gap-8">
+            <button class="flex flex-col items-center justify-center border-b-[3px] @(selectedTab == "pending" ? "border-primary" : "border-transparent") pb-[10px] pt-2 transition-colors"
+                    @onclick='() => SelectTab("pending")'>
+                <p class="@(selectedTab == "pending" ? "text-primary" : "text-slate-500 dark:text-slate-400") text-sm font-bold">
+                    Pendientes (@pendingCount)
+                </p>
+            </button>
+            <button class="flex flex-col items-center justify-center border-b-[3px] @(selectedTab == "read" ? "border-primary" : "border-transparent") pb-[10px] pt-2 transition-colors"
+                    @onclick='() => SelectTab("read")'>
+                <p class="@(selectedTab == "read" ? "text-primary" : "text-slate-500 dark:text-slate-400") text-sm font-bold">
+                    Leídos
+                </p>
+            </button>
+        </div>
+    </div>
+</header>
+
+<!-- Main Content -->
+<main class="flex-1 overflow-y-auto pb-24 lg:pb-8">
+    <div class="max-w-4xl mx-auto">
+        @if (selectedTab == "pending")
+        {
+            <!-- Pending Notifications -->
+            <div class="px-4 py-4">
+                <h3 class="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Recientes</h3>
+            </div>
+
+            <div class="space-y-1 lg:space-y-3">
+                @foreach (var notification in pendingNotifications)
+                {
+                    <div class="flex gap-4 bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 mx-4 p-4 lg:p-5 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 justify-between items-start hover:shadow-md transition-shadow">
+                        <div class="flex items-start gap-4 flex-1">
+                            <div class="@GetIconBgClass(notification.Type) text-white flex items-center justify-center rounded-lg shrink-0 size-12 @(notification.Type == "order" ? "shadow-lg shadow-primary/20" : "")">
+                                <span class="material-symbols-outlined">@GetIconName(notification.Type)</span>
+                            </div>
+                            <div class="flex flex-1 flex-col justify-center">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <p class="text-slate-900 dark:text-white text-base font-bold leading-normal">@notification.Title</p>
+                                    <span class="size-2 bg-primary rounded-full"></span>
+                                </div>
+                                <p class="text-slate-500 dark:text-slate-400 text-xs font-medium mb-1">@notification.Time</p>
+                                <p class="text-slate-600 dark:text-slate-400 text-sm font-normal leading-snug">@notification.Message</p>
+                            </div>
+                        </div>
+                        <div class="shrink-0 flex flex-col items-end gap-2">
+                            @if (notification.HasAction)
+                            {
+                                <button class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-8 px-4 bg-primary/10 text-primary text-xs font-bold leading-normal hover:bg-primary/20 transition-colors"
+                                        @onclick="() => MarkAsRead(notification.Id)">
+                                    <span>Leído</span>
+                                </button>
+                            }
+                            else
+                            {
+                                <button class="text-slate-400 hover:text-primary transition-colors"
+                                        @onclick="() => ToggleNotification(notification.Id)">
+                                    <span class="material-symbols-outlined">radio_button_unchecked</span>
+                                </button>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Older Section -->
+            @if (olderNotifications.Any())
+            {
+                <div class="px-4 py-6">
+                    <h3 class="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Ayer</h3>
+                </div>
+
+                <div class="space-y-1 lg:space-y-3">
+                    @foreach (var notification in olderNotifications)
+                    {
+                        <div class="flex gap-4 bg-slate-50/50 dark:bg-background-dark mx-4 p-4 lg:p-5 rounded-xl border border-transparent dark:border-slate-800/30 justify-between items-start opacity-70 hover:opacity-90 transition-opacity">
+                            <div class="flex items-start gap-4 flex-1">
+                                <div class="text-slate-400 flex items-center justify-center rounded-lg bg-slate-200 dark:bg-slate-700 shrink-0 size-12">
+                                    <span class="material-symbols-outlined">@GetIconName(notification.Type)</span>
+                                </div>
+                                <div class="flex flex-1 flex-col justify-center">
+                                    <p class="text-slate-900 dark:text-white text-base font-medium leading-normal">@notification.Title</p>
+                                    <p class="text-slate-500 dark:text-slate-400 text-xs font-medium mb-1">@notification.Time</p>
+                                    <p class="text-slate-600 dark:text-slate-400 text-sm font-normal leading-snug">@notification.Message</p>
+                                </div>
+                            </div>
+                            <div class="shrink-0">
+                                <span class="material-symbols-outlined text-green-500">check_circle</span>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        }
+        else
+        {
+            <!-- Read Notifications -->
+            <div class="px-4 py-4">
+                <h3 class="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Historial</h3>
+            </div>
+
+            @if (readNotifications.Count == 0)
+            {
+                <div class="flex flex-col items-center justify-center py-16 px-4 text-center">
+                    <div class="bg-slate-100 dark:bg-slate-800 p-6 rounded-full mb-4">
+                        <span class="material-symbols-outlined text-slate-400 text-5xl">notifications_off</span>
+                    </div>
+                    <h3 class="text-slate-900 dark:text-white text-lg font-bold mb-2">No hay notificaciones leídas</h3>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm max-w-sm">
+                        Las notificaciones que marques como leídas aparecerán aquí.
+                    </p>
+                </div>
+            }
+            else
+            {
+                <div class="space-y-1 lg:space-y-3">
+                    @foreach (var notification in readNotifications)
+                    {
+                        <div class="flex gap-4 bg-slate-50/50 dark:bg-background-dark mx-4 p-4 lg:p-5 rounded-xl border border-transparent dark:border-slate-800/30 justify-between items-start opacity-70">
+                            <div class="flex items-start gap-4 flex-1">
+                                <div class="text-slate-400 flex items-center justify-center rounded-lg bg-slate-200 dark:bg-slate-700 shrink-0 size-12">
+                                    <span class="material-symbols-outlined">@GetIconName(notification.Type)</span>
+                                </div>
+                                <div class="flex flex-1 flex-col justify-center">
+                                    <p class="text-slate-900 dark:text-white text-base font-medium leading-normal">@notification.Title</p>
+                                    <p class="text-slate-500 dark:text-slate-400 text-xs font-medium mb-1">@notification.Time</p>
+                                    <p class="text-slate-600 dark:text-slate-400 text-sm font-normal leading-snug">@notification.Message</p>
+                                </div>
+                            </div>
+                            <div class="shrink-0">
+                                <span class="material-symbols-outlined text-green-500">check_circle</span>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        }
+    </div>
+</main>

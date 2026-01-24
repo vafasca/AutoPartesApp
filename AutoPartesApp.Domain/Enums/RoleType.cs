@@ -28,10 +28,10 @@ namespace AutoPartesApp.Domain.Enums
         {
             return role.ToLower() switch
             {
-                "admin" => RoleType.Admin,
-                "delivery" => RoleType.Delivery,
-                "client" => RoleType.Client,
-                _ => RoleType.Client // Default
+                "admin" or "administrador" => RoleType.Admin,
+                "delivery" or "repartidor" => RoleType.Delivery,
+                "client" or "cliente" => RoleType.Client,
+                _ => RoleType.Client
             };
         }
     }

@@ -1,7 +1,9 @@
 ﻿using AutoPartesApp.Core.Application.Auth;
+using AutoPartesApp.Core.Application.Inventory;
 using AutoPartesApp.Domain.Interfaces;
-using AutoPartesApp.Shared.Services;
 using AutoPartesApp.Infrastructure.Identity;
+using AutoPartesApp.Infrastructure.Persistence.Repositories;
+using AutoPartesApp.Shared.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -20,13 +22,21 @@ namespace AutoPartesApp.Shared.Extensions
                 client.Timeout = TimeSpan.FromSeconds(30);
             });
 
-            // Servicios de Infraestructura
+            // ✅ Repositorios
+            services.AddScoped<IProductRepository, ProductRepository>();
+            services.AddScoped<IOrderRepository, OrderRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
+
+            // ✅ Servicios de Infraestructura
             services.AddScoped<IAuthService, AuthService>();
 
-            // Casos de Uso de Aplicación
+            // ✅ Casos de Uso de Aplicación
             services.AddScoped<LoginUseCase>();
+            services.AddScoped<GetLowStockUseCase>();
+            services.AddScoped<CreateProductUseCase>();
+            services.AddScoped<UpdateProductUseCase>();
 
-            // Servicios de Presentación
+            // ✅ Servicios de Presentación
             services.AddScoped<AuthState>();
             services.AddScoped<LoginService>();
 

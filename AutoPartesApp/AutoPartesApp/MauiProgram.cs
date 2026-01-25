@@ -20,6 +20,9 @@ namespace AutoPartesApp
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 });
 
+            // Configurar DbContext con SQLite para MAUI
+            var dbPath = Path.Combine(FileSystem.AppDataDirectory, "autopartes.db");
+
             // Add device-specific services used by the AutoPartesApp.Shared project
             builder.Services.AddSingleton<IFormFactor, FormFactor>();
 

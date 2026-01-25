@@ -1,10 +1,12 @@
 using AutoPartesApp.Core.Application.Auth;
 using AutoPartesApp.Domain.Interfaces;
-using AutoPartesApp.Shared.Services;
+using AutoPartesApp.Infrastructure.Identity;
+using AutoPartesApp.Infrastructure.Persistence;
 using AutoPartesApp.Shared.Extensions;
+using AutoPartesApp.Shared.Services;
 using AutoPartesApp.Web.Components;
 using AutoPartesApp.Web.Services;
-using AutoPartesApp.Infrastructure.Identity;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +17,12 @@ builder.Services.AddRazorComponents()
 
 // Add device-specific services used by the AutoPartesApp.Shared project
 builder.Services.AddSingleton<IFormFactor, FormFactor>();
+
+builder.Services.AddDbContext<AutoPartesDbContext>(options =>
+    options.UseNpgsql(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        b => b.MigrationsAssembly("AutoPartesApp.Infrastructure")
+    ));
 
 //added
 builder.Services.AddHttpClient<IAuthService, AuthService>(client =>

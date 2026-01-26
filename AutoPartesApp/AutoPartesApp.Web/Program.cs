@@ -5,6 +5,7 @@ using AutoPartesApp.Shared.Extensions;
 using AutoPartesApp.Shared.Services;
 using AutoPartesApp.Web.Components;
 using AutoPartesApp.Web.Services;
+using AutoPartesApp.Shared.Services.Admin;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,21 +17,22 @@ builder.Services.AddRazorComponents()
 // Servicios específicos del dispositivo
 builder.Services.AddSingleton<IFormFactor, FormFactor>();
 
-// ✅ CONFIGURACIÓN CORREGIDA: HttpClient con BaseAddress explícita
+//HttpClient con BaseAddress explícita
 builder.Services.AddHttpClient<IAuthService, AuthService>(client =>
 {
-    // ⚠️ Asegúrate de que esta URL coincida con tu API
+    //API
     client.BaseAddress = new Uri("https://localhost:7120/");
     client.Timeout = TimeSpan.FromSeconds(30);
 });
 
-// ✅ TAMBIÉN registrar HttpClient genérico para otros usos
+//HttpClient genérico para otros usos
 builder.Services.AddHttpClient();
 
 // Casos de uso y servicios de presentación
 builder.Services.AddScoped<LoginUseCase>();
 builder.Services.AddScoped<LoginService>();
 builder.Services.AddScoped<AuthState>();
+builder.Services.AddScoped<DashboardService>();
 
 // Extensión común para Web (sin repositorios ni DbContext)
 builder.Services.AddAutoPartesWebServices();

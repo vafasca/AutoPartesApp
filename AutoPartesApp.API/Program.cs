@@ -7,6 +7,10 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using AutoPartesApp.Core.Application.Admin.Dashboard;
+using AutoPartesApp.Core.Application.Orders;
+using AutoPartesApp.Core.Application.Reports;
+using AutoPartesApp.Core.Application.Users;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -73,6 +77,26 @@ builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<GetLowStockUseCase>();
 builder.Services.AddScoped<CreateProductUseCase>();
 builder.Services.AddScoped<UpdateProductUseCase>();
+
+// Use Cases - Inventory
+builder.Services.AddScoped<GetLowStockUseCase>();
+builder.Services.AddScoped<CreateProductUseCase>();
+builder.Services.AddScoped<UpdateProductUseCase>();
+
+// Use Cases - Admin
+builder.Services.AddScoped<GetAdminDashboardUseCase>();
+
+// Use Cases - Orders
+//builder.Services.AddScoped<AssignDeliveryUseCase>();
+//builder.Services.AddScoped<ChangeOrderStatusUseCase>();
+//builder.Services.AddScoped<CreateOrderUseCase>();
+
+// Use Cases - Reports
+//builder.Services.AddScoped<GetSalesReportUseCase>();
+
+// Use Cases - Users
+//builder.Services.AddScoped<BlockUserUseCase>();
+//builder.Services.AddScoped<GetCustomersUseCase>();
 
 // JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");

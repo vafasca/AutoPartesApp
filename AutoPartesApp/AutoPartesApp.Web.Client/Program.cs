@@ -5,6 +5,7 @@ using AutoPartesApp.Core.Application.Auth;
 using AutoPartesApp.Domain.Interfaces;
 using AutoPartesApp.Shared.Extensions;
 using AutoPartesApp.Infrastructure.Identity;
+using AutoPartesApp.Shared.Services.Admin;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
@@ -22,6 +23,7 @@ builder.Services.AddHttpClient<IAuthService, AuthService>(client =>
 builder.Services.AddScoped<LoginUseCase>();
 builder.Services.AddScoped<LoginService>();
 builder.Services.AddScoped<AuthState>();
+builder.Services.AddScoped<DashboardService>();
 
 // … aquí puedes agregar otros servicios de AutoPartesApp.Shared.Services
 // builder.Services.AddScoped<PedidosService>();

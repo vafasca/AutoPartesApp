@@ -5,6 +5,7 @@ using AutoPartesApp.Shared.Services;
 using AutoPartesApp.Shared.Extensions;
 using Microsoft.Extensions.Logging;
 using AutoPartesApp.Infrastructure.Identity;
+using AutoPartesApp.Shared.Services.Admin;
 
 namespace AutoPartesApp
 {
@@ -41,6 +42,7 @@ namespace AutoPartesApp
             builder.Services.AddScoped<LoginUseCase>();
             builder.Services.AddScoped<LoginService>();
             builder.Services.AddScoped<AuthState>();
+            builder.Services.AddScoped<DashboardService>();
 
             builder.Services.AddAutoPartesWebServices();
 

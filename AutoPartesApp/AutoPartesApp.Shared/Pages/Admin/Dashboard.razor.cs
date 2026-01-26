@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using AutoPartesApp.Core.Application.DTOs.AdminDTOs;
+using AutoPartesApp.Shared.Services.Admin;
+using Microsoft.AspNetCore.Components;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,19 +12,130 @@ namespace AutoPartesApp.Shared.Pages.Admin
         [Inject]
         private NavigationManager? NavigationManager { get; set; }
 
+        [Inject]
+        private DashboardService? DashboardService { get; set; }
+
         // State
         private bool hasNotifications = true;
         private string selectedPeriod = "week";
+        private bool isLoading = true;
 
-        // Data
+        // Data from API
+        private AdminDashboardDto? dashboardData;
         private AdminProfile adminProfile = new();
         private List<KpiMetric> kpiMetrics = new();
         private List<string> chartDays = new();
         private List<RecentOrder> recentOrders = new();
 
-        protected override void OnInitialized()
+        protected override async Task OnInitializedAsync()
         {
             LoadAdminProfile();
+            await LoadDashboardDataFromApi();
+        }
+
+        private async Task LoadDashboardDataFromApi()
+        {
+            isLoading = true;
+            StateHasChanged();
+
+            try
+            {
+                dashboardData = await DashboardService!.GetAdminDashboardAsync();
+
+                if (dashboardData != null)
+                {
+                    // Mapear datos de la API a los modelos locales
+                    MapDashboardData();
+                }
+                else
+                {
+                    // Fallback a datos mock si la API falla
+                    LoadMockData();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading dashboard: {ex.Message}");
+                LoadMockData();
+            }
+            finally
+            {
+                isLoading = false;
+                StateHasChanged();
+            }
+        }
+
+        private void MapDashboardData()
+        {
+            if (dashboardData == null) return;
+
+            // Mapear KPIs
+            kpiMetrics = new List<KpiMetric>
+            {
+                new KpiMetric
+                {
+                    Title = "Ventas Totales",
+                    Value = dashboardData.Stats.TotalSales.ToString("C"),
+                    Icon = "trending_up",
+                    IconColor = "text-primary",
+                    ChangeText = $"{(dashboardData.Stats.SalesChangePercentage >= 0 ? "+" : "")}{dashboardData.Stats.SalesChangePercentage:F1}% hoy",
+                    ChangeColor = dashboardData.Stats.SalesChangePercentage >= 0 ? "text-[#0bda5b]" : "text-[#fa6238]",
+                    ChangeBgColor = dashboardData.Stats.SalesChangePercentage >= 0 ? "bg-[#0bda5b]/10" : "bg-[#fa6238]/10"
+                },
+                new KpiMetric
+                {
+                    Title = "Ticket Prom.",
+                    Value = dashboardData.Stats.AverageTicket.ToString("C"),
+                    Icon = "payments",
+                    IconColor = "text-orange-400",
+                    ChangeText = $"{(dashboardData.Stats.TicketChangePercentage >= 0 ? "+" : "")}{dashboardData.Stats.TicketChangePercentage:F1}% sem.",
+                    ChangeColor = dashboardData.Stats.TicketChangePercentage >= 0 ? "text-[#0bda5b]" : "text-[#fa6238]",
+                    ChangeBgColor = dashboardData.Stats.TicketChangePercentage >= 0 ? "bg-[#0bda5b]/10" : "bg-[#fa6238]/10"
+                },
+                new KpiMetric
+                {
+                    Title = "Tasa Conv.",
+                    Value = $"{dashboardData.Stats.ConversionRate:F1}%",
+                    Icon = "ads_click",
+                    IconColor = "text-blue-400",
+                    ChangeText = $"{(dashboardData.Stats.ConversionChangePercentage >= 0 ? "+" : "")}{dashboardData.Stats.ConversionChangePercentage:F1}% mes",
+                    ChangeColor = dashboardData.Stats.ConversionChangePercentage >= 0 ? "text-[#0bda5b]" : "text-[#fa6238]",
+                    ChangeBgColor = dashboardData.Stats.ConversionChangePercentage >= 0 ? "bg-[#0bda5b]/10" : "bg-[#fa6238]/10"
+                }
+            };
+
+            // Mapear días del gráfico
+            chartDays = dashboardData.SalesChart.Labels;
+
+            // Mapear pedidos recientes
+            recentOrders = dashboardData.RecentOrders.Select(dto => new RecentOrder
+            {
+                Id = int.Parse(dto.Id.Split('-').Last()), // Simplificado
+                OrderNumber = dto.OrderNumber,
+                CustomerName = dto.CustomerName,
+                TimeAgo = dto.TimeAgo,
+                Total = dto.Total,
+                Status = dto.Status,
+                Icon = GetIconForStatus(dto.Status)
+            }).ToList();
+
+            Console.WriteLine($"✅ Dashboard mapeado: {kpiMetrics.Count} KPIs, {recentOrders.Count} orders");
+        }
+
+        private string GetIconForStatus(string status)
+        {
+            return status switch
+            {
+                "PENDIENTE" => "receipt_long",
+                "ENVIADO" => "local_shipping",
+                "COMPLETADO" => "task_alt",
+                _ => "receipt_long"
+            };
+        }
+
+        private void LoadMockData()
+        {
+            // Tu implementación mock actual como fallback
             LoadKpiMetrics();
             LoadChartDays();
             LoadRecentOrders();
@@ -146,7 +259,8 @@ namespace AutoPartesApp.Shared.Pages.Admin
         {
             selectedPeriod = period;
             Console.WriteLine($"📊 Cambio de período: {period}");
-            // Aquí cargarías datos del período seleccionado
+            // Recargar datos con el nuevo período
+            _ = LoadDashboardDataFromApi();
         }
 
         private void GoToOrders() => NavigationManager?.NavigateTo("/admin/orders");
@@ -157,10 +271,9 @@ namespace AutoPartesApp.Shared.Pages.Admin
         private void ViewOrderDetail(int orderId)
         {
             Console.WriteLine($"Ver detalle del pedido: {orderId}");
-            // NavigationManager?.NavigateTo($"/admin/order-detail/{orderId}");
         }
 
-        // Data Models
+        // Data Models (mantener los existentes)
         private class AdminProfile
         {
             public string Name { get; set; } = string.Empty;

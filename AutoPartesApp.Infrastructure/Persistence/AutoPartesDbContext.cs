@@ -78,31 +78,62 @@ namespace AutoPartesApp.Infrastructure.Persistence
 
         private void SeedData(ModelBuilder modelBuilder)
         {
-            // Seed Categories con fechas fijas en UTC
             var seedDate = DateTime.SpecifyKind(new DateTime(2024, 01, 01), DateTimeKind.Utc);
 
+            // Categories
             modelBuilder.Entity<Category>().HasData(
-                new Category { Id = "1", Name = "Motor", Description = "Repuestos de motor", CreatedAt = seedDate },
-                new Category { Id = "2", Name = "Frenos", Description = "Sistema de frenado", CreatedAt = seedDate },
-                new Category { Id = "3", Name = "Suspensión", Description = "Amortiguadores y suspensión", CreatedAt = seedDate },
-                new Category { Id = "4", Name = "Eléctrico", Description = "Sistema eléctrico", CreatedAt = seedDate },
-                new Category { Id = "5", Name = "Filtros", Description = "Filtros de aire, aceite, combustible", CreatedAt = seedDate },
-                new Category { Id = "6", Name = "Llantas", Description = "Neumáticos y llantas", CreatedAt = seedDate }
+                new Category { Id = "1", Name = "Motor", Description = "Repuestos de motor", CreatedAt = seedDate, UpdatedAt = seedDate },
+                new Category { Id = "2", Name = "Frenos", Description = "Sistema de frenado", CreatedAt = seedDate, UpdatedAt = seedDate },
+                new Category { Id = "3", Name = "Suspensión", Description = "Amortiguadores y suspensión", CreatedAt = seedDate, UpdatedAt = seedDate },
+                new Category { Id = "4", Name = "Eléctrico", Description = "Sistema eléctrico", CreatedAt = seedDate, UpdatedAt = seedDate },
+                new Category { Id = "5", Name = "Filtros", Description = "Filtros de aire, aceite, combustible", CreatedAt = seedDate, UpdatedAt = seedDate },
+                new Category { Id = "6", Name = "Llantas", Description = "Neumáticos y llantas", CreatedAt = seedDate, UpdatedAt = seedDate }
             );
 
-            // Seed Admin User con fecha fija en UTC
+            // Usuarios de prueba
             modelBuilder.Entity<User>().HasData(
+                // Admin
                 new User
                 {
                     Id = "admin-001",
                     Email = "admin@autopartes.com",
                     FullName = "Administrador Principal",
+                    Phone = "+52 555-0001",
+                    PasswordHash = "admin123", // ⚠️ TEMPORAL - en producción usar BCrypt
                     RoleType = Domain.Enums.RoleType.Admin,
                     IsActive = true,
-                    CreatedAt = seedDate
+                    CreatedAt = seedDate,
+                    UpdatedAt = seedDate
+                },
+                // Delivery
+                new User
+                {
+                    Id = "delivery-001",
+                    Email = "delivery@autopartes.com",
+                    FullName = "Roberto Sánchez",
+                    Phone = "+52 555-0002",
+                    PasswordHash = "delivery123",
+                    RoleType = Domain.Enums.RoleType.Delivery,
+                    IsActive = true,
+                    CreatedAt = seedDate,
+                    UpdatedAt = seedDate
+                },
+                // Client
+                new User
+                {
+                    Id = "client-001",
+                    Email = "client@autopartes.com",
+                    FullName = "Carlos Rodríguez",
+                    Phone = "+52 555-0003",
+                    PasswordHash = "client123",
+                    RoleType = Domain.Enums.RoleType.Client,
+                    IsActive = true,
+                    CreatedAt = seedDate,
+                    UpdatedAt = seedDate
                 }
             );
         }
+
 
     }
 }

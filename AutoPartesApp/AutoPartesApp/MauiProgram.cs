@@ -20,25 +20,29 @@ namespace AutoPartesApp
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 });
 
-            // Configurar DbContext con SQLite para MAUI
-            var dbPath = Path.Combine(FileSystem.AppDataDirectory, "autopartes.db");
-
-            // Add device-specific services used by the AutoPartesApp.Shared project
             builder.Services.AddSingleton<IFormFactor, FormFactor>();
 
             builder.Services.AddMauiBlazorWebView();
 
-            //added
-            builder.Services.AddHttpClient<IAuthService, AuthService>(client =>
+            builder.Services.AddHttpClient("AutoPartesAPI", client =>
             {
-                client.BaseAddress = new Uri("https://69691d6d69178471522ca1bb.mockapi.io/api/v1/");
+                client.BaseAddress = new Uri("https://localhost:7120/");
+                client.Timeout = TimeSpan.FromSeconds(30);
             });
 
+            builder.Services.AddScoped<IAuthService, AuthService>(sp =>
+            {
+                var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
+                var httpClient = httpClientFactory.CreateClient("AutoPartesAPI");
+                return new AuthService(httpClient);
+            });
+
+            // Casos de uso y servicios
             builder.Services.AddScoped<LoginUseCase>();
             builder.Services.AddScoped<LoginService>();
             builder.Services.AddScoped<AuthState>();
 
-            builder.Services.AddAutoPartesServices();
+            builder.Services.AddAutoPartesWebServices();
 
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();

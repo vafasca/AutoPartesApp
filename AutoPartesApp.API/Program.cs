@@ -1,3 +1,8 @@
+ï»¿using AutoPartesApp.Core.Application.Inventory;
+using AutoPartesApp.Domain.Interfaces;
+using AutoPartesApp.Infrastructure.Persistence;
+using AutoPartesApp.Infrastructure.Persistence.Repositories;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -6,52 +11,11 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 // ========================================
-// CONFIGURACIÓN DE SERVICIOS
+// CONFIGURACIÃ“N DE SERVICIOS
 // ========================================
-
-// CORS - Permitir llamadas desde Blazor
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowBlazorClient", policy =>
-    {
-        var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
-            ?? new[] { "https://localhost:7001" };
-
-        policy.WithOrigins(allowedOrigins)
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials();
-    });
-});
-
-// JWT Authentication
-var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-var secretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey no configurada");
-
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = jwtSettings["Issuer"],
-            ValidAudience = jwtSettings["Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(secretKey)
-            ),
-            ClockSkew = TimeSpan.Zero
-        };
-    });
-
-builder.Services.AddAuthorization();
 
 // Controllers
 builder.Services.AddControllers();
-
-// Swagger con Swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -67,7 +31,7 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 
-    // Configuración JWT en Swagger
+    // ConfiguraciÃ³n JWT en Swagger
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Description = "JWT Authorization header. Ejemplo: \"Bearer {token}\"",
@@ -93,28 +57,84 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// TODO: Aquí agregarás DbContext, Repositorios, etc.
+// Database (PostgreSQL)
+builder.Services.AddDbContext<AutoPartesDbContext>(options =>
+    options.UseNpgsql(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        b => b.MigrationsAssembly("AutoPartesApp.Infrastructure")
+    ));
 
-// ========================================
-// CONFIGURACIÓN DEL PIPELINE
-// ========================================
+// Repositories
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+
+// Use Cases
+builder.Services.AddScoped<GetLowStockUseCase>();
+builder.Services.AddScoped<CreateProductUseCase>();
+builder.Services.AddScoped<UpdateProductUseCase>();
+
+// JWT Authentication
+var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+var secretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey no configurada");
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtSettings["Issuer"],
+            ValidAudience = jwtSettings["Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(secretKey)
+            ),
+            ClockSkew = TimeSpan.Zero
+        };
+    });
+
+builder.Services.AddAuthorization();
+
+// CORS - IMPORTANTE para Blazor
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowBlazor", policy =>
+    {
+        policy.WithOrigins(
+            "https://localhost:7192",  // Puerto CORRECTO de tu Blazor Web
+            "http://localhost:5192",   // Puerto HTTP alternativo
+            "https://localhost:7159",  // Mantener por si cambias de puerto
+            "http://localhost:5159"    // Puerto HTTP alternativo
+        )
+        .AllowAnyMethod()
+        .AllowAnyHeader()
+        .AllowCredentials();
+    });
+});
 
 var app = builder.Build();
 
-// Swagger en desarrollo
+// ========================================
+// CONFIGURACIÃ“N DEL PIPELINE
+// ========================================
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "AutoPartes API v1");
-        c.RoutePrefix = string.Empty; // Swagger en la raíz
+        c.RoutePrefix = string.Empty; // Swagger en la raÃ­z
     });
 }
 
 app.UseHttpsRedirection();
 
-app.UseCors("AllowBlazorClient");
+// IMPORTANTE: CORS debe ir antes de Authentication/Authorization
+app.UseCors("AllowBlazor");
 
 app.UseAuthentication();
 app.UseAuthorization();

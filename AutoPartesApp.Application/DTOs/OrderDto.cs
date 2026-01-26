@@ -4,7 +4,7 @@ using System.Text;
 
 namespace AutoPartesApp.Core.Application.DTOs
 {
-    internal class OrderDto
+    public class OrderDto
     {
     }
 }

@@ -33,7 +33,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\v1\" />
     <Folder Include="Middleware\" />
     <Folder Include="Extensions\" />
     <Folder Include="Filters\" />

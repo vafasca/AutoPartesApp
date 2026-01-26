@@ -6,34 +6,29 @@ using AutoPartesApp.Domain.Interfaces;
 using AutoPartesApp.Shared.Extensions;
 using AutoPartesApp.Infrastructure.Identity;
 
-
-
-
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
-// Add device-specific services used by the AutoPartesApp.Shared project
+//Servicios específicos del dispositivo
 builder.Services.AddSingleton<IFormFactor, FormFactor>();
 
-// HttpClient para AuthService
+//HttpClient para AuthService apuntando a tu API real
 builder.Services.AddHttpClient<IAuthService, AuthService>(client =>
 {
-    client.BaseAddress = new Uri("https://69691d6d69178471522ca1bb.mockapi.io/api/v1/");
+    client.BaseAddress = new Uri("https://localhost:7120/");
+    client.Timeout = TimeSpan.FromSeconds(30);
 });
 
-// Casos de uso y servicios que se inyectan en componentes Shared
+//Casos de uso y servicios que se inyectan en componentes Shared
 builder.Services.AddScoped<LoginUseCase>();
-builder.Services.AddScoped<LoginService>();
-
-// Aquí agregas TODOS los servicios que tus componentes Shared usan
-//builder.Services.AddScoped<PedidosService>();
-//builder.Services.AddScoped<CatalogoService>();
 builder.Services.AddScoped<LoginService>();
 builder.Services.AddScoped<AuthState>();
 
-// … cualquier otro servicio que esté en AutoPartesApp.Shared.Services
+// … aquí puedes agregar otros servicios de AutoPartesApp.Shared.Services
+// builder.Services.AddScoped<PedidosService>();
+// builder.Services.AddScoped<CatalogoService>();
 
-// Extensiones comunes
-builder.Services.AddAutoPartesServices();
-
+//Extensión común para Web (sin repositorios ni DbContext)
+builder.Services.AddAutoPartesWebServices();
 
 await builder.Build().RunAsync();
+

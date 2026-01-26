@@ -82,13 +82,13 @@ namespace AutoPartesApp.Shared.Pages.Common
         {
             var route = role.ToLower() switch
             {
-                "admin" => "/admin/dashboard", //admin/dashboard
-                "delivery" => "/delivery/dashboard", //delivery/orders
-                "client" => "/client/dashboard", // client/catalog
-                _ => "/home"
+                "admin" or "administrador" => "/admin/dashboard",
+                "delivery" or "repartidor" => "/delivery/dashboard",
+                "client" or "cliente" => "/client/dashboard",
+                _ => "/login"
             };
 
-            Console.WriteLine($"🔄 Redirigiendo a: {route}");
+            Console.WriteLine($"Redirigiendo a: {route}");
             NavigationManager?.NavigateTo(route, forceLoad: true);
         }
 
@@ -107,25 +107,25 @@ namespace AutoPartesApp.Shared.Pages.Common
 
         private void ForgotPassword()
         {
-            Console.WriteLine("🔑 Recuperar contraseña");
+            Console.WriteLine("Recuperar contraseña");
             NavigationManager?.NavigateTo("/forgot-password");
         }
 
         private void CreateAccount()
         {
-            Console.WriteLine("📝 Crear cuenta nueva");
+            Console.WriteLine("Crear cuenta nueva");
             NavigationManager?.NavigateTo("/register");
         }
 
         private void ExploreAsGuest()
         {
-            Console.WriteLine("👤 Explorar como invitado");
+            Console.WriteLine("Explorar como invitado");
             NavigationManager?.NavigateTo("/catalog");
         }
 
         private void GoBack()
         {
-            Console.WriteLine("⬅️ Volver atrás");
+            Console.WriteLine("Volver atrás");
             NavigationManager?.NavigateTo("/");
         }
     }

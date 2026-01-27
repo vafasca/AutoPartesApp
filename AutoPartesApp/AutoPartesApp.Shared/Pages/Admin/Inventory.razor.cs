@@ -1,12 +1,19 @@
 ﻿using Microsoft.AspNetCore.Components;
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
+using System.Threading.Tasks;
+using AutoPartesApp.Shared.Services.Admin;
+using AutoPartesApp.Shared.Models.Admin;
+using AutoPartesApp.Application.DTOs;
 
 namespace AutoPartesApp.Shared.Pages.Admin
 {
     public partial class Inventory : ComponentBase
     {
+        [Inject]
+        private InventoryService? InventoryService { get; set; }
+        
         [Inject]
         private NavigationManager? NavigationManager { get; set; }
 
@@ -31,127 +38,98 @@ namespace AutoPartesApp.Shared.Pages.Admin
 
         private async Task LoadData()
         {
+            if (InventoryService == null) return;
+            
             isLoading = true;
             StateHasChanged();
 
-            await Task.Delay(500); // Simular carga
-
-            LoadInventoryStats();
-            LoadFilters();
-            LoadProducts();
-
-            isLoading = false;
-            StateHasChanged();
-        }
-
-        private void LoadInventoryStats()
-        {
-            inventoryStats = new List<InventoryStat>
+            try
             {
-                new InventoryStat
+                var inventoryData = await InventoryService.GetInventoryDataAsync();
+                
+                // Convertir ProductDto a ProductItem
+                allProducts = inventoryData.Products.Select(p => new ProductItem
                 {
-                    Title = "Valor Total",
-                    Value = "$452,000",
-                    Icon = "trending_up",
-                    TrendText = "+5.2%",
-                    TrendColor = "text-emerald-500"
-                },
-                new InventoryStat
+                    Id = p.Id,
+                    Name = p.Name,
+                    Sku = p.Sku,
+                    Price = p.Price,
+                    Stock = p.Stock,
+                    StockStatus = p.StockStatus,
+                    Category = p.CategoryName,
+                    ImageUrl = p.ImageUrl
+                }).ToList();
+
+                // Actualizar estadísticas
+                inventoryStats = new List<InventoryStat>
                 {
-                    Title = "Alertas Stock",
-                    Value = "12 items",
-                    Icon = "warning",
-                    TrendText = "Low stock",
-                    TrendColor = "text-amber-500"
-                }
-            };
+                    new InventoryStat
+                    {
+                        Title = "Valor Total",
+                        Value = inventoryData.Stats.TotalValue.ToString("C"),
+                        Icon = "trending_up",
+                        TrendText = "+5.2%",
+                        TrendColor = "text-emerald-500"
+                    },
+                    new InventoryStat
+                    {
+                        Title = "Productos Bajo Stock",
+                        Value = $"{inventoryData.Stats.LowStockCount} items",
+                        Icon = "warning",
+                        TrendText = "Low stock",
+                        TrendColor = "text-amber-500"
+                    },
+                    new InventoryStat
+                    {
+                        Title = "Productos Sin Stock",
+                        Value = $"{inventoryData.Stats.OutOfStockCount} items",
+                        Icon = "block",
+                        TrendText = "Out of stock",
+                        TrendColor = "text-red-500"
+                    }
+                };
+
+                // Actualizar filtros
+                LoadFilters(inventoryData);
+
+                totalProducts = inventoryData.TotalProducts;
+                filteredProducts = new List<ProductItem>(allProducts);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading inventory data: {ex.Message}");
+                // Manejar error de forma adecuada
+            }
+            finally
+            {
+                isLoading = false;
+                StateHasChanged();
+            }
         }
 
-        private void LoadFilters()
+        private void LoadFilters(InventoryViewModel inventoryData)
         {
+            var categoryCounts = allProducts.GroupBy(p => p.Category)
+                                           .Select(g => new { Category = g.Key, Count = g.Count() })
+                                           .ToList();
+
             filters = new List<FilterOption>
             {
-                new FilterOption { Label = "Todos", Value = "Todos", Count = 0 },
-                new FilterOption { Label = "Bajo Stock", Value = "Bajo Stock", Count = 3 },
-                new FilterOption { Label = "Sin Stock", Value = "Sin Stock", Count = 1 },
-                new FilterOption { Label = "Motor", Value = "Motor", Count = 4 }
+                new FilterOption { Label = "Todos", Value = "Todos", Count = allProducts.Count },
+                new FilterOption { Label = "Bajo Stock", Value = "Bajo Stock", Count = inventoryData.Stats.LowStockCount },
+                new FilterOption { Label = "Sin Stock", Value = "Sin Stock", Count = inventoryData.Stats.OutOfStockCount }
             };
-        }
 
-        private void LoadProducts()
-        {
-            allProducts = new List<ProductItem>
+            // Añadir categorías únicas con conteos
+            foreach (var category in categoryCounts)
             {
-                new ProductItem
-                {
-                    Id = 1,
-                    Name = "Filtro de Aceite Bosch",
-                    Sku = "BO-44921-MT",
-                    Price = 12.50m,
-                    Stock = 5,
-                    StockStatus = "Bajo Stock",
-                    Category = "Motor",
-                    ImageUrl = "https://lh3.googleusercontent.com/aida-public/AB6AXuAtiox9TJXUAiSseJQmSfXikwbJGHUEPi7N9wx0xwszHMjibwcpBLcCKJZoX8UU-tKGn78_MfENXELASdx92BT6uUbxcEVPH6kj3brP0-QBnBvvDx1WZD7M71arhjEu9oL-2_SMcXH8aklAdmgLQbTCimzVSgmn8SovX9aKFvV7AZqVlPVwEfKzs7U7OHgWkZV5XMGZ1_KgRRAZhDDl1llbR7IvJkQBzZUjAVPtGAgcpZ3FR_Efn-Xs_0RVXCMyXqZRBOu4tg5mWgM"
-                },
-                new ProductItem
-                {
-                    Id = 2,
-                    Name = "Pastillas Freno Brembo",
-                    Sku = "BR-99201-FR",
-                    Price = 85.00m,
-                    Stock = 24,
-                    StockStatus = "Disponible",
-                    Category = "Frenos",
-                    ImageUrl = "https://lh3.googleusercontent.com/aida-public/AB6AXuCOz3tONHKIaAOG9OjRD-BhVcPZTtoGQu9tczLFBL-SaquR5SM7e3uEAzTGI8o579UNXA0CJGHzKz8BEbniV4TrjMva4JRZeS01_8ohm6zAMwkdPnanwdwNqIPcvhmHl73OGYXX_5IksWAJHNTzYiVpj5qHgfLGH4VrN1Lx07sSmrqmX5PMxjaiqY7ZSbOmHAzh1_dXKhMmydOm32lnVKBpQCagUL2TsvtgtrWMPX4eU1yjEp0UYAsX1S5lqCcnaG0qmZJQkgTtv8A"
-                },
-                new ProductItem
-                {
-                    Id = 3,
-                    Name = "Bujías Iridium (4 pack)",
-                    Sku = "NGK-7712-EL",
-                    Price = 42.90m,
-                    Stock = 0,
-                    StockStatus = "Sin stock",
-                    Category = "Eléctrico",
-                    ImageUrl = "https://lh3.googleusercontent.com/aida-public/AB6AXuA5ZwHq5SboWBdf1V4jV8rnureJKwvmHb_lOrx-kJ7WwiN37yHDETz8XnMZUF9mgTnjytBRanBT4sV_kgNW-yP01lVMzyldmd-Meavd8UYBl5-QKDKEqHYI9t_pLOveBdltGMyCULw3a8X6jjCFnposww9kgJyeqoX0nSIoQQ44szfFVIpqifcq33rHqu-bhX09P-YD7IQG-7MWb46tiKFhF8BJi20X_X3HCKiKBJHE2Mne6J61bnSCGF1MgD85aaWuURzmlECQlZs"
-                },
-                new ProductItem
-                {
-                    Id = 4,
-                    Name = "Amortiguador Monroe",
-                    Sku = "MN-2001-SP",
-                    Price = 110.00m,
-                    Stock = 18,
-                    StockStatus = "Disponible",
-                    Category = "Suspensión",
-                    ImageUrl = "https://lh3.googleusercontent.com/aida-public/AB6AXuAkC65h6BdIXOtTFGHvyR4S-3G6YpdxTUP5Se_rVVKDrA4dEPtdN5kAOYjpFcesozvpN7g6pgi6K85dslj7Jw4F_ll_7RhFVM56FYKGoQ9333jOujlFWfzEC0YE6ud49XbausyZZxsgV32L4ecPyINnKUbpkgfnCYCHHCpzkGbn1T1xyNRTBMZH8XlZ2Gc_vxVhu6GtPrbnGW-9ES59YI1dYSPcCJgaPPmvU7SCPaRetG3az3D2O00YfQ1kgNSm4ozRKXO-9YidcFQ"
-                },
-                new ProductItem
-                {
-                    Id = 5,
-                    Name = "Radiador Aluminio Toyota",
-                    Sku = "TY-8821-MT",
-                    Price = 135.00m,
-                    Stock = 8,
-                    StockStatus = "Bajo Stock",
-                    Category = "Motor",
-                    ImageUrl = "https://lh3.googleusercontent.com/aida-public/AB6AXuAtiox9TJXUAiSseJQmSfXikwbJGHUEPi7N9wx0xwszHMjibwcpBLcCKJZoX8UU-tKGn78_MfENXELASdx92BT6uUbxcEVPH6kj3brP0-QBnBvvDx1WZD7M71arhjEu9oL-2_SMcXH8aklAdmgLQbTCimzVSgmn8SovX9aKFvV7AZqVlPVwEfKzs7U7OHgWkZV5XMGZ1_KgRRAZhDDl1llbR7IvJkQBzZUjAVPtGAgcpZ3FR_Efn-Xs_0RVXCMyXqZRBOu4tg5mWgM"
-                },
-                new ProductItem
-                {
-                    Id = 6,
-                    Name = "Kit Distribución Completo",
-                    Sku = "GT-5501-MT",
-                    Price = 245.00m,
-                    Stock = 12,
-                    StockStatus = "Disponible",
-                    Category = "Motor",
-                    ImageUrl = "https://lh3.googleusercontent.com/aida-public/AB6AXuCOz3tONHKIaAOG9OjRD-BhVcPZTtoGQu9tczLFBL-SaquR5SM7e3uEAzTGI8o579UNXA0CJGHzKz8BEbniV4TrjMva4JRZeS01_8ohm6zAMwkdPnanwdwNqIPcvhmHl73OGYXX_5IksWAJHNTzYiVpj5qHgfLGH4VrN1Lx07sSmrqmX5PMxjaiqY7ZSbOmHAzh1_dXKhMmydOm32lnVKBpQCagUL2TsvtgtrWMPX4eU1yjEp0UYAsX1S5lqCcnaG0qmZJQkgTtv8A"
-                }
-            };
-
-            totalProducts = allProducts.Count;
-            filteredProducts = new List<ProductItem>(allProducts);
+                filters.Add(new FilterOption 
+                { 
+                    Label = category.Category, 
+                    Value = category.Category, 
+                    Count = category.Count 
+                });
+            }
         }
 
         // Event Handlers
@@ -253,7 +231,7 @@ namespace AutoPartesApp.Shared.Pages.Admin
 
         private string GetStockBadgeClass(string status, int stock)
         {
-            if (status == "Sin stock" || stock == 0)
+            if (status.Contains("Sin stock") || stock == 0)
             {
                 return "text-xs font-extrabold text-red-500 bg-red-500/10 px-2 rounded-full";
             }
@@ -268,7 +246,7 @@ namespace AutoPartesApp.Shared.Pages.Admin
         private void AddNewProduct()
         {
             Console.WriteLine("📦 Agregar nuevo producto");
-            // NavigationManager?.NavigateTo("/admin/inventory/new");
+            NavigationManager?.NavigateTo("/admin/inventory/new");
         }
 
         private void ImportProducts()
@@ -281,10 +259,10 @@ namespace AutoPartesApp.Shared.Pages.Admin
             Console.WriteLine("📤 Exportar productos");
         }
 
-        private void ViewProductDetails(int productId)
+        private void ViewProductDetails(string productId)
         {
             Console.WriteLine($"👁️ Ver detalles del producto: {productId}");
-            // NavigationManager?.NavigateTo($"/admin/inventory/{productId}");
+            NavigationManager?.NavigateTo($"/admin/inventory/{productId}");
         }
 
         // Data Models
@@ -306,14 +284,14 @@ namespace AutoPartesApp.Shared.Pages.Admin
 
         private class ProductItem
         {
-            public int Id { get; set; }
+            public string Id { get; set; } = string.Empty;
             public string Name { get; set; } = string.Empty;
             public string Sku { get; set; } = string.Empty;
             public decimal Price { get; set; }
             public int Stock { get; set; }
             public string StockStatus { get; set; } = string.Empty;
             public string Category { get; set; } = string.Empty;
-            public string ImageUrl { get; set; } = string.Empty;
+            public string? ImageUrl { get; set; }
         }
     }
 }

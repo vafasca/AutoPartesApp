@@ -73,6 +73,7 @@ builder.Services.AddDbContext<AutoPartesDbContext>(options =>
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IInventoryRepository, InventoryRepository>();
 
 // Use Cases
 builder.Services.AddScoped<GetLowStockUseCase>();
@@ -83,6 +84,9 @@ builder.Services.AddScoped<UpdateProductUseCase>();
 builder.Services.AddScoped<GetLowStockUseCase>();
 builder.Services.AddScoped<CreateProductUseCase>();
 builder.Services.AddScoped<UpdateProductUseCase>();
+builder.Services.AddScoped<GetInventoryListUseCase>();
+builder.Services.AddScoped<UpdateStockUseCase>();
+builder.Services.AddScoped<DeleteProductUseCase>();
 
 // Use Cases - Admin
 builder.Services.AddScoped<GetAdminDashboardUseCase>();

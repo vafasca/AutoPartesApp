@@ -21,6 +21,7 @@ namespace AutoPartesApp.Infrastructure.Persistence
         public DbSet<Order> Orders { get; set; } = null!;
         public DbSet<OrderItem> OrderItems { get; set; } = null!;
         public DbSet<Delivery> Deliveries { get; set; } = null!;
+        public DbSet<Inventory> Inventories { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

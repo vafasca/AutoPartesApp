@@ -1,12 +1,18 @@
 ﻿using Microsoft.AspNetCore.Components;
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
+using System.Threading.Tasks;
+using AutoPartesApp.Shared.Services.Admin;
+using AutoPartesApp.Shared.Models.Admin;
 
 namespace AutoPartesApp.Shared.Pages.Admin
 {
     public partial class Inventory : ComponentBase
     {
+        [Inject]
+        private InventoryService? InventoryService { get; set; }
+        
         [Inject]
         private NavigationManager? NavigationManager { get; set; }
 
@@ -31,127 +37,95 @@ namespace AutoPartesApp.Shared.Pages.Admin
 
         private async Task LoadData()
         {
+            if (InventoryService == null)
+            {
+                return;
+            }
+            
             isLoading = true;
             StateHasChanged();
 
-            await Task.Delay(500); // Simular carga
+            try
+            {
+                var inventoryList = await InventoryService.GetInventoryListAsync();
+                
+                // Convertir los datos del DTO a ProductItem
+                allProducts = inventoryList.Items.Select(item => new ProductItem
+                {
+                    Id = item.Id,
+                    ProductId = item.ProductId,
+                    Name = item.ProductName,
+                    Sku = $"SKU-{item.ProductId}", // Placeholder para SKU
+                    Price = item.Price,
+                    Stock = item.StockQuantity,
+                    MinimumStock = item.MinimumStock,
+                    StockStatus = item.IsLowStock ? "Bajo Stock" : (item.StockQuantity == 0 ? "Sin stock" : "Disponible"),
+                    Category = item.CategoryName,
+                    ImageUrl = item.ProductDescription.Length > 10 ? item.ProductDescription.Substring(0, 10) : "default-image.jpg", // Placeholder para imagen
+                    IsActive = item.IsActive
+                }).ToList();
 
-            LoadInventoryStats();
-            LoadFilters();
-            LoadProducts();
+                totalProducts = allProducts.Count;
+                filteredProducts = new List<ProductItem>(allProducts);
 
-            isLoading = false;
-            StateHasChanged();
+                // Actualizar estadísticas
+                UpdateInventoryStats(inventoryList);
+                UpdateFilters();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading inventory data: {ex.Message}");
+            }
+            finally
+            {
+                isLoading = false;
+                StateHasChanged();
+            }
         }
 
-        private void LoadInventoryStats()
+        private void UpdateInventoryStats(AutoPartesApp.Application.DTOs.InventoryDTOs.InventoryListDto inventoryList)
         {
             inventoryStats = new List<InventoryStat>
             {
                 new InventoryStat
                 {
-                    Title = "Valor Total",
-                    Value = "$452,000",
-                    Icon = "trending_up",
-                    TrendText = "+5.2%",
-                    TrendColor = "text-emerald-500"
+                    Title = "Total Items",
+                    Value = inventoryList.TotalItems.ToString(),
+                    Icon = "inventory_2",
+                    TrendText = $"{inventoryList.LowStockItemsCount} low stock",
+                    TrendColor = inventoryList.LowStockItemsCount > 0 ? "text-amber-500" : "text-emerald-500"
                 },
                 new InventoryStat
                 {
-                    Title = "Alertas Stock",
-                    Value = "12 items",
+                    Title = "Low Stock Alerts",
+                    Value = inventoryList.LowStockItemsCount.ToString(),
                     Icon = "warning",
-                    TrendText = "Low stock",
-                    TrendColor = "text-amber-500"
+                    TrendText = "items",
+                    TrendColor = inventoryList.LowStockItemsCount > 0 ? "text-amber-500" : "text-emerald-500"
+                },
+                new InventoryStat
+                {
+                    Title = "Total Stock",
+                    Value = inventoryList.TotalStock.ToString(),
+                    Icon = "storage",
+                    TrendText = "units",
+                    TrendColor = "text-blue-500"
                 }
             };
         }
 
-        private void LoadFilters()
+        private void UpdateFilters()
         {
             filters = new List<FilterOption>
             {
-                new FilterOption { Label = "Todos", Value = "Todos", Count = 0 },
-                new FilterOption { Label = "Bajo Stock", Value = "Bajo Stock", Count = 3 },
-                new FilterOption { Label = "Sin Stock", Value = "Sin Stock", Count = 1 },
-                new FilterOption { Label = "Motor", Value = "Motor", Count = 4 }
+                new FilterOption { Label = "Todos", Value = "Todos", Count = allProducts.Count },
+                new FilterOption { Label = "Bajo Stock", Value = "Bajo Stock", Count = allProducts.Count(p => p.IsLowStock) },
+                new FilterOption { Label = "Sin Stock", Value = "Sin Stock", Count = allProducts.Count(p => p.Stock == 0) },
+                // Añadir filtros por categoría
+                new FilterOption { Label = "Motor", Value = "Motor", Count = allProducts.Count(p => p.Category == "Motor") },
+                new FilterOption { Label = "Frenos", Value = "Frenos", Count = allProducts.Count(p => p.Category == "Frenos") },
+                new FilterOption { Label = "Suspensión", Value = "Suspensión", Count = allProducts.Count(p => p.Category == "Suspensión") }
             };
-        }
-
-        private void LoadProducts()
-        {
-            allProducts = new List<ProductItem>
-            {
-                new ProductItem
-                {
-                    Id = 1,
-                    Name = "Filtro de Aceite Bosch",
-                    Sku = "BO-44921-MT",
-                    Price = 12.50m,
-                    Stock = 5,
-                    StockStatus = "Bajo Stock",
-                    Category = "Motor",
-                    ImageUrl = "https://lh3.googleusercontent.com/aida-public/AB6AXuAtiox9TJXUAiSseJQmSfXikwbJGHUEPi7N9wx0xwszHMjibwcpBLcCKJZoX8UU-tKGn78_MfENXELASdx92BT6uUbxcEVPH6kj3brP0-QBnBvvDx1WZD7M71arhjEu9oL-2_SMcXH8aklAdmgLQbTCimzVSgmn8SovX9aKFvV7AZqVlPVwEfKzs7U7OHgWkZV5XMGZ1_KgRRAZhDDl1llbR7IvJkQBzZUjAVPtGAgcpZ3FR_Efn-Xs_0RVXCMyXqZRBOu4tg5mWgM"
-                },
-                new ProductItem
-                {
-                    Id = 2,
-                    Name = "Pastillas Freno Brembo",
-                    Sku = "BR-99201-FR",
-                    Price = 85.00m,
-                    Stock = 24,
-                    StockStatus = "Disponible",
-                    Category = "Frenos",
-                    ImageUrl = "https://lh3.googleusercontent.com/aida-public/AB6AXuCOz3tONHKIaAOG9OjRD-BhVcPZTtoGQu9tczLFBL-SaquR5SM7e3uEAzTGI8o579UNXA0CJGHzKz8BEbniV4TrjMva4JRZeS01_8ohm6zAMwkdPnanwdwNqIPcvhmHl73OGYXX_5IksWAJHNTzYiVpj5qHgfLGH4VrN1Lx07sSmrqmX5PMxjaiqY7ZSbOmHAzh1_dXKhMmydOm32lnVKBpQCagUL2TsvtgtrWMPX4eU1yjEp0UYAsX1S5lqCcnaG0qmZJQkgTtv8A"
-                },
-                new ProductItem
-                {
-                    Id = 3,
-                    Name = "Bujías Iridium (4 pack)",
-                    Sku = "NGK-7712-EL",
-                    Price = 42.90m,
-                    Stock = 0,
-                    StockStatus = "Sin stock",
-                    Category = "Eléctrico",
-                    ImageUrl = "https://lh3.googleusercontent.com/aida-public/AB6AXuA5ZwHq5SboWBdf1V4jV8rnureJKwvmHb_lOrx-kJ7WwiN37yHDETz8XnMZUF9mgTnjytBRanBT4sV_kgNW-yP01lVMzyldmd-Meavd8UYBl5-QKDKEqHYI9t_pLOveBdltGMyCULw3a8X6jjCFnposww9kgJyeqoX0nSIoQQ44szfFVIpqifcq33rHqu-bhX09P-YD7IQG-7MWb46tiKFhF8BJi20X_X3HCKiKBJHE2Mne6J61bnSCGF1MgD85aaWuURzmlECQlZs"
-                },
-                new ProductItem
-                {
-                    Id = 4,
-                    Name = "Amortiguador Monroe",
-                    Sku = "MN-2001-SP",
-                    Price = 110.00m,
-                    Stock = 18,
-                    StockStatus = "Disponible",
-                    Category = "Suspensión",
-                    ImageUrl = "https://lh3.googleusercontent.com/aida-public/AB6AXuAkC65h6BdIXOtTFGHvyR4S-3G6YpdxTUP5Se_rVVKDrA4dEPtdN5kAOYjpFcesozvpN7g6pgi6K85dslj7Jw4F_ll_7RhFVM56FYKGoQ9333jOujlFWfzEC0YE6ud49XbausyZZxsgV32L4ecPyINnKUbpkgfnCYCHHCpzkGbn1T1xyNRTBMZH8XlZ2Gc_vxVhu6GtPrbnGW-9ES59YI1dYSPcCJgaPPmvU7SCPaRetG3az3D2O00YfQ1kgNSm4ozRKXO-9YidcFQ"
-                },
-                new ProductItem
-                {
-                    Id = 5,
-                    Name = "Radiador Aluminio Toyota",
-                    Sku = "TY-8821-MT",
-                    Price = 135.00m,
-                    Stock = 8,
-                    StockStatus = "Bajo Stock",
-                    Category = "Motor",
-                    ImageUrl = "https://lh3.googleusercontent.com/aida-public/AB6AXuAtiox9TJXUAiSseJQmSfXikwbJGHUEPi7N9wx0xwszHMjibwcpBLcCKJZoX8UU-tKGn78_MfENXELASdx92BT6uUbxcEVPH6kj3brP0-QBnBvvDx1WZD7M71arhjEu9oL-2_SMcXH8aklAdmgLQbTCimzVSgmn8SovX9aKFvV7AZqVlPVwEfKzs7U7OHgWkZV5XMGZ1_KgRRAZhDDl1llbR7IvJkQBzZUjAVPtGAgcpZ3FR_Efn-Xs_0RVXCMyXqZRBOu4tg5mWgM"
-                },
-                new ProductItem
-                {
-                    Id = 6,
-                    Name = "Kit Distribución Completo",
-                    Sku = "GT-5501-MT",
-                    Price = 245.00m,
-                    Stock = 12,
-                    StockStatus = "Disponible",
-                    Category = "Motor",
-                    ImageUrl = "https://lh3.googleusercontent.com/aida-public/AB6AXuCOz3tONHKIaAOG9OjRD-BhVcPZTtoGQu9tczLFBL-SaquR5SM7e3uEAzTGI8o579UNXA0CJGHzKz8BEbniV4TrjMva4JRZeS01_8ohm6zAMwkdPnanwdwNqIPcvhmHl73OGYXX_5IksWAJHNTzYiVpj5qHgfLGH4VrN1Lx07sSmrqmX5PMxjaiqY7ZSbOmHAzh1_dXKhMmydOm32lnVKBpQCagUL2TsvtgtrWMPX4eU1yjEp0UYAsX1S5lqCcnaG0qmZJQkgTtv8A"
-                }
-            };
-
-            totalProducts = allProducts.Count;
-            filteredProducts = new List<ProductItem>(allProducts);
         }
 
         // Event Handlers
@@ -197,7 +171,7 @@ namespace AutoPartesApp.Shared.Pages.Admin
             {
                 if (selectedFilter == "Bajo Stock")
                 {
-                    result = result.Where(p => p.Stock > 0 && p.Stock <= 10);
+                    result = result.Where(p => p.IsLowStock && p.Stock > 0);
                 }
                 else if (selectedFilter == "Sin Stock")
                 {
@@ -251,13 +225,13 @@ namespace AutoPartesApp.Shared.Pages.Admin
             return $"{baseClass} text-slate-500 dark:text-slate-400 hover:text-primary";
         }
 
-        private string GetStockBadgeClass(string status, int stock)
+        private string GetStockBadgeClass(string status, int stock, int minimumStock)
         {
-            if (status == "Sin stock" || stock == 0)
+            if (stock == 0)
             {
                 return "text-xs font-extrabold text-red-500 bg-red-500/10 px-2 rounded-full";
             }
-            else if (stock <= 10)
+            else if (stock <= minimumStock)
             {
                 return "text-xs font-extrabold text-amber-500 bg-amber-500/10 px-2 rounded-full";
             }
@@ -265,18 +239,18 @@ namespace AutoPartesApp.Shared.Pages.Admin
         }
 
         // Action Handlers
-        private void AddNewProduct()
+        private async Task AddNewProduct()
         {
             Console.WriteLine("📦 Agregar nuevo producto");
             // NavigationManager?.NavigateTo("/admin/inventory/new");
         }
 
-        private void ImportProducts()
+        private async Task ImportProducts()
         {
             Console.WriteLine("📥 Importar productos");
         }
 
-        private void ExportProducts()
+        private async Task ExportProducts()
         {
             Console.WriteLine("📤 Exportar productos");
         }
@@ -287,33 +261,46 @@ namespace AutoPartesApp.Shared.Pages.Admin
             // NavigationManager?.NavigateTo($"/admin/inventory/{productId}");
         }
 
-        // Data Models
-        private class InventoryStat
+        private async Task UpdateStock(int productId, int quantityChange)
         {
-            public string Title { get; set; } = string.Empty;
-            public string Value { get; set; } = string.Empty;
-            public string Icon { get; set; } = string.Empty;
-            public string TrendText { get; set; } = string.Empty;
-            public string TrendColor { get; set; } = string.Empty;
+            if (InventoryService == null)
+            {
+                return;
+            }
+            
+            var updateDto = new AutoPartesApp.Application.DTOs.InventoryDTOs.UpdateStockDto
+            {
+                ProductId = productId,
+                QuantityChange = quantityChange,
+                Reason = "Manual adjustment"
+            };
+
+            var success = await InventoryService.UpdateStockAsync(updateDto);
+            
+            if (success)
+            {
+                await LoadData(); // Recargar los datos después de actualizar
+            }
         }
 
-        private class FilterOption
+        private async Task DeleteProduct(int id)
         {
-            public string Label { get; set; } = string.Empty;
-            public string Value { get; set; } = string.Empty;
-            public int Count { get; set; }
-        }
-
-        private class ProductItem
-        {
-            public int Id { get; set; }
-            public string Name { get; set; } = string.Empty;
-            public string Sku { get; set; } = string.Empty;
-            public decimal Price { get; set; }
-            public int Stock { get; set; }
-            public string StockStatus { get; set; } = string.Empty;
-            public string Category { get; set; } = string.Empty;
-            public string ImageUrl { get; set; } = string.Empty;
+            if (InventoryService == null)
+            {
+                return;
+            }
+            
+            var confirmed = await JsRuntime.InvokeAsync<bool>("confirm", "¿Estás seguro de que deseas eliminar este producto?");
+            
+            if (confirmed)
+            {
+                var success = await InventoryService.DeleteProductAsync(id);
+                
+                if (success)
+                {
+                    await LoadData(); // Recargar los datos después de eliminar
+                }
+            }
         }
     }
 }

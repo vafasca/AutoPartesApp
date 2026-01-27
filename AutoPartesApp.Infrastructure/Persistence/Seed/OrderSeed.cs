@@ -14,21 +14,22 @@ namespace AutoPartesApp.Infrastructure.Persistence.Seed
             var client = users.First(u => u.RoleType == RoleType.Client);
             var orders = new List<Order>();
 
-            // Generamos 100 órdenes de prueba
-            for (int i = 1; i <= 100; i++)
+            // Generamos 3 órdenes de prueba
+            for (int i = 1; i <= 3; i++)
             {
-                var product = products[i % products.Count];
+                var product = products[(i - 1) % products.Count];
+                var quantity = (i % 5) + 1;
 
                 var order = new Order
                 {
                     Id = Guid.NewGuid().ToString(),
-                    OrderNumber = $"ORD-{i:D4}",
+                    OrderNumber = $"ORD-{DateTime.UtcNow.Ticks}-{i:D4}",
                     UserId = client.Id,
-                    Status = (OrderStatus)(i % Enum.GetValues(typeof(OrderStatus)).Length),
+                    Status = (OrderStatus)i,
                     CreatedAt = DateTime.UtcNow.AddDays(-i),
                     UpdatedAt = DateTime.UtcNow.AddDays(-(i - 1)),
                     DeliveryAddress = new Address(
-                        "Av. Siempre Viva 123",
+                        $"Av. Ejemplo {100 + i}",
                         "Cochabamba",
                         "Cercado",
                         "BO",
@@ -40,9 +41,9 @@ namespace AutoPartesApp.Infrastructure.Persistence.Seed
                         {
                             Id = Guid.NewGuid().ToString(),
                             ProductId = product.Id,
-                            Quantity = (i % 5) + 1, // cantidades entre 1 y 5
+                            Quantity = quantity,
                             UnitPrice = product.Price.Amount,
-                            Subtotal = ((i % 5) + 1) * product.Price.Amount,
+                            Subtotal = quantity * product.Price.Amount,
                             CreatedAt = DateTime.UtcNow.AddDays(-i)
                         }
                     }

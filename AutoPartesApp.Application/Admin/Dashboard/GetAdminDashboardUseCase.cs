@@ -64,7 +64,7 @@ namespace AutoPartesApp.Core.Application.Admin.Dashboard
                 Stats = new DashboardStatsDto
                 {
                     TotalSales = totalSales,
-                    SalesChangePercentage = 12.5m, // Calcular comparando con período anterior
+                    SalesChangePercentage = 12.5m,
                     AverageTicket = averageTicket,
                     TicketChangePercentage = -2.1m,
                     ConversionRate = 3.2m,
@@ -84,8 +84,10 @@ namespace AutoPartesApp.Core.Application.Admin.Dashboard
             return status switch
             {
                 Domain.Enums.OrderStatus.Pending => "PENDIENTE",
+                Domain.Enums.OrderStatus.Confirmed => "CONFIRMADO",
                 Domain.Enums.OrderStatus.Processing => "PROCESANDO",
                 Domain.Enums.OrderStatus.Shipped => "ENVIADO",
+                Domain.Enums.OrderStatus.OnRoute => "EN CAMINO",
                 Domain.Enums.OrderStatus.Delivered => "COMPLETADO",
                 Domain.Enums.OrderStatus.Cancelled => "CANCELADO",
                 _ => "DESCONOCIDO"

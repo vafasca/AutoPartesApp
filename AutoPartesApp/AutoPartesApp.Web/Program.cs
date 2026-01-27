@@ -25,14 +25,19 @@ builder.Services.AddHttpClient<IAuthService, AuthService>(client =>
     client.Timeout = TimeSpan.FromSeconds(30);
 });
 
-//HttpClient genérico para otros usos
-builder.Services.AddHttpClient();
+//HttpClient para InventoryService
+builder.Services.AddHttpClient<InventoryService>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7120/");
+    client.Timeout = TimeSpan.FromSeconds(30);
+});
 
 // Casos de uso y servicios de presentación
 builder.Services.AddScoped<LoginUseCase>();
 builder.Services.AddScoped<LoginService>();
 builder.Services.AddScoped<AuthState>();
 builder.Services.AddScoped<DashboardService>();
+builder.Services.AddScoped<InventoryService>();
 
 // Extensión común para Web (sin repositorios ni DbContext)
 builder.Services.AddAutoPartesWebServices();

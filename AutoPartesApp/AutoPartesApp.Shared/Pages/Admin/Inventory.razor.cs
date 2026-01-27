@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Components;
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
+using System.Threading.Tasks;
+using AutoPartesApp.Domain.Entities;
+using AutoPartesApp.Shared.Services.Admin;
 
 namespace AutoPartesApp.Shared.Pages.Admin
 {
@@ -9,6 +12,9 @@ namespace AutoPartesApp.Shared.Pages.Admin
     {
         [Inject]
         private NavigationManager? NavigationManager { get; set; }
+        
+        [Inject]
+        private InventoryService? InventoryService { get; set; }
 
         // State
         private bool hasNotifications = true;
@@ -31,27 +37,48 @@ namespace AutoPartesApp.Shared.Pages.Admin
 
         private async Task LoadData()
         {
+            if (InventoryService == null)
+            {
+                Console.WriteLine("InventoryService no está disponible");
+                return;
+            }
+
             isLoading = true;
             StateHasChanged();
 
-            await Task.Delay(500); // Simular carga
-
-            LoadInventoryStats();
-            LoadFilters();
-            LoadProducts();
-
-            isLoading = false;
-            StateHasChanged();
+            try
+            {
+                await LoadInventoryStatsFromDb();
+                await LoadFiltersFromDb();
+                await LoadProductsFromDb();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al cargar datos: {ex.Message}");
+            }
+            finally
+            {
+                isLoading = false;
+                StateHasChanged();
+            }
         }
 
-        private void LoadInventoryStats()
+        private async Task LoadInventoryStatsFromDb()
         {
+            if (InventoryService == null) return;
+
+            var allProducts = await InventoryService.GetAllProductsAsync();
+            var lowStockProducts = await InventoryService.GetLowStockProductsAsync(10);
+
+            // Calcular valor total del inventario
+            decimal totalValue = allProducts.Sum(p => p.Price.Amount * p.Stock);
+
             inventoryStats = new List<InventoryStat>
             {
                 new InventoryStat
                 {
                     Title = "Valor Total",
-                    Value = "$452,000",
+                    Value = totalValue.ToString("C"),
                     Icon = "trending_up",
                     TrendText = "+5.2%",
                     TrendColor = "text-emerald-500"
@@ -59,7 +86,7 @@ namespace AutoPartesApp.Shared.Pages.Admin
                 new InventoryStat
                 {
                     Title = "Alertas Stock",
-                    Value = "12 items",
+                    Value = $"{lowStockProducts.Count} items",
                     Icon = "warning",
                     TrendText = "Low stock",
                     TrendColor = "text-amber-500"
@@ -67,88 +94,49 @@ namespace AutoPartesApp.Shared.Pages.Admin
             };
         }
 
-        private void LoadFilters()
+        private async Task LoadFiltersFromDb()
         {
+            if (InventoryService == null) return;
+
+            var allProducts = await InventoryService.GetAllProductsAsync();
+            
+            var categories = allProducts.Select(p => p.Category.Name).Distinct().ToList();
+            var lowStockCount = allProducts.Count(p => p.Stock <= 10 && p.Stock > 0);
+            var outOfStockCount = allProducts.Count(p => p.Stock == 0);
+
             filters = new List<FilterOption>
             {
-                new FilterOption { Label = "Todos", Value = "Todos", Count = 0 },
-                new FilterOption { Label = "Bajo Stock", Value = "Bajo Stock", Count = 3 },
-                new FilterOption { Label = "Sin Stock", Value = "Sin Stock", Count = 1 },
-                new FilterOption { Label = "Motor", Value = "Motor", Count = 4 }
+                new FilterOption { Label = "Todos", Value = "Todos", Count = allProducts.Count },
+                new FilterOption { Label = "Bajo Stock", Value = "Bajo Stock", Count = lowStockCount },
+                new FilterOption { Label = "Sin Stock", Value = "Sin Stock", Count = outOfStockCount }
             };
+
+            // Añadir categorías únicas como filtros
+            foreach (var category in categories)
+            {
+                var categoryCount = allProducts.Count(p => p.Category.Name.Equals(category, StringComparison.OrdinalIgnoreCase));
+                filters.Add(new FilterOption { Label = category, Value = category, Count = categoryCount });
+            }
         }
 
-        private void LoadProducts()
+        private async Task LoadProductsFromDb()
         {
-            allProducts = new List<ProductItem>
+            if (InventoryService == null) return;
+
+            var products = await InventoryService.GetAllProductsAsync();
+
+            // Convertir productos de la base de datos al modelo ProductItem
+            allProducts = products.Select((p, index) => new ProductItem
             {
-                new ProductItem
-                {
-                    Id = 1,
-                    Name = "Filtro de Aceite Bosch",
-                    Sku = "BO-44921-MT",
-                    Price = 12.50m,
-                    Stock = 5,
-                    StockStatus = "Bajo Stock",
-                    Category = "Motor",
-                    ImageUrl = "https://lh3.googleusercontent.com/aida-public/AB6AXuAtiox9TJXUAiSseJQmSfXikwbJGHUEPi7N9wx0xwszHMjibwcpBLcCKJZoX8UU-tKGn78_MfENXELASdx92BT6uUbxcEVPH6kj3brP0-QBnBvvDx1WZD7M71arhjEu9oL-2_SMcXH8aklAdmgLQbTCimzVSgmn8SovX9aKFvV7AZqVlPVwEfKzs7U7OHgWkZV5XMGZ1_KgRRAZhDDl1llbR7IvJkQBzZUjAVPtGAgcpZ3FR_Efn-Xs_0RVXCMyXqZRBOu4tg5mWgM"
-                },
-                new ProductItem
-                {
-                    Id = 2,
-                    Name = "Pastillas Freno Brembo",
-                    Sku = "BR-99201-FR",
-                    Price = 85.00m,
-                    Stock = 24,
-                    StockStatus = "Disponible",
-                    Category = "Frenos",
-                    ImageUrl = "https://lh3.googleusercontent.com/aida-public/AB6AXuCOz3tONHKIaAOG9OjRD-BhVcPZTtoGQu9tczLFBL-SaquR5SM7e3uEAzTGI8o579UNXA0CJGHzKz8BEbniV4TrjMva4JRZeS01_8ohm6zAMwkdPnanwdwNqIPcvhmHl73OGYXX_5IksWAJHNTzYiVpj5qHgfLGH4VrN1Lx07sSmrqmX5PMxjaiqY7ZSbOmHAzh1_dXKhMmydOm32lnVKBpQCagUL2TsvtgtrWMPX4eU1yjEp0UYAsX1S5lqCcnaG0qmZJQkgTtv8A"
-                },
-                new ProductItem
-                {
-                    Id = 3,
-                    Name = "Bujías Iridium (4 pack)",
-                    Sku = "NGK-7712-EL",
-                    Price = 42.90m,
-                    Stock = 0,
-                    StockStatus = "Sin stock",
-                    Category = "Eléctrico",
-                    ImageUrl = "https://lh3.googleusercontent.com/aida-public/AB6AXuA5ZwHq5SboWBdf1V4jV8rnureJKwvmHb_lOrx-kJ7WwiN37yHDETz8XnMZUF9mgTnjytBRanBT4sV_kgNW-yP01lVMzyldmd-Meavd8UYBl5-QKDKEqHYI9t_pLOveBdltGMyCULw3a8X6jjCFnposww9kgJyeqoX0nSIoQQ44szfFVIpqifcq33rHqu-bhX09P-YD7IQG-7MWb46tiKFhF8BJi20X_X3HCKiKBJHE2Mne6J61bnSCGF1MgD85aaWuURzmlECQlZs"
-                },
-                new ProductItem
-                {
-                    Id = 4,
-                    Name = "Amortiguador Monroe",
-                    Sku = "MN-2001-SP",
-                    Price = 110.00m,
-                    Stock = 18,
-                    StockStatus = "Disponible",
-                    Category = "Suspensión",
-                    ImageUrl = "https://lh3.googleusercontent.com/aida-public/AB6AXuAkC65h6BdIXOtTFGHvyR4S-3G6YpdxTUP5Se_rVVKDrA4dEPtdN5kAOYjpFcesozvpN7g6pgi6K85dslj7Jw4F_ll_7RhFVM56FYKGoQ9333jOujlFWfzEC0YE6ud49XbausyZZxsgV32L4ecPyINnKUbpkgfnCYCHHCpzkGbn1T1xyNRTBMZH8XlZ2Gc_vxVhu6GtPrbnGW-9ES59YI1dYSPcCJgaPPmvU7SCPaRetG3az3D2O00YfQ1kgNSm4ozRKXO-9YidcFQ"
-                },
-                new ProductItem
-                {
-                    Id = 5,
-                    Name = "Radiador Aluminio Toyota",
-                    Sku = "TY-8821-MT",
-                    Price = 135.00m,
-                    Stock = 8,
-                    StockStatus = "Bajo Stock",
-                    Category = "Motor",
-                    ImageUrl = "https://lh3.googleusercontent.com/aida-public/AB6AXuAtiox9TJXUAiSseJQmSfXikwbJGHUEPi7N9wx0xwszHMjibwcpBLcCKJZoX8UU-tKGn78_MfENXELASdx92BT6uUbxcEVPH6kj3brP0-QBnBvvDx1WZD7M71arhjEu9oL-2_SMcXH8aklAdmgLQbTCimzVSgmn8SovX9aKFvV7AZqVlPVwEfKzs7U7OHgWkZV5XMGZ1_KgRRAZhDDl1llbR7IvJkQBzZUjAVPtGAgcpZ3FR_Efn-Xs_0RVXCMyXqZRBOu4tg5mWgM"
-                },
-                new ProductItem
-                {
-                    Id = 6,
-                    Name = "Kit Distribución Completo",
-                    Sku = "GT-5501-MT",
-                    Price = 245.00m,
-                    Stock = 12,
-                    StockStatus = "Disponible",
-                    Category = "Motor",
-                    ImageUrl = "https://lh3.googleusercontent.com/aida-public/AB6AXuCOz3tONHKIaAOG9OjRD-BhVcPZTtoGQu9tczLFBL-SaquR5SM7e3uEAzTGI8o579UNXA0CJGHzKz8BEbniV4TrjMva4JRZeS01_8ohm6zAMwkdPnanwdwNqIPcvhmHl73OGYXX_5IksWAJHNTzYiVpj5qHgfLGH4VrN1Lx07sSmrqmX5PMxjaiqY7ZSbOmHAzh1_dXKhMmydOm32lnVKBpQCagUL2TsvtgtrWMPX4eU1yjEp0UYAsX1S5lqCcnaG0qmZJQkgTtv8A"
-                }
-            };
+                Id = index + 1, // Usamos un índice incremental para evitar problemas con IDs no numéricos
+                Name = p.Name,
+                Sku = p.Sku,
+                Price = p.Price.Amount,
+                Stock = p.Stock,
+                StockStatus = p.StockStatus, // Usamos la propiedad calculada
+                Category = p.Category.Name,
+                ImageUrl = p.ImageUrl ?? ""
+            }).ToList();
 
             totalProducts = allProducts.Count;
             filteredProducts = new List<ProductItem>(allProducts);
@@ -171,15 +159,15 @@ namespace AutoPartesApp.Shared.Pages.Admin
             Console.WriteLine("Toggle filters modal");
         }
 
-        private void HandleSearch()
+        private async void HandleSearch()
         {
-            ApplyFiltersAndSearch();
+            await ApplyFiltersAndSearch();
         }
 
-        private void ApplyFilter(string filter)
+        private async void ApplyFilter(string filter)
         {
             selectedFilter = filter;
-            ApplyFiltersAndSearch();
+            await ApplyFiltersAndSearch();
         }
 
         private void ChangeView(string view)
@@ -188,9 +176,11 @@ namespace AutoPartesApp.Shared.Pages.Admin
             StateHasChanged();
         }
 
-        private void ApplyFiltersAndSearch()
+        private async Task ApplyFiltersAndSearch()
         {
-            var result = allProducts.AsEnumerable();
+            if (InventoryService == null) return;
+
+            IEnumerable<ProductItem> result = allProducts.AsEnumerable();
 
             // Filtrar por categoría/estado
             if (selectedFilter != "Todos")
@@ -223,11 +213,11 @@ namespace AutoPartesApp.Shared.Pages.Admin
             StateHasChanged();
         }
 
-        private void ClearFilters()
+        private async void ClearFilters()
         {
             searchQuery = string.Empty;
             selectedFilter = "Todos";
-            ApplyFiltersAndSearch();
+            await ApplyFiltersAndSearch();
         }
 
         // UI Helpers

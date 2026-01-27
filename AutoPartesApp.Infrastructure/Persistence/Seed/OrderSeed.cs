@@ -14,8 +14,8 @@ namespace AutoPartesApp.Infrastructure.Persistence.Seed
             var client = users.First(u => u.RoleType == RoleType.Client);
             var orders = new List<Order>();
 
-            // Generamos 100 órdenes de prueba
-            for (int i = 1; i <= 100; i++)
+            // Generamos 3 órdenes de prueba
+            for (int i = 1; i <= 3; i++)
             {
                 var product = products[i % products.Count];
 

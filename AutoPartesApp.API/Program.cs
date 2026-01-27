@@ -80,9 +80,15 @@ builder.Services.AddScoped<CreateProductUseCase>();
 builder.Services.AddScoped<UpdateProductUseCase>();
 
 // Use Cases - Inventory
-builder.Services.AddScoped<GetLowStockUseCase>();
+builder.Services.AddScoped<GetAllProductsUseCase>();
+builder.Services.AddScoped<GetProductByIdUseCase>();
 builder.Services.AddScoped<CreateProductUseCase>();
 builder.Services.AddScoped<UpdateProductUseCase>();
+builder.Services.AddScoped<UpdateProductStockUseCase>();
+builder.Services.AddScoped<ToggleProductStatusUseCase>();
+builder.Services.AddScoped<GetLowStockUseCase>();
+builder.Services.AddScoped<SearchProductsUseCase>();
+builder.Services.AddScoped<GetInventoryStatsUseCase>();
 
 // Use Cases - Admin
 builder.Services.AddScoped<GetAdminDashboardUseCase>();

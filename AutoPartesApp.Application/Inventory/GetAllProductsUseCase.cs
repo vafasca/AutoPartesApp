@@ -1,4 +1,5 @@
 ﻿using AutoPartesApp.Core.Application.DTOs.AdminDTOs;
+using AutoPartesApp.Core.Application.DTOs.Common;
 using AutoPartesApp.Domain.Entities;
 using AutoPartesApp.Domain.Interfaces;
 using System;
@@ -7,20 +8,36 @@ using System.Text;
 
 namespace AutoPartesApp.Core.Application.Inventory
 {
-    public class GetLowStockUseCase
+    public class GetAllProductsUseCase
     {
         private readonly IProductRepository _productRepository;
 
-        public GetLowStockUseCase(IProductRepository productRepository)
+        public GetAllProductsUseCase(IProductRepository productRepository)
         {
             _productRepository = productRepository;
         }
 
-        public async Task<List<ProductListItemDto>> Execute(int threshold = 10)
+        public async Task<PagedResultDto<ProductListItemDto>> Execute(ProductFilterDto filter)
         {
-            var products = await _productRepository.GetLowStockAsync(threshold);
+            var (products, totalCount) = await _productRepository.GetPagedAsync(
+                filter.SearchQuery,
+                filter.CategoryId,
+                filter.StockStatus,
+                filter.MinStock,
+                filter.MaxStock,
+                filter.IsActive,
+                filter.PageNumber,
+                filter.PageSize
+            );
 
-            return products.Select(p => MapToListItemDto(p)).ToList();
+            var items = products.Select(p => MapToListItemDto(p)).ToList();
+
+            return new PagedResultDto<ProductListItemDto>(
+                items,
+                totalCount,
+                filter.PageNumber,
+                filter.PageSize
+            );
         }
 
         private ProductListItemDto MapToListItemDto(Product product)

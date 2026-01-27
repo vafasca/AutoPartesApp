@@ -25,6 +25,15 @@ builder.Services.AddScoped<LoginService>();
 builder.Services.AddScoped<AuthState>();
 builder.Services.AddScoped<DashboardService>();
 
+// ========== SERVICIOS - ADMIN ==========
+builder.Services.AddScoped<InventoryService>();
+
+// ========== HTTP CLIENT ==========
+builder.Services.AddScoped(sp => new HttpClient
+{
+    BaseAddress = new Uri("https://localhost:7001/") // Cambia por la URL real de tu API
+});
+
 // … aquí puedes agregar otros servicios de AutoPartesApp.Shared.Services
 // builder.Services.AddScoped<PedidosService>();
 // builder.Services.AddScoped<CatalogoService>();

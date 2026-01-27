@@ -7,18 +7,22 @@ using System.Text;
 
 namespace AutoPartesApp.Core.Application.Inventory
 {
-    public class GetLowStockUseCase
+    public class SearchProductsUseCase
     {
         private readonly IProductRepository _productRepository;
 
-        public GetLowStockUseCase(IProductRepository productRepository)
+        public SearchProductsUseCase(IProductRepository productRepository)
         {
             _productRepository = productRepository;
         }
 
-        public async Task<List<ProductListItemDto>> Execute(int threshold = 10)
+        public async Task<List<ProductListItemDto>> Execute(string query)
         {
-            var products = await _productRepository.GetLowStockAsync(threshold);
+            // Validaciones
+            if (string.IsNullOrWhiteSpace(query))
+                return new List<ProductListItemDto>();
+
+            var products = await _productRepository.SearchAsync(query);
 
             return products.Select(p => MapToListItemDto(p)).ToList();
         }

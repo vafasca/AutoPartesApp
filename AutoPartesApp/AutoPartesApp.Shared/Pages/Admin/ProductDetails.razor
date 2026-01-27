@@ -1,0 +1,310 @@
+﻿@page "/admin/inventory/{ProductId}"
+@layout AdminLayout
+@namespace AutoPartesApp.Shared.Pages.Admin
+
+<!-- Header -->
+<header class="sticky top-0 z-30 bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 backdrop-blur-md px-4 py-4 border-b border-slate-200 dark:border-slate-800">
+    <div class="max-w-7xl mx-auto">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <button class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+                        @onclick="GoBack">
+                    <span class="material-symbols-outlined text-slate-600 dark:text-slate-300">arrow_back</span>
+                </button>
+                <div>
+                    <h1 class="text-lg lg:text-xl font-extrabold leading-tight">Detalles del Producto</h1>
+                    @if (product != null)
+                    {
+                        <p class="text-xs text-slate-500 dark:text-slate-400">SKU: @product.Sku</p>
+                    }
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                @if (isEditMode)
+                {
+                    <button class="px-4 py-2 rounded-lg bg-primary text-white font-bold text-sm hover:opacity-90 transition-all"
+                            @onclick="SaveChanges">
+                        Guardar
+                    </button>
+                    <button class="px-4 py-2 rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-white font-bold text-sm hover:bg-slate-300 dark:hover:bg-slate-700 transition-all"
+                            @onclick="CancelEdit">
+                        Cancelar
+                    </button>
+                }
+                else
+                {
+                    <button class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+                            @onclick="EnableEditMode">
+                        <span class="material-symbols-outlined text-slate-600 dark:text-slate-300">edit</span>
+                    </button>
+                    <button class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+                            @onclick="ToggleStatus">
+                        <span class="material-symbols-outlined text-slate-600 dark:text-slate-300">
+                            @(product?.IsActive == true ? "toggle_on" : "toggle_off")
+                        </span>
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Content -->
+<main class="flex-1 overflow-y-auto px-4 py-6 pb-24 lg:pb-8">
+    <div class="max-w-7xl mx-auto">
+        @if (isLoading)
+        {
+            <div class="flex flex-col items-center justify-center py-16">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
+                <p class="text-slate-500 dark:text-slate-400 text-sm">Cargando producto...</p>
+            </div>
+        }
+        else if (product == null)
+        {
+            <div class="flex flex-col items-center justify-center py-16">
+                <div class="bg-slate-100 dark:bg-slate-800 p-6 rounded-full mb-4">
+                    <span class="material-symbols-outlined text-slate-400 text-5xl">error</span>
+                </div>
+                <h3 class="text-slate-900 dark:text-white text-lg font-bold mb-2">Producto no encontrado</h3>
+                <p class="text-slate-500 dark:text-slate-400 text-sm mb-6">El producto que buscas no existe</p>
+                <button class="bg-primary text-white px-6 py-3 rounded-lg font-bold hover:bg-primary/90 transition-colors"
+                        @onclick="GoBack">
+                    Volver al inventario
+                </button>
+            </div>
+        }
+        else
+        {
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Columna Izquierda: Imagen y Estado -->
+                <div class="lg:col-span-1 space-y-4">
+                    <!-- Imagen Principal -->
+                    <div class="bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 rounded-xl border border-slate-200 dark:border-border-dark p-4">
+                        <div class="relative w-full aspect-square bg-slate-100 dark:bg-slate-800 rounded-lg overflow-hidden mb-4">
+                            <img src="@product.ImageUrl" alt="@product.Name" class="w-full h-full object-cover" />
+                            @if (!product.IsActive)
+                            {
+                                <div class="absolute inset-0 bg-slate-900/50 flex items-center justify-center">
+                                    <span class="text-white font-bold text-lg">INACTIVO</span>
+                                </div>
+                            }
+                        </div>
+                        @if (isEditMode)
+                        {
+                            <input type="text" @bind="editDto.ImageUrl"
+                                   class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm"
+                                   placeholder="URL de la imagen" />
+                        }
+                    </div>
+
+                    <!-- Estado y Acciones Rápidas -->
+                    <div class="bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 rounded-xl border border-slate-200 dark:border-border-dark p-4 space-y-3">
+                        <h3 class="font-bold text-sm mb-3">Estado del Producto</h3>
+
+                        <!-- Stock Badge -->
+                        <div class="flex items-center justify-between p-3 bg-white dark:bg-slate-800 rounded-lg">
+                            <span class="text-sm font-medium">Stock Actual</span>
+                            <span class="@GetStockBadgeClass(product.StockStatus, product.Stock) text-sm px-3 py-1">
+                                @product.Stock unidades
+                            </span>
+                        </div>
+
+                        <!-- Active Status -->
+                        <div class="flex items-center justify-between p-3 bg-white dark:bg-slate-800 rounded-lg">
+                            <span class="text-sm font-medium">Estado</span>
+                            <span class="@(product.IsActive ? "text-emerald-500" : "text-red-500") text-sm font-bold">
+                                @(product.IsActive ? "ACTIVO" : "INACTIVO")
+                            </span>
+                        </div>
+
+                        <!-- Quick Stock Update -->
+                        @if (!isEditMode)
+                        {
+                            <div class="pt-3 border-t border-slate-200 dark:border-slate-700">
+                                <label class="text-xs font-medium text-slate-600 dark:text-slate-400 mb-2 block">Actualizar Stock Rápido</label>
+                                <div class="flex gap-2">
+                                    <input type="number" @bind="quickStockUpdate"
+                                           class="flex-1 px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm"
+                                           placeholder="@product.Stock" />
+                                    <button class="px-4 py-2 rounded-lg bg-primary text-white font-bold text-sm hover:opacity-90 transition-all"
+                                            @onclick="UpdateStockQuick">
+                                        OK
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Columna Derecha: Información del Producto -->
+                <div class="lg:col-span-2 space-y-4">
+                    <!-- Información Básica -->
+                    <div class="bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 rounded-xl border border-slate-200 dark:border-border-dark p-6">
+                        <h3 class="font-bold text-lg mb-4">Información Básica</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Nombre -->
+                            <div class="md:col-span-2">
+                                <label class="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1 block">Nombre del Producto</label>
+                                @if (isEditMode)
+                                {
+                                    <input type="text" @bind="editDto.Name"
+                                           class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
+                                           placeholder="Nombre del producto" />
+                                }
+                                else
+                                {
+                                    <p class="font-bold text-lg">@product.Name</p>
+                                }
+                            </div>
+
+                            <!-- SKU (No editable) -->
+                            <div>
+                                <label class="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1 block">SKU</label>
+                                <p class="font-medium">@product.Sku</p>
+                            </div>
+
+                            <!-- Categoría -->
+                            <div>
+                                <label class="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1 block">Categoría</label>
+                                @if (isEditMode)
+                                {
+                                    <input type="text" @bind="editDto.CategoryId"
+                                           class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
+                                           placeholder="ID de categoría" />
+                                }
+                                else
+                                {
+                                    <p class="font-medium">@product.CategoryName</p>
+                                }
+                            </div>
+
+                            <!-- Precio -->
+                            <div>
+                                <label class="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1 block">Precio</label>
+                                @if (isEditMode)
+                                {
+                                    <div class="flex gap-2">
+                                        <input type="number" step="0.01" @bind="editDto.Price"
+                                               class="flex-1 px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
+                                               placeholder="0.00" />
+                                        <input type="text" @bind="editDto.Currency"
+                                               class="w-20 px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
+                                               placeholder="USD" />
+                                    </div>
+                                }
+                                else
+                                {
+                                    <p class="font-bold text-primary text-xl">@product.Price.ToString("C") @product.Currency</p>
+                                }
+                            </div>
+
+                            <!-- Stock -->
+                            <div>
+                                <label class="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1 block">Stock</label>
+                                @if (isEditMode)
+                                {
+                                    <input type="number" @bind="editDto.Stock"
+                                           class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
+                                           placeholder="0" />
+                                }
+                                else
+                                {
+                                    <p class="font-medium">@product.Stock unidades</p>
+                                }
+                            </div>
+
+                            <!-- Descripción -->
+                            <div class="md:col-span-2">
+                                <label class="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1 block">Descripción</label>
+                                @if (isEditMode)
+                                {
+                                    <textarea @bind="editDto.Description" rows="3"
+                                              class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
+                                              placeholder="Descripción del producto"></textarea>
+                                }
+                                else
+                                {
+                                    <p class="text-sm text-slate-600 dark:text-slate-400">@product.Description</p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Compatibilidad de Vehículos -->
+                    <div class="bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 rounded-xl border border-slate-200 dark:border-border-dark p-6">
+                        <h3 class="font-bold text-lg mb-4">Compatibilidad de Vehículos</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <!-- Marca -->
+                            <div>
+                                <label class="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1 block">Marca</label>
+                                @if (isEditMode)
+                                {
+                                    <input type="text" @bind="editDto.Brand"
+                                           class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
+                                           placeholder="Toyota, Honda, etc." />
+                                }
+                                else
+                                {
+                                    <p class="font-medium">@(string.IsNullOrWhiteSpace(product.Brand) ? "N/A" : product.Brand)</p>
+                                }
+                            </div>
+
+                            <!-- Modelo -->
+                            <div>
+                                <label class="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1 block">Modelo</label>
+                                @if (isEditMode)
+                                {
+                                    <input type="text" @bind="editDto.Model"
+                                           class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
+                                           placeholder="Corolla, Civic, etc." />
+                                }
+                                else
+                                {
+                                    <p class="font-medium">@(string.IsNullOrWhiteSpace(product.Model) ? "N/A" : product.Model)</p>
+                                }
+                            </div>
+
+                            <!-- Año -->
+                            <div>
+                                <label class="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1 block">Año</label>
+                                @if (isEditMode)
+                                {
+                                    <input type="text" @bind="editDto.Year"
+                                           class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
+                                           placeholder="2020, 2021, etc." />
+                                }
+                                else
+                                {
+                                    <p class="font-medium">@(string.IsNullOrWhiteSpace(product.Year) ? "N/A" : product.Year)</p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Metadata -->
+                    <div class="bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 rounded-xl border border-slate-200 dark:border-border-dark p-6">
+                        <h3 class="font-bold text-lg mb-4">Información del Sistema</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <span class="text-slate-600 dark:text-slate-400">Creado:</span>
+                                <span class="font-medium ml-2">@product.CreatedAt.ToString("dd/MM/yyyy HH:mm")</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-600 dark:text-slate-400">Última actualización:</span>
+                                <span class="font-medium ml-2">@product.UpdatedAt.ToString("dd/MM/yyyy HH:mm")</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-600 dark:text-slate-400">ID:</span>
+                                <span class="font-medium ml-2 font-mono text-xs">@product.Id</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-600 dark:text-slate-400">Valor Total:</span>
+                                <span class="font-bold ml-2 text-primary">@product.TotalValue.ToString("C")</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</main>

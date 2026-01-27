@@ -1,0 +1,163 @@
+﻿@page "/admin/inventory/new"
+@layout AdminLayout
+@namespace AutoPartesApp.Shared.Pages.Admin
+
+<!-- Header -->
+<header class="sticky top-0 z-30 bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 backdrop-blur-md px-4 py-4 border-b border-slate-200 dark:border-slate-800">
+    <div class="max-w-7xl mx-auto">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <button class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+                        @onclick="GoBack">
+                    <span class="material-symbols-outlined text-slate-600 dark:text-slate-300">arrow_back</span>
+                </button>
+                <h1 class="text-lg lg:text-xl font-extrabold leading-tight">Nuevo Producto</h1>
+            </div>
+            <div class="flex items-center gap-2">
+                <button class="px-4 py-2 rounded-lg bg-primary text-white font-bold text-sm hover:opacity-90 transition-all"
+                        @onclick="SaveProduct"
+                        disabled="@isSaving">
+                    @if (isSaving)
+                    {
+                        <span>Guardando...</span>
+                    }
+                    else
+                    {
+                        <span>Guardar Producto</span>
+                    }
+                </button>
+                <button class="px-4 py-2 rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-white font-bold text-sm hover:bg-slate-300 dark:hover:bg-slate-700 transition-all"
+                        @onclick="GoBack">
+                    Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Content -->
+<main class="flex-1 overflow-y-auto px-4 py-6 pb-24 lg:pb-8">
+    <div class="max-w-4xl mx-auto">
+        <EditForm Model="@createDto" OnValidSubmit="SaveProduct">
+            <DataAnnotationsValidator />
+
+            <div class="space-y-6">
+                <!-- Información Básica -->
+                <div class="bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 rounded-xl border border-slate-200 dark:border-border-dark p-6">
+                    <h3 class="font-bold text-lg mb-4">Información Básica</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Nombre -->
+                        <div class="md:col-span-2">
+                            <label class="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1 block">
+                                Nombre del Producto <span class="text-red-500">*</span>
+                            </label>
+                            <InputText @bind-Value="createDto.Name"
+                                       class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
+                                       placeholder="Ej: Filtro de Aceite Bosch" />
+                            <ValidationMessage For="@(() => createDto.Name)" class="text-red-500 text-xs mt-1" />
+                        </div>
+
+                        <!-- SKU -->
+                        <div>
+                            <label class="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1 block">
+                                SKU <span class="text-red-500">*</span>
+                            </label>
+                            <InputText @bind-Value="createDto.Sku"
+                                       class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
+                                       placeholder="Ej: BO-44921-MT" />
+                            <ValidationMessage For="@(() => createDto.Sku)" class="text-red-500 text-xs mt-1" />
+                        </div>
+
+                        <!-- Categoría -->
+                        <div>
+                            <label class="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1 block">
+                                Categoría <span class="text-red-500">*</span>
+                            </label>
+                            <InputText @bind-Value="createDto.CategoryId"
+                                       class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
+                                       placeholder="ID de categoría" />
+                            <ValidationMessage For="@(() => createDto.CategoryId)" class="text-red-500 text-xs mt-1" />
+                        </div>
+
+                        <!-- Precio -->
+                        <div>
+                            <label class="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1 block">
+                                Precio <span class="text-red-500">*</span>
+                            </label>
+                            <div class="flex gap-2">
+                                <InputNumber @bind-Value="createDto.Price"
+                                             class="flex-1 px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
+                                             placeholder="0.00" />
+                                <InputText @bind-Value="createDto.Currency"
+                                           class="w-20 px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
+                                           placeholder="USD" />
+                            </div>
+                            <ValidationMessage For="@(() => createDto.Price)" class="text-red-500 text-xs mt-1" />
+                        </div>
+
+                        <!-- Stock -->
+                        <div>
+                            <label class="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1 block">
+                                Stock Inicial <span class="text-red-500">*</span>
+                            </label>
+                            <InputNumber @bind-Value="createDto.Stock"
+                                         class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
+                                         placeholder="0" />
+                            <ValidationMessage For="@(() => createDto.Stock)" class="text-red-500 text-xs mt-1" />
+                        </div>
+
+                        <!-- Descripción -->
+                        <div class="md:col-span-2">
+                            <label class="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1 block">Descripción</label>
+                            <InputTextArea @bind-Value="createDto.Description" rows="3"
+                                           class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
+                                           placeholder="Descripción del producto" />
+                        </div>
+
+                        <!-- Imagen URL -->
+                        <div class="md:col-span-2">
+                            <label class="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1 block">URL de Imagen</label>
+                            <InputText @bind-Value="createDto.ImageUrl"
+                                       class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
+                                       placeholder="https://..." />
+                            <ValidationMessage For="@(() => createDto.ImageUrl)" class="text-red-500 text-xs mt-1" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Compatibilidad -->
+                <div class="bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 rounded-xl border border-slate-200 dark:border-border-dark p-6">
+                    <h3 class="font-bold text-lg mb-4">Compatibilidad de Vehículos (Opcional)</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <!-- Marca -->
+                        <div>
+                            <label class="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1 block">Marca</label>
+                            <InputText @bind-Value="createDto.Brand"
+                                       class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
+                                       placeholder="Toyota, Honda, etc." />
+                        </div>
+
+                        <!-- Modelo -->
+                        <div>
+                            <label class="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1 block">Modelo</label>
+                            <InputText @bind-Value="createDto.Model"
+                                       class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
+                                       placeholder="Corolla, Civic, etc." />
+                        </div>
+
+                        <!-- Año -->
+                        <div>
+                            <label class="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1 block">Año</label>
+                            <InputText @bind-Value="createDto.Year"
+                                       class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
+                                       placeholder="2020, 2021, etc." />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Validación Summary -->
+                <ValidationSummary class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 text-red-600 dark:text-red-400 text-sm" />
+            </div>
+        </EditForm>
+    </div>
+</main>

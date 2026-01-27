@@ -46,6 +46,15 @@ namespace AutoPartesApp
 
             builder.Services.AddAutoPartesWebServices();
 
+            // ========== SERVICIOS - ADMIN ==========
+            builder.Services.AddScoped<InventoryService>(sp =>
+            {
+                var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
+                var httpClient = httpClientFactory.CreateClient("AutoPartesAPI");
+                var logger = sp.GetRequiredService<ILogger<InventoryService>>();
+                return new InventoryService(httpClient, logger);
+            });
+
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();
             builder.Logging.AddDebug();

@@ -7,28 +7,32 @@ using System.Text;
 
 namespace AutoPartesApp.Core.Application.Inventory
 {
-    public class GetLowStockUseCase
+    public class GetProductByIdUseCase
     {
         private readonly IProductRepository _productRepository;
 
-        public GetLowStockUseCase(IProductRepository productRepository)
+        public GetProductByIdUseCase(IProductRepository productRepository)
         {
             _productRepository = productRepository;
         }
 
-        public async Task<List<ProductListItemDto>> Execute(int threshold = 10)
+        public async Task<ProductDto?> Execute(string productId)
         {
-            var products = await _productRepository.GetLowStockAsync(threshold);
+            var product = await _productRepository.GetByIdAsync(productId);
 
-            return products.Select(p => MapToListItemDto(p)).ToList();
+            if (product == null)
+                return null;
+
+            return MapToDto(product);
         }
 
-        private ProductListItemDto MapToListItemDto(Product product)
+        private ProductDto MapToDto(Product product)
         {
-            return new ProductListItemDto
+            return new ProductDto
             {
                 Id = product.Id,
                 Name = product.Name,
+                Description = product.Description,
                 Sku = product.Sku,
                 Price = product.Price.Amount,
                 Currency = product.Price.Currency,
@@ -36,8 +40,15 @@ namespace AutoPartesApp.Core.Application.Inventory
                 StockStatus = product.StockStatus,
                 CategoryId = product.CategoryId,
                 CategoryName = product.Category?.Name ?? "",
+                Brand = product.Brand,
+                Model = product.Model,
+                Year = product.Year,
+                Compatibility = product.Compatibility,
                 ImageUrl = product.ImageUrl,
-                IsActive = product.IsActive
+                ImageUrls = product.ImageUrls,
+                IsActive = product.IsActive,
+                CreatedAt = product.CreatedAt,
+                UpdatedAt = product.UpdatedAt
             };
         }
     }

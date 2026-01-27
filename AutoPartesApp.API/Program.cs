@@ -1,16 +1,17 @@
-﻿using AutoPartesApp.Core.Application.Inventory;
-using AutoPartesApp.Domain.Interfaces;
-using AutoPartesApp.Infrastructure.Persistence;
-using AutoPartesApp.Infrastructure.Persistence.Repositories;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
-using System.Text;
-using AutoPartesApp.Core.Application.Admin.Dashboard;
+﻿using AutoPartesApp.Core.Application.Admin.Dashboard;
+using AutoPartesApp.Core.Application.Inventory;
 using AutoPartesApp.Core.Application.Orders;
 using AutoPartesApp.Core.Application.Reports;
 using AutoPartesApp.Core.Application.Users;
+using AutoPartesApp.Domain.Interfaces;
+using AutoPartesApp.Infrastructure.Persistence;
+using AutoPartesApp.Infrastructure.Persistence.Repositories;
+using AutoPartesApp.Infrastructure.Persistence.Seed;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -164,5 +165,12 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+//Llamada al seeder
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AutoPartesDbContext>();
+    await DatabaseSeeder.SeedAsync(db);
+}
 
 app.Run();

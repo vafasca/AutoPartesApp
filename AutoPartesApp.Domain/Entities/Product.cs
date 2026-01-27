@@ -33,6 +33,7 @@ namespace AutoPartesApp.Domain.Entities
         // Navegación
         public virtual Category Category { get; set; } = null!;
         public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
+        public virtual ICollection<Inventory> Inventories { get; set; } = new List<Inventory>();
 
         // Propiedades calculadas
         public string StockStatus => Stock > 10 ? "Disponible" : Stock > 0 ? "Bajo Stock" : "Agotado";

@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace AutoPartesApp.Core.Application.Inventory
+namespace AutoPartesApp.Application.Inventory
 {
     public class GetLowStockUseCase
     {

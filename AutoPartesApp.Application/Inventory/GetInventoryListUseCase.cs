@@ -26,7 +26,7 @@ namespace AutoPartesApp.Application.Inventory
                 ProductId = i.ProductId,
                 ProductName = i.Product?.Name ?? "N/A",
                 ProductDescription = i.Product?.Description ?? "N/A",
-                Price = i.Product?.Price ?? 0,
+                Price = i.Product?.Price?.Amount ?? 0,
                 StockQuantity = i.StockQuantity,
                 MinimumStock = i.MinimumStock,
                 CategoryName = i.Product?.Category?.Name ?? "N/A",

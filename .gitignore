@@ -1,31 +1,124 @@
-```
+```gitignore
 # Build artifacts
-bin/
-obj/
-*.dll
 *.exe
+*.dll
+*.so
+*.dylib
+*.obj
+*.o
+*.a
+*.lib
 *.pdb
-*.config
-*.csproj.user
+*.ilk
+*.exp
+*.gch
+*.pch
+*.rsp
+*.sln
+*.csproj
+*.vbproj
+*.fsproj
+*.user
+*.userosscache
+*.suo
+*.tmp
+*.temp
+*.bak
+*.cache
+*.ilk
+*.meta
+*.pidb
+*.sdf
+*.opendb
+*.opensdf
 
 # Dependencies
 packages/
+bin/
+obj/
+out/
+dist/
+build/
 node_modules/
+vendor/
+.nuget/
+packages/
 
 # Logs
 *.log
+**/logs
+**/tmp
+**/temp
 
-# Environment
-.env
-.env.local
-*.env.*
-
-# Editors
+# User-specific files
+.vs/
 .vscode/
 .idea/
-*.userprefs
+*.swp
+*.swo
+*~
+._*
+
+# Environment specific
+.env
+.env.local
+.env.dev
+.env.test
+.env.production
+.env.staging
+.env.*
+!**/.env.example
+!**/.env.sample
 
 # OS generated files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
+desktop.ini
+Icon?
+VolumeIcon.icns
+*.nupkg
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Testing
+testresults.xml
+*.testlog
+**/TestResults
+**/CoverageResult
+coverage/
+htmlcov/
+.coverage
+.nyc_output
+istanbul/
+.reports/
+
+# IDE
+*.orig
+*.rej
+*.un~
+*.swp
+*.swo
+*~
+
+# Output directory
+**/output/
+**/bin/
+**/obj/
+**/Debug/
+**/Release/
+**/x64/
+**/x86/
+**/arm64/
+**/AnyCPU/
+
+# Configuration
+appsettings.*.json
+!appsettings.json
+config/
 ```

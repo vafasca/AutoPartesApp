@@ -6,8 +6,7 @@ using AutoPartesApp.Domain.Entities;
 namespace AutoPartesApp.API.Controllers.v1.Admin
 {
     [ApiController]
-    [ApiVersion("1.0")]
-    [Route("api/v{version:apiVersion}/admin/[controller]")]
+    [Route("api/[controller]")]
     public class InventoryController : ControllerBase
     {
         private readonly IProductRepository _productRepository;

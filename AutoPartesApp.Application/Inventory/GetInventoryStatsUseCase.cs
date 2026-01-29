@@ -1,8 +1,7 @@
 ﻿using AutoPartesApp.Core.Application.DTOs.AdminDTOs;
 using AutoPartesApp.Domain.Interfaces;
 using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Threading.Tasks;
 
 namespace AutoPartesApp.Core.Application.Inventory
 {
@@ -17,18 +16,11 @@ namespace AutoPartesApp.Core.Application.Inventory
 
         public async Task<InventoryStatsDto> Execute()
         {
-            // Obtener todas las estadísticas en paralelo
-            var totalCountTask = _productRepository.GetTotalCountAsync();
-            var totalValueTask = _productRepository.GetTotalValueAsync();
-            var lowStockCountTask = _productRepository.GetLowStockCountAsync(10);
-            var outOfStockCountTask = _productRepository.GetOutOfStockCountAsync();
-
-            await Task.WhenAll(totalCountTask, totalValueTask, lowStockCountTask, outOfStockCountTask);
-
-            var totalCount = await totalCountTask;
-            var totalValue = await totalValueTask;
-            var lowStockCount = await lowStockCountTask;
-            var outOfStockCount = await outOfStockCountTask;
+            //Ejecutar queries SECUENCIALMENTE
+            var totalCount = await _productRepository.GetTotalCountAsync();
+            var totalValue = await _productRepository.GetTotalValueAsync();
+            var lowStockCount = await _productRepository.GetLowStockCountAsync(10);
+            var outOfStockCount = await _productRepository.GetOutOfStockCountAsync();
 
             // Calcular productos disponibles
             var availableStockCount = totalCount - lowStockCount - outOfStockCount;

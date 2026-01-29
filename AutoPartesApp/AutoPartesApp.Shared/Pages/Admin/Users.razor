@@ -83,7 +83,7 @@
                 <div class="space-y-4">
                     <div class="flex items-center justify-between px-1">
                         <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                            Usuarios Activos (@filteredClients.Count)
+                            Usuarios Activos (@filteredUsers.Count)
                         </h3>
                         <button class="text-primary text-xs font-bold hover:underline hidden lg:inline"
                                 @onclick="ExportClients">
@@ -91,7 +91,7 @@
                         </button>
                     </div>
 
-                    @if (filteredClients.Count == 0)
+                    @if (filteredUsers.Count == 0)
                     {
                         <!-- Empty State -->
                         <div class="flex flex-col items-center justify-center py-16 text-center">
@@ -108,22 +108,22 @@
                     {
                         <!-- Desktop: Grid View -->
                         <div class="hidden lg:grid lg:grid-cols-2 xl:grid-cols-3 gap-4">
-                            @foreach (var client in filteredClients)
+                            @foreach (var client in filteredUsers)
                             {
                                 <div class="bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 rounded-xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800 hover:shadow-lg transition-shadow">
                                     <div class="p-4 flex gap-4">
-                                        <div class="h-16 w-16 rounded-full bg-cover bg-center shrink-0 border-2 @GetUserBorderClass(client.Tier)"
-                                             style='background-image: url("@client.AvatarUrl");'></div>
+                                        <div class="h-16 w-16 rounded-full bg-cover bg-center shrink-0 border-2 @GetUserBorderClass(client.TotalOrders)"
+                                             style='background-image: url("@(client.AvatarUrl ?? "https://ui-avatars.com/api/?name=" + Uri.EscapeDataString(client.FullName))");'></div>
                                         <div class="flex-1 min-w-0">
                                             <div class="flex justify-between items-start mb-1">
-                                                <h4 class="font-bold text-base truncate">@client.Name</h4>
-                                                <span class="@GetTierBadgeClass(client.Tier)">@client.Tier</span>
+                                                <h4 class="font-bold text-base truncate">@client.FullName</h4>
+                                                <span class="@GetTierBadgeClass(client.TotalOrders)">@(client.TotalOrders > 20 ? "Premium" : "Regular")</span>
                                             </div>
                                             <p class="text-slate-500 dark:text-slate-400 text-sm">
-                                                Frecuencia: <span class="@GetFrequencyColor(client.Frequency) font-semibold">@client.Frequency</span> | @client.OrderCount Pedidos
+                                                Frecuencia: <span class="@GetFrequencyColor(client.TotalOrders) font-semibold">@GetFrequencyLabel(client.TotalOrders)</span> | @client.TotalOrders Pedidos
                                             </p>
                                             <p class="text-slate-400 dark:text-slate-500 text-xs mt-1">
-                                                Última compra: @client.LastPurchase
+                                                Última compra: @FormatLastPurchase(client)
                                             </p>
                                         </div>
                                     </div>
@@ -135,8 +135,8 @@
                                             <span class="xl:hidden">Promoción</span>
                                         </button>
                                         <button class="px-4 h-9 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-white rounded-lg text-sm font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
-                                                @onclick="() => BlockUser(client.Id, client.Name)">
-                                            Bloquear
+                                                @onclick="() => BlockUser(client.Id, client.FullName)">
+                                            @(client.IsActive ? "Bloquear" : "Activar")
                                         </button>
                                     </div>
                                 </div>
@@ -145,21 +145,21 @@
 
                         <!-- Mobile: List View -->
                         <div class="lg:hidden space-y-3">
-                            @foreach (var client in filteredClients)
+                            @foreach (var client in filteredUsers)
                             {
                                 <div class="bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 rounded-xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800 active:scale-[0.98] transition-transform">
                                     <div class="p-4 flex gap-3">
-                                        <div class="h-14 w-14 rounded-full bg-cover bg-center shrink-0 border-2 @GetUserBorderClass(client.Tier)"
-                                             style='background-image: url("@client.AvatarUrl");'></div>
+                                        <div class="h-14 w-14 rounded-full bg-cover bg-center shrink-0 border-2 @GetUserBorderClass(client.TotalOrders)"
+                                             style='background-image: url("@(client.AvatarUrl ?? "https://ui-avatars.com/api/?name=" + Uri.EscapeDataString(client.FullName))");'></div>
                                         <div class="flex-1 min-w-0">
                                             <div class="flex justify-between items-start mb-1">
-                                                <h4 class="font-bold text-base truncate">@client.Name</h4>
-                                                <span class="@GetTierBadgeClass(client.Tier)">@client.Tier</span>
+                                                <h4 class="font-bold text-base truncate">@client.FullName</h4>
+                                                <span class="@GetTierBadgeClass(client.TotalOrders)">@(client.TotalOrders > 20 ? "Premium" : "Regular")</span>
                                             </div>
                                             <p class="text-slate-500 dark:text-slate-400 text-sm">
-                                                <span class="@GetFrequencyColor(client.Frequency) font-semibold">@client.Frequency</span> • @client.OrderCount pedidos
+                                                <span class="@GetFrequencyColor(client.TotalOrders) font-semibold">@GetFrequencyLabel(client.TotalOrders)</span> • @client.TotalOrders pedidos
                                             </p>
-                                            <p class="text-slate-400 dark:text-slate-500 text-xs mt-1">@client.LastPurchase</p>
+                                            <p class="text-slate-400 dark:text-slate-500 text-xs mt-1">@FormatLastPurchase(client)</p>
                                         </div>
                                     </div>
                                     <div class="flex border-t border-slate-100 dark:border-slate-800 p-3 gap-2">
@@ -169,8 +169,8 @@
                                             Promoción
                                         </button>
                                         <button class="px-3 h-9 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-white rounded-lg text-xs font-bold"
-                                                @onclick="() => BlockUser(client.Id, client.Name)">
-                                            Bloquear
+                                                @onclick="() => BlockUser(client.Id, client.FullName)">
+                                            @(client.IsActive ? "Bloquear" : "Activar")
                                         </button>
                                     </div>
                                 </div>
@@ -186,7 +186,7 @@
                 <div class="space-y-4">
                     <div class="flex items-center justify-between px-1">
                         <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                            Repartidores en línea (@filteredDrivers.Count(d => d.IsOnline))
+                            Repartidores (@filteredUsers.Count(d => d.IsActive))
                         </h3>
                         <button class="text-primary text-xs font-bold hover:underline hidden lg:inline"
                                 @onclick="ViewDriversMap">
@@ -194,7 +194,7 @@
                         </button>
                     </div>
 
-                    @if (filteredDrivers.Count == 0)
+                    @if (filteredUsers.Count == 0)
                     {
                         <!-- Empty State -->
                         <div class="flex flex-col items-center justify-center py-16 text-center">
@@ -211,34 +211,34 @@
                     {
                         <!-- Desktop: Grid View -->
                         <div class="hidden lg:grid lg:grid-cols-2 xl:grid-cols-3 gap-4">
-                            @foreach (var driver in filteredDrivers)
+                            @foreach (var driver in filteredUsers)
                             {
-                                <div class="bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 rounded-xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800 hover:shadow-lg transition-shadow @(!driver.IsOnline ? "opacity-75" : "")">
+                                <div class="bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 rounded-xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800 hover:shadow-lg transition-shadow @(!driver.IsActive ? "opacity-75" : "")">
                                     <div class="p-4 flex gap-4">
                                         <div class="relative h-16 w-16 shrink-0">
                                             <div class="h-16 w-16 rounded-full bg-cover bg-center border-2 border-slate-200 dark:border-slate-700"
-                                                 style='background-image: url("@driver.AvatarUrl");'></div>
-                                            <div class="@GetOnlineStatusClass(driver.IsOnline)"></div>
+                                                 style='background-image: url("@(driver.AvatarUrl ?? "https://ui-avatars.com/api/?name=" + Uri.EscapeDataString(driver.FullName))");'></div>
+                                            <div class="@GetOnlineStatusClass(driver.IsActive)"></div>
                                         </div>
                                         <div class="flex-1 min-w-0">
                                             <div class="flex justify-between items-start mb-1">
-                                                <h4 class="font-bold text-base truncate">@driver.Name</h4>
-                                                <span class="@GetDriverStatusBadgeClass(driver.IsOnline)">
-                                                    @(driver.IsOnline ? "ACTIVO" : "DESCONECTADO")
+                                                <h4 class="font-bold text-base truncate">@driver.FullName</h4>
+                                                <span class="@GetDriverStatusBadgeClass(driver.IsActive)">
+                                                    @(driver.IsActive ? "ACTIVO" : "DESCONECTADO")
                                                 </span>
                                             </div>
                                             <p class="text-slate-500 dark:text-slate-400 text-sm flex items-center gap-1">
-                                                <span class="material-symbols-outlined text-base">@driver.VehicleIcon</span>
-                                                @driver.VehicleInfo
+                                                <span class="material-symbols-outlined text-base">@GetVehicleIcon(driver.Id)</span>
+                                                @GetVehicleInfo(driver.Id)
                                             </p>
                                             <p class="text-slate-400 dark:text-slate-500 text-xs mt-1">
-                                                @(driver.IsOnline ? $"En ruta: {driver.ActiveOrders} pedido(s)" : $"Última conexión: {driver.LastConnection}")
+                                                @(driver.IsActive ? $"En ruta: {driver.TotalDeliveries} pedido(s)" : $"Última conexión: {GetLastConnection(driver)}")
                                             </p>
                                         </div>
                                     </div>
                                     <div class="flex border-t border-slate-100 dark:border-slate-800 p-3 gap-3">
                                         <button class="flex-1 h-9 bg-primary text-white rounded-lg text-sm font-bold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors"
-                                                disabled="@(!driver.IsOnline)"
+                                                disabled="@(!driver.IsActive)"
                                                 @onclick="() => AssignOrder(driver.Id)">
                                             <span class="material-symbols-outlined text-lg">assignment_add</span>
                                             <span class="hidden xl:inline">Asignar</span>
@@ -255,34 +255,34 @@
 
                         <!-- Mobile: List View -->
                         <div class="lg:hidden space-y-3">
-                            @foreach (var driver in filteredDrivers)
+                            @foreach (var driver in filteredUsers)
                             {
-                                <div class="bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 rounded-xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800 active:scale-[0.98] transition-transform @(!driver.IsOnline ? "opacity-75" : "")">
+                                <div class="bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 rounded-xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800 active:scale-[0.98] transition-transform @(!driver.IsActive ? "opacity-75" : "")">
                                     <div class="p-4 flex gap-3">
                                         <div class="relative h-14 w-14 shrink-0">
                                             <div class="h-14 w-14 rounded-full bg-cover bg-center border-2 border-slate-200 dark:border-slate-700"
-                                                 style='background-image: url("@driver.AvatarUrl");'></div>
-                                            <div class="@GetOnlineStatusClass(driver.IsOnline)"></div>
+                                                 style='background-image: url("@(driver.AvatarUrl ?? "https://ui-avatars.com/api/?name=" + Uri.EscapeDataString(driver.FullName))");'></div>
+                                            <div class="@GetOnlineStatusClass(driver.IsActive)"></div>
                                         </div>
                                         <div class="flex-1 min-w-0">
                                             <div class="flex justify-between items-start mb-1">
-                                                <h4 class="font-bold text-base truncate">@driver.Name</h4>
-                                                <span class="@GetDriverStatusBadgeClass(driver.IsOnline)">
-                                                    @(driver.IsOnline ? "ACTIVO" : "OFF")
+                                                <h4 class="font-bold text-base truncate">@driver.FullName</h4>
+                                                <span class="@GetDriverStatusBadgeClass(driver.IsActive)">
+                                                    @(driver.IsActive ? "ACTIVO" : "OFF")
                                                 </span>
                                             </div>
                                             <p class="text-slate-500 dark:text-slate-400 text-sm flex items-center gap-1">
-                                                <span class="material-symbols-outlined text-base">@driver.VehicleIcon</span>
-                                                @driver.VehicleInfo
+                                                <span class="material-symbols-outlined text-base">@GetVehicleIcon(driver.Id)</span>
+                                                @GetVehicleInfo(driver.Id)
                                             </p>
                                             <p class="text-slate-400 dark:text-slate-500 text-xs mt-1">
-                                                @(driver.IsOnline ? $"{driver.ActiveOrders} pedido(s)" : driver.LastConnection)
+                                                @(driver.IsActive ? $"{driver.TotalDeliveries} pedido(s)" : GetLastConnection(driver))
                                             </p>
                                         </div>
                                     </div>
                                     <div class="flex border-t border-slate-100 dark:border-slate-800 p-3 gap-2">
                                         <button class="flex-1 h-9 bg-primary text-white rounded-lg text-xs font-bold flex items-center justify-center gap-1 disabled:opacity-50"
-                                                disabled="@(!driver.IsOnline)"
+                                                disabled="@(!driver.IsActive)"
                                                 @onclick="() => AssignOrder(driver.Id)">
                                             <span class="material-symbols-outlined text-base">assignment_add</span>
                                             Asignar

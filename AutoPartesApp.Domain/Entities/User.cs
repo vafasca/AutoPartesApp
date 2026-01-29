@@ -7,7 +7,7 @@ namespace AutoPartesApp.Domain.Entities
 {
     public class User
     {
-        public string Id { get; set; }
+        public string Id { get; set; } = string.Empty;
         public string FullName { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string PasswordHash { get; set; } = string.Empty;
@@ -21,16 +21,17 @@ namespace AutoPartesApp.Domain.Entities
         public DateTime UpdatedAt { get; set; }
         public DateTime? LastLoginAt { get; set; }
 
-        // Address como objeto complejo
+        // Address como objeto complejo (campos separados)
         public string? AddressStreet { get; set; }
         public string? AddressCity { get; set; }
         public string? AddressState { get; set; }
+        public string? AddressCountry { get; set; } // 🆕 NUEVO CAMPO
         public string? AddressZipCode { get; set; }
 
         // Navegación
         public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 
-        // Propiedades calculadas para compatibilidad con tu código actual
+        // Propiedades calculadas para compatibilidad
         public string Role => RoleType.ToFriendlyString();
 
     }

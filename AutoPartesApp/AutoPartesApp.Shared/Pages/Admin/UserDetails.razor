@@ -1,0 +1,292 @@
+﻿@page "/admin/users/{UserId}"
+@layout AdminLayout
+@namespace AutoPartesApp.Shared.Pages.Admin
+
+<!-- Top Navigation Bar -->
+<header class="sticky top-0 z-50 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+    <div class="max-w-7xl mx-auto">
+        <div class="flex items-center p-4 justify-between">
+            <div class="flex items-center gap-3">
+                <button class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+                        @onclick="GoBack">
+                    <span class="material-symbols-outlined">arrow_back</span>
+                </button>
+                <div>
+                    <h1 class="text-lg lg:text-xl font-extrabold tracking-tight">Detalles del Usuario</h1>
+                    @if (user != null)
+                    {
+                        <p class="text-xs text-slate-500 dark:text-slate-400">@user.Email</p>
+                    }
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button class="px-4 py-2 bg-primary text-white rounded-lg text-sm font-bold hover:bg-primary/90 transition-colors"
+                        @onclick="EditUser">
+                    <span class="material-symbols-outlined text-base">edit</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="pb-24 lg:pb-8">
+    <div class="max-w-7xl mx-auto p-4">
+        @if (isLoading)
+        {
+            <!-- Loading State -->
+            <div class="flex flex-col items-center justify-center py-16">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
+                <p class="text-slate-500 dark:text-slate-400 text-sm">Cargando detalles...</p>
+            </div>
+        }
+        else if (user == null)
+        {
+            <!-- Error State -->
+            <div class="flex flex-col items-center justify-center py-16 text-center">
+                <div class="bg-slate-100 dark:bg-slate-800 p-6 rounded-full mb-4">
+                    <span class="material-symbols-outlined text-slate-400 text-5xl">error</span>
+                </div>
+                <h3 class="text-slate-900 dark:text-white text-lg font-bold mb-2">Usuario no encontrado</h3>
+                <p class="text-slate-500 dark:text-slate-400 text-sm max-w-sm mb-6">
+                    El usuario que buscas no existe o fue eliminado
+                </p>
+                <button class="px-6 py-2 bg-primary text-white rounded-lg font-bold hover:bg-primary/90"
+                        @onclick="GoBack">
+                    Volver a la lista
+                </button>
+            </div>
+        }
+        else
+        {
+            <!-- User Content -->
+            <div class="space-y-6">
+                <!-- User Header Card -->
+                <div class="bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-800">
+                    <div class="flex flex-col lg:flex-row gap-6 items-start lg:items-center">
+                        <!-- Avatar -->
+                        <div class="h-24 w-24 rounded-full bg-cover bg-center border-4 border-primary shrink-0"
+                             style='background-image: url("@(user.AvatarUrl ?? "https://ui-avatars.com/api/?name=" + Uri.EscapeDataString(user.FullName))")'>
+                        </div>
+
+                        <!-- User Info -->
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-3 mb-2">
+                                <h2 class="text-2xl font-bold">@user.FullName</h2>
+                                <span class="@GetRoleBadgeClass(user.RoleType)">@user.Role</span>
+                                <span class="@GetStatusBadgeClass(user.IsActive)">
+                                    @(user.IsActive ? "ACTIVO" : "INACTIVO")
+                                </span>
+                            </div>
+                            <div class="space-y-1 text-sm text-slate-600 dark:text-slate-400">
+                                <div class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-base">email</span>
+                                    <span>@user.Email</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-base">phone</span>
+                                    <span>@user.Phone</span>
+                                </div>
+                                @if (!string.IsNullOrEmpty(user.FullAddress))
+                                {
+                                    <div class="flex items-center gap-2">
+                                        <span class="material-symbols-outlined text-base">location_on</span>
+                                        <span>@user.FullAddress</span>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Quick Actions -->
+                        <div class="flex flex-wrap lg:flex-col gap-2">
+                            <button class="px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-lg text-sm font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                                    @onclick="() => ToggleStatus(user.Id)">
+                                @(user.IsActive ? "Desactivar" : "Activar")
+                            </button>
+                            <button class="px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-lg text-sm font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                                    @onclick="() => ResetPassword(user.Id)">
+                                Restablecer Contraseña
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                @if (user.RoleType == Domain.Enums.RoleType.Client && user.OrdersSummary != null)
+                {
+                    <!-- Client Stats -->
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bg-white dark:bg-background-dark p-4 rounded-xl border border-slate-200 dark:border-slate-800">
+                            <div class="flex items-center gap-3">
+                                <div class="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                                    <span class="material-symbols-outlined text-blue-600 dark:text-blue-400">shopping_cart</span>
+                                </div>
+                                <div>
+                                    <p class="text-2xl font-bold">@user.OrdersSummary.TotalOrders</p>
+                                    <p class="text-xs text-slate-500">Total Órdenes</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white dark:bg-background-dark p-4 rounded-xl border border-slate-200 dark:border-slate-800">
+                            <div class="flex items-center gap-3">
+                                <div class="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                                    <span class="material-symbols-outlined text-green-600 dark:text-green-400">check_circle</span>
+                                </div>
+                                <div>
+                                    <p class="text-2xl font-bold">@user.OrdersSummary.CompletedOrders</p>
+                                    <p class="text-xs text-slate-500">Completadas</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white dark:bg-background-dark p-4 rounded-xl border border-slate-200 dark:border-slate-800">
+                            <div class="flex items-center gap-3">
+                                <div class="p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg">
+                                    <span class="material-symbols-outlined text-yellow-600 dark:text-yellow-400">pending</span>
+                                </div>
+                                <div>
+                                    <p class="text-2xl font-bold">@user.OrdersSummary.PendingOrders</p>
+                                    <p class="text-xs text-slate-500">Pendientes</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white dark:bg-background-dark p-4 rounded-xl border border-slate-200 dark:border-slate-800">
+                            <div class="flex items-center gap-3">
+                                <div class="p-3 bg-primary/10 rounded-lg">
+                                    <span class="material-symbols-outlined text-primary">attach_money</span>
+                                </div>
+                                <div>
+                                    <p class="text-2xl font-bold">$@user.OrdersSummary.TotalSpent.ToString("N0")</p>
+                                    <p class="text-xs text-slate-500">Total Gastado</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Orders -->
+                    @if (user.OrdersSummary.RecentOrders.Any())
+                    {
+                        <div class="bg-white dark:bg-background-dark rounded-xl border border-slate-200 dark:border-slate-800 p-6">
+                            <h3 class="text-lg font-bold mb-4">Órdenes Recientes</h3>
+                            <div class="space-y-3">
+                                @foreach (var order in user.OrdersSummary.RecentOrders)
+                                {
+                                    <div class="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50">
+                                        <div class="flex-1">
+                                            <p class="font-semibold">#@order.OrderNumber</p>
+                                            <p class="text-xs text-slate-500">@order.CreatedAt.ToString("dd/MM/yyyy HH:mm")</p>
+                                        </div>
+                                        <div class="flex items-center gap-3">
+                                            <span class="@GetOrderStatusBadge(order.Status)">@order.Status</span>
+                                            <span class="font-bold">$@order.Total.ToString("N2")</span>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                }
+                else if (user.RoleType == Domain.Enums.RoleType.Delivery && user.DeliveriesSummary != null)
+                {
+                    <!-- Delivery Stats -->
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bg-white dark:bg-background-dark p-4 rounded-xl border border-slate-200 dark:border-slate-800">
+                            <div class="flex items-center gap-3">
+                                <div class="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                                    <span class="material-symbols-outlined text-blue-600 dark:text-blue-400">local_shipping</span>
+                                </div>
+                                <div>
+                                    <p class="text-2xl font-bold">@user.DeliveriesSummary.TotalDeliveries</p>
+                                    <p class="text-xs text-slate-500">Total Entregas</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white dark:bg-background-dark p-4 rounded-xl border border-slate-200 dark:border-slate-800">
+                            <div class="flex items-center gap-3">
+                                <div class="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                                    <span class="material-symbols-outlined text-green-600 dark:text-green-400">check_circle</span>
+                                </div>
+                                <div>
+                                    <p class="text-2xl font-bold">@user.DeliveriesSummary.CompletedDeliveries</p>
+                                    <p class="text-xs text-slate-500">Completadas</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white dark:bg-background-dark p-4 rounded-xl border border-slate-200 dark:border-slate-800">
+                            <div class="flex items-center gap-3">
+                                <div class="p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg">
+                                    <span class="material-symbols-outlined text-yellow-600 dark:text-yellow-400">pending</span>
+                                </div>
+                                <div>
+                                    <p class="text-2xl font-bold">@user.DeliveriesSummary.InProgressDeliveries</p>
+                                    <p class="text-xs text-slate-500">En Progreso</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white dark:bg-background-dark p-4 rounded-xl border border-slate-200 dark:border-slate-800">
+                            <div class="flex items-center gap-3">
+                                <div class="p-3 bg-primary/10 rounded-lg">
+                                    <span class="material-symbols-outlined text-primary">star</span>
+                                </div>
+                                <div>
+                                    <p class="text-2xl font-bold">@user.DeliveriesSummary.SuccessRate.ToString("F1")%</p>
+                                    <p class="text-xs text-slate-500">Tasa de Éxito</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <!-- Account Info -->
+                <div class="bg-white dark:bg-background-dark rounded-xl border border-slate-200 dark:border-slate-800 p-6">
+                    <h3 class="text-lg font-bold mb-4">Información de la Cuenta</h3>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <p class="text-slate-500 dark:text-slate-400 mb-1">Fecha de Registro</p>
+                            <p class="font-semibold">@user.CreatedAt.ToString("dd/MM/yyyy HH:mm")</p>
+                        </div>
+                        <div>
+                            <p class="text-slate-500 dark:text-slate-400 mb-1">Última Actualización</p>
+                            <p class="font-semibold">@user.UpdatedAt.ToString("dd/MM/yyyy HH:mm")</p>
+                        </div>
+                        @if (user.LastLoginAt.HasValue)
+                        {
+                            <div>
+                                <p class="text-slate-500 dark:text-slate-400 mb-1">Último Acceso</p>
+                                <p class="font-semibold">@user.LastLoginAt.Value.ToString("dd/MM/yyyy HH:mm")</p>
+                            </div>
+                        }
+                        <div>
+                            <p class="text-slate-500 dark:text-slate-400 mb-1">ID de Usuario</p>
+                            <p class="font-mono text-xs">@user.Id</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</main>
+
+@if (!string.IsNullOrEmpty(successMessage))
+{
+    <div class="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in">
+        <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined">check_circle</span>
+            <span>@successMessage</span>
+        </div>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in">
+        <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined">error</span>
+            <span>@errorMessage</span>
+        </div>
+    </div>
+}

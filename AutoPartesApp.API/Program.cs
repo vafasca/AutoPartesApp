@@ -102,8 +102,19 @@ builder.Services.AddScoped<GetAdminDashboardUseCase>();
 //builder.Services.AddScoped<GetSalesReportUseCase>();
 
 // Use Cases - Users
-//builder.Services.AddScoped<BlockUserUseCase>();
-//builder.Services.AddScoped<GetCustomersUseCase>();
+builder.Services.AddScoped<GetAllUsersUseCase>();
+builder.Services.AddScoped<GetUserByIdUseCase>();
+builder.Services.AddScoped<GetUsersByRoleUseCase>();
+builder.Services.AddScoped<CreateUserUseCase>();
+builder.Services.AddScoped<UpdateUserUseCase>();
+builder.Services.AddScoped<BlockUserUseCase>();
+builder.Services.AddScoped<DeleteUserUseCase>();
+builder.Services.AddScoped<ChangeUserRoleUseCase>();
+builder.Services.AddScoped<GetUserStatsUseCase>();
+builder.Services.AddScoped<SearchUsersUseCase>();
+builder.Services.AddScoped<ResetPasswordUseCase>();
+builder.Services.AddScoped<GetCustomersUseCase>();
+builder.Services.AddScoped<GetDeliveriesUsersUseCase>();
 
 // JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");

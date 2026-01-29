@@ -1,8 +1,10 @@
 ﻿using AutoPartesApp.Core.Application.DTOs.AdminDTOs;
 using AutoPartesApp.Domain.Interfaces;
+using AutoPartesApp.Domain.Enums;
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace AutoPartesApp.Core.Application.Admin.Dashboard
 {
@@ -24,22 +26,23 @@ namespace AutoPartesApp.Core.Application.Admin.Dashboard
 
         public async Task<AdminDashboardDto> Execute()
         {
-            // Obtener datos de los últimos 30 días
+            // ✅ SOLUCIÓN: Ejecutar queries SECUENCIALMENTE
             var startDate = DateTime.UtcNow.AddDays(-30);
+
+            // 1️⃣ Obtener todas las órdenes (con Include explícito si es necesario)
             var allOrders = await _orderRepository.GetAllAsync();
             var recentOrders = allOrders.Where(o => o.CreatedAt >= startDate).ToList();
 
-            // Calcular estadísticas
+            // 2️⃣ Calcular estadísticas (en memoria, sin más queries a BD)
             var totalSales = recentOrders.Sum(o => o.Total.Amount);
-            var completedOrders = recentOrders.Count(o => o.Status == Domain.Enums.OrderStatus.Delivered);
-            var pendingOrders = recentOrders.Count(o => o.Status == Domain.Enums.OrderStatus.Pending);
-
+            var completedOrders = recentOrders.Count(o => o.Status == OrderStatus.Delivered);
+            var pendingOrders = recentOrders.Count(o => o.Status == OrderStatus.Pending);
             var averageTicket = recentOrders.Any() ? totalSales / recentOrders.Count : 0;
 
-            // Productos con bajo stock
+            // 3️⃣ Productos con bajo stock (query separado, DESPUÉS del anterior)
             var lowStockProducts = await _productRepository.GetLowStockAsync(10);
 
-            // Pedidos recientes (últimos 5)
+            // 4️⃣ Pedidos recientes (procesamiento en memoria)
             var recentOrderDtos = allOrders
                 .OrderByDescending(o => o.CreatedAt)
                 .Take(5)
@@ -56,7 +59,7 @@ namespace AutoPartesApp.Core.Application.Admin.Dashboard
                 })
                 .ToList();
 
-            // Datos para gráfico (últimos 7 días)
+            // 5️⃣ Datos para gráfico (procesamiento en memoria)
             var salesChart = GenerateSalesChartData(recentOrders);
 
             return new AdminDashboardDto
@@ -79,17 +82,17 @@ namespace AutoPartesApp.Core.Application.Admin.Dashboard
             };
         }
 
-        private string GetStatusString(Domain.Enums.OrderStatus status)
+        private string GetStatusString(OrderStatus status)
         {
             return status switch
             {
-                Domain.Enums.OrderStatus.Pending => "PENDIENTE",
-                Domain.Enums.OrderStatus.Confirmed => "CONFIRMADO",
-                Domain.Enums.OrderStatus.Processing => "PROCESANDO",
-                Domain.Enums.OrderStatus.Shipped => "ENVIADO",
-                Domain.Enums.OrderStatus.OnRoute => "EN CAMINO",
-                Domain.Enums.OrderStatus.Delivered => "COMPLETADO",
-                Domain.Enums.OrderStatus.Cancelled => "CANCELADO",
+                OrderStatus.Pending => "PENDIENTE",
+                OrderStatus.Confirmed => "CONFIRMADO",
+                OrderStatus.Processing => "PROCESANDO",
+                OrderStatus.Shipped => "ENVIADO",
+                OrderStatus.OnRoute => "EN CAMINO",
+                OrderStatus.Delivered => "COMPLETADO",
+                OrderStatus.Cancelled => "CANCELADO",
                 _ => "DESCONOCIDO"
             };
         }

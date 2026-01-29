@@ -1,8 +1,8 @@
 ﻿using AutoPartesApp.Core.Application.DTOs.AdminDTOs;
 using System;
-using System.Collections.Generic;
+using System.Net.Http;
 using System.Net.Http.Json;
-using System.Text;
+using System.Threading.Tasks;
 
 namespace AutoPartesApp.Shared.Services.Admin
 {
@@ -23,19 +23,25 @@ namespace AutoPartesApp.Shared.Services.Admin
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    Console.WriteLine($"Error en Dashboard API: {response.StatusCode}");
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine($"❌ Error en Dashboard API: {response.StatusCode}");
+                    Console.WriteLine($"Detalle: {errorContent}");
                     return null;
                 }
 
                 var dashboardData = await response.Content.ReadFromJsonAsync<AdminDashboardDto>();
-
-                Console.WriteLine($"Dashboard data obtenida: {dashboardData?.Stats.TotalOrders} orders");
-
+                Console.WriteLine($"✅ Dashboard data obtenida: {dashboardData?.Stats.TotalOrders} orders");
                 return dashboardData;
+            }
+            catch (HttpRequestException ex)
+            {
+                Console.WriteLine($"❌ Error de conexión en DashboardService: {ex.Message}");
+                return null;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Exception en DashboardService: {ex.Message}");
+                Console.WriteLine($"❌ Exception en DashboardService: {ex.Message}");
+                Console.WriteLine($"StackTrace: {ex.StackTrace}");
                 return null;
             }
         }

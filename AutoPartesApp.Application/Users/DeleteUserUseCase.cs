@@ -5,21 +5,21 @@ using System.Text;
 
 namespace AutoPartesApp.Core.Application.Users
 {
-    public class BlockUserUseCase
+    public class DeleteUserUseCase
     {
         private readonly IUserRepository _userRepository;
 
-        public BlockUserUseCase(IUserRepository userRepository)
+        public DeleteUserUseCase(IUserRepository userRepository)
         {
             _userRepository = userRepository;
         }
 
         /// <summary>
-        /// Alterna el estado activo/inactivo del usuario (bloquear/desbloquear)
+        /// Eliminación lógica: marca IsActive = false
         /// </summary>
         public async Task<bool> ExecuteAsync(string userId)
         {
-            return await _userRepository.ToggleUserStatusAsync(userId);
+            return await _userRepository.DeleteAsync(userId);
         }
     }
 }

@@ -16,26 +16,22 @@ namespace AutoPartesApp.Shared.Extensions
 {
     public static class ServiceCollectionExtensions
     {
+        /// <summary>
+        /// Registra servicios comunes de AutoPartes para proyectos Web/MAUI.
+        /// IMPORTANTE: Este método NO debe registrar HttpClient ni AuthService,
+        /// ya que esos se configuran específicamente en cada proyecto.
+        /// </summary>
         public static IServiceCollection AddAutoPartesWebServices(this IServiceCollection services)
         {
-            // ✅ CORRECCIÓN: Configurar HttpClient con nombre
-            services.AddHttpClient("AutoPartesAPI", client =>
-            {
-                client.BaseAddress = new Uri("https://localhost:7120/");
-                client.Timeout = TimeSpan.FromSeconds(30);
-            });
+            //HttpClient y AuthService se configuran en Program.cs de cada proyecto
+            // porque tienen configuraciones específicas (puerto, SSL, etc.)
 
-            // ✅ Registrar AuthService manualmente con IHttpClientFactory
-            services.AddScoped<IAuthService, AuthService>(sp =>
-            {
-                var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
-                var httpClient = httpClientFactory.CreateClient("AutoPartesAPI");
-                return new AuthService(httpClient);
-            });
+            // Solo registrar servicios que no dependan de HttpClient
+            // o que no tengan configuraciones específicas de plataforma
 
-            services.AddScoped<LoginUseCase>();
-            services.AddScoped<LoginService>();
-            services.AddScoped<AuthState>();
+            // Ejemplo: Si tuvieras servicios de lógica pura, registrarlos aquí
+            // services.AddScoped<CalculadoraService>();
+            // services.AddScoped<ValidadorService>();
 
             return services;
         }

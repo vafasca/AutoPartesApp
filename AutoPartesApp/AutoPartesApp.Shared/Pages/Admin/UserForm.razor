@@ -1,0 +1,299 @@
+﻿@page "/admin/users/new"
+@page "/admin/users/{UserId}/edit"
+@layout AdminLayout
+@namespace AutoPartesApp.Shared.Pages.Admin
+@using AutoPartesApp.Core.Application.DTOs.UserDTOs
+
+<!-- Top Navigation Bar -->
+<header class="sticky top-0 z-50 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+    <div class="max-w-7xl mx-auto">
+        <div class="flex items-center p-4 justify-between">
+            <div class="flex items-center gap-3">
+                <button class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+                        @onclick="GoBack">
+                    <span class="material-symbols-outlined">arrow_back</span>
+                </button>
+                <div>
+                    <h1 class="text-lg lg:text-xl font-extrabold tracking-tight">
+                        @(IsEditMode ? "Editar Usuario" : "Nuevo Usuario")
+                    </h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="pb-24 lg:pb-8">
+    <div class="max-w-3xl mx-auto p-4">
+        @if (isLoading)
+        {
+            <div class="flex flex-col items-center justify-center py-16">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
+                <p class="text-slate-500 dark:text-slate-400 text-sm">Cargando...</p>
+            </div>
+        }
+        else if (!IsEditMode && createModel != null)
+        {
+            <!-- Formulario de Creación -->
+            <EditForm Model="@createModel" OnValidSubmit="HandleValidSubmit">
+                <DataAnnotationsValidator />
+
+                <div class="space-y-6">
+                    <!-- Información Personal -->
+                    <div class="bg-white dark:bg-background-dark rounded-xl border border-slate-200 dark:border-slate-800 p-6">
+                        <h3 class="text-lg font-bold mb-4">Información Personal</h3>
+
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-semibold mb-2">Nombre Completo *</label>
+                                <InputText @bind-Value="createModel.FullName"
+                                           class="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary focus:border-transparent"
+                                           placeholder="Ej: Juan Pérez" />
+                                <ValidationMessage For="@(() => createModel.FullName)" class="text-red-500 text-sm mt-1" />
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold mb-2">Email *</label>
+                                <InputText @bind-Value="createModel.Email"
+                                           type="email"
+                                           class="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary focus:border-transparent"
+                                           placeholder="Ej: juan@email.com" />
+                                <ValidationMessage For="@(() => createModel.Email)" class="text-red-500 text-sm mt-1" />
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold mb-2">Teléfono *</label>
+                                <InputText @bind-Value="createModel.Phone"
+                                           type="tel"
+                                           class="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary focus:border-transparent"
+                                           placeholder="Ej: +591 70000000" />
+                                <ValidationMessage For="@(() => createModel.Phone)" class="text-red-500 text-sm mt-1" />
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold mb-2">Contraseña *</label>
+                                <InputText @bind-Value="createModel.Password"
+                                           type="password"
+                                           class="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary focus:border-transparent"
+                                           placeholder="Mínimo 6 caracteres" />
+                                <ValidationMessage For="@(() => createModel.Password)" class="text-red-500 text-sm mt-1" />
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold mb-2">Rol *</label>
+                                <InputSelect @bind-Value="createModel.RoleType"
+                                             class="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary focus:border-transparent">
+                                    <option value="">Seleccionar rol...</option>
+                                    <option value="@Domain.Enums.RoleType.Client">Cliente</option>
+                                    <option value="@Domain.Enums.RoleType.Delivery">Repartidor</option>
+                                    <option value="@Domain.Enums.RoleType.Admin">Administrador</option>
+                                </InputSelect>
+                                <ValidationMessage For="@(() => createModel.RoleType)" class="text-red-500 text-sm mt-1" />
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold mb-2">URL del Avatar (opcional)</label>
+                                <InputText @bind-Value="createModel.AvatarUrl"
+                                           type="url"
+                                           class="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary focus:border-transparent"
+                                           placeholder="https://ejemplo.com/avatar.jpg" />
+                                <ValidationMessage For="@(() => createModel.AvatarUrl)" class="text-red-500 text-sm mt-1" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dirección -->
+                    <div class="bg-white dark:bg-background-dark rounded-xl border border-slate-200 dark:border-slate-800 p-6">
+                        <h3 class="text-lg font-bold mb-4">Dirección (Opcional)</h3>
+
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-semibold mb-2">Calle</label>
+                                <InputText @bind-Value="createModel.AddressStreet"
+                                           class="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary focus:border-transparent"
+                                           placeholder="Ej: Av. Principal #123" />
+                            </div>
+
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2">Ciudad</label>
+                                    <InputText @bind-Value="createModel.AddressCity"
+                                               class="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary focus:border-transparent"
+                                               placeholder="Ej: Cochabamba" />
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2">Estado/Provincia</label>
+                                    <InputText @bind-Value="createModel.AddressState"
+                                               class="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary focus:border-transparent"
+                                               placeholder="Ej: Cochabamba" />
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2">País</label>
+                                    <InputText @bind-Value="createModel.AddressCountry"
+                                               class="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary focus:border-transparent"
+                                               placeholder="Ej: Bolivia" />
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2">Código Postal</label>
+                                    <InputText @bind-Value="createModel.AddressZipCode"
+                                               class="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary focus:border-transparent"
+                                               placeholder="Ej: 00000" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex gap-3 justify-end">
+                        <button type="button"
+                                class="px-6 py-2 bg-slate-100 dark:bg-slate-800 rounded-lg font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                                @onclick="GoBack">
+                            Cancelar
+                        </button>
+                        <button type="submit"
+                                class="px-6 py-2 bg-primary text-white rounded-lg font-bold hover:bg-primary/90 transition-colors"
+                                disabled="@isSaving">
+                            @(isSaving ? "Guardando..." : "Crear Usuario")
+                        </button>
+                    </div>
+                </div>
+            </EditForm>
+        }
+        else if (IsEditMode && updateModel != null)
+        {
+            <!-- Formulario de Edición -->
+            <EditForm Model="@updateModel" OnValidSubmit="HandleValidSubmit">
+                <DataAnnotationsValidator />
+
+                <div class="space-y-6">
+                    <!-- Información Personal -->
+                    <div class="bg-white dark:bg-background-dark rounded-xl border border-slate-200 dark:border-slate-800 p-6">
+                        <h3 class="text-lg font-bold mb-4">Información Personal</h3>
+
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-semibold mb-2">Nombre Completo *</label>
+                                <InputText @bind-Value="updateModel.FullName"
+                                           class="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary focus:border-transparent"
+                                           placeholder="Ej: Juan Pérez" />
+                                <ValidationMessage For="@(() => updateModel.FullName)" class="text-red-500 text-sm mt-1" />
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold mb-2">Email *</label>
+                                <InputText @bind-Value="updateModel.Email"
+                                           type="email"
+                                           class="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary focus:border-transparent"
+                                           placeholder="Ej: juan@email.com" />
+                                <ValidationMessage For="@(() => updateModel.Email)" class="text-red-500 text-sm mt-1" />
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold mb-2">Teléfono *</label>
+                                <InputText @bind-Value="updateModel.Phone"
+                                           type="tel"
+                                           class="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary focus:border-transparent"
+                                           placeholder="Ej: +591 70000000" />
+                                <ValidationMessage For="@(() => updateModel.Phone)" class="text-red-500 text-sm mt-1" />
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold mb-2">URL del Avatar (opcional)</label>
+                                <InputText @bind-Value="updateModel.AvatarUrl"
+                                           type="url"
+                                           class="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary focus:border-transparent"
+                                           placeholder="https://ejemplo.com/avatar.jpg" />
+                                <ValidationMessage For="@(() => updateModel.AvatarUrl)" class="text-red-500 text-sm mt-1" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dirección -->
+                    <div class="bg-white dark:bg-background-dark rounded-xl border border-slate-200 dark:border-slate-800 p-6">
+                        <h3 class="text-lg font-bold mb-4">Dirección (Opcional)</h3>
+
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-semibold mb-2">Calle</label>
+                                <InputText @bind-Value="updateModel.AddressStreet"
+                                           class="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary focus:border-transparent"
+                                           placeholder="Ej: Av. Principal #123" />
+                            </div>
+
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2">Ciudad</label>
+                                    <InputText @bind-Value="updateModel.AddressCity"
+                                               class="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary focus:border-transparent"
+                                               placeholder="Ej: Cochabamba" />
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2">Estado/Provincia</label>
+                                    <InputText @bind-Value="updateModel.AddressState"
+                                               class="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary focus:border-transparent"
+                                               placeholder="Ej: Cochabamba" />
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2">País</label>
+                                    <InputText @bind-Value="updateModel.AddressCountry"
+                                               class="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary focus:border-transparent"
+                                               placeholder="Ej: Bolivia" />
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2">Código Postal</label>
+                                    <InputText @bind-Value="updateModel.AddressZipCode"
+                                               class="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary focus:border-transparent"
+                                               placeholder="Ej: 00000" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex gap-3 justify-end">
+                        <button type="button"
+                                class="px-6 py-2 bg-slate-100 dark:bg-slate-800 rounded-lg font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                                @onclick="GoBack">
+                            Cancelar
+                        </button>
+                        <button type="submit"
+                                class="px-6 py-2 bg-primary text-white rounded-lg font-bold hover:bg-primary/90 transition-colors"
+                                disabled="@isSaving">
+                            @(isSaving ? "Guardando..." : "Actualizar")
+                        </button>
+                    </div>
+                </div>
+            </EditForm>
+        }
+    </div>
+</main>
+
+@if (!string.IsNullOrEmpty(successMessage))
+{
+    <div class="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50">
+        <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined">check_circle</span>
+            <span>@successMessage</span>
+        </div>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50">
+        <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined">error</span>
+            <span>@errorMessage</span>
+        </div>
+    </div>
+}

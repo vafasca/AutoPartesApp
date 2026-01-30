@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using AutoPartesApp.Shared.Models.Admin;
+using AutoPartesApp.Shared.Services.Admin;
+using Microsoft.AspNetCore.Components;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,159 +12,72 @@ namespace AutoPartesApp.Shared.Pages.Admin
         [Inject]
         private NavigationManager? NavigationManager { get; set; }
 
+        [Inject]
+        private ReportService? ReportService { get; set; }
+
+        [Inject]
+        private ExportService? ExportService { get; set; }
+
+        // ViewModel - CORREGIDO: Ahora se inicializa correctamente
+        private ReportViewModel? viewModel;
+
         // State
-        private string selectedPeriod = "month"; // "week", "month", "custom"
-        private string selectedPeriodText = "Octubre 2023";
-        private string currentMonthYear = "Octubre 2023";
-        private DateTime currentMonth = new DateTime(2023, 10, 1);
+        private string selectedPeriod = "month";
+        private string selectedPeriodText = string.Empty;
+        private string currentMonthYear = string.Empty;
+        private DateTime currentMonth = DateTime.Now;
         private int startDayIndex = -1;
         private int endDayIndex = -1;
+        private string activeTab = "sales";
 
         // Data
         private List<string> daysOfWeek = new() { "D", "L", "M", "M", "J", "V", "S" };
         private List<CalendarDay> calendarDays = new();
-        private List<StatCard> statsCards = new();
-        private List<CategoryStat> salesByCategory = new();
-        private List<DeliveryStat> deliveryStats = new();
-        private List<TopProduct> topProducts = new();
 
-        // Calculated Values
-        private string totalSales = "$45.2k";
-        private string topCategory = "Motor";
-        private int deliveryRate = 94;
-
-        protected override void OnInitialized()
+        protected override async Task OnInitializedAsync()
         {
-            LoadData();
+            // CORREGIDO: Inicializar viewModel con ReportService
+            if (ReportService != null)
+            {
+                viewModel = new ReportViewModel(ReportService);
+            }
+
+            await LoadInitialData();
             GenerateCalendar();
         }
 
-        private void LoadData()
+        private async Task LoadInitialData()
         {
-            LoadStatsCards();
-            LoadSalesByCategory();
-            LoadDeliveryStats();
-            LoadTopProducts();
-        }
+            if (viewModel == null) return;
 
-        private void LoadStatsCards()
-        {
-            statsCards = new List<StatCard>
-            {
-                new StatCard
-                {
-                    Title = "Total Ventas",
-                    Value = "$45,230",
-                    Icon = "trending_up",
-                    IconColor = "text-primary",
-                    TrendText = "+12.5%",
-                    TrendColor = "text-[#0bda5b]",
-                    TrendIcon = "trending_up"
-                },
-                new StatCard
-                {
-                    Title = "Pedidos",
-                    Value = "1,240",
-                    Icon = "shopping_cart",
-                    IconColor = "text-orange-500",
-                    TrendText = "+5.2%",
-                    TrendColor = "text-[#0bda5b]",
-                    TrendIcon = "trending_up"
-                },
-                new StatCard
-                {
-                    Title = "Clientes Nuevos",
-                    Value = "248",
-                    Icon = "group_add",
-                    IconColor = "text-green-500",
-                    TrendText = "+18%",
-                    TrendColor = "text-[#0bda5b]",
-                    TrendIcon = "trending_up"
-                }
-            };
-        }
+            viewModel.IsLoading = true;
+            viewModel.ErrorMessage = string.Empty;
 
-        private void LoadSalesByCategory()
-        {
-            salesByCategory = new List<CategoryStat>
+            try
             {
-                new CategoryStat { Name = "Motor", Percentage = 45, Color = "bg-primary" },
-                new CategoryStat { Name = "Luces", Percentage = 25, Color = "bg-indigo-400" },
-                new CategoryStat { Name = "Frenos", Percentage = 20, Color = "bg-slate-400" },
-                new CategoryStat { Name = "Otros", Percentage = 10, Color = "bg-slate-200" }
-            };
-        }
+                // Configurar fechas iniciales (último mes)
+                var dateTo = DateTime.UtcNow;
+                var dateFrom = dateTo.AddMonths(-1);
 
-        private void LoadDeliveryStats()
-        {
-            deliveryStats = new List<DeliveryStat>
-            {
-                new DeliveryStat { Label = "A tiempo", Height = 120, Color = "bg-primary" },
-                new DeliveryStat { Label = "Retrasado", Height = 40, Color = "bg-slate-200 dark:bg-[#233648]" },
-                new DeliveryStat { Label = "Devuelto", Height = 15, Color = "bg-slate-200 dark:bg-[#233648]" }
-            };
-        }
+                // CORREGIDO: Usar propiedades directas en lugar de viewModel.Filters
+                viewModel.DateFrom = dateFrom;
+                viewModel.DateTo = dateTo;
 
-        private void LoadTopProducts()
-        {
-            topProducts = new List<TopProduct>
+                selectedPeriodText = $"{dateFrom:dd/MM/yyyy} - {dateTo:dd/MM/yyyy}";
+                currentMonthYear = currentMonth.ToString("MMMM yyyy");
+
+                // Cargar reporte inicial (ventas)
+                await viewModel.LoadSalesReportAsync();
+            }
+            catch (Exception ex)
             {
-                new TopProduct
-                {
-                    Id = 1,
-                    Name = "Filtro de Aceite Bosch",
-                    Category = "Motor",
-                    UnitsSold = 145,
-                    Revenue = 1812.50m,
-                    Trend = "up",
-                    TrendPercentage = 12,
-                    ImageUrl = "https://lh3.googleusercontent.com/aida-public/AB6AXuAtiox9TJXUAiSseJQmSfXikwbJGHUEPi7N9wx0xwszHMjibwcpBLcCKJZoX8UU-tKGn78_MfENXELASdx92BT6uUbxcEVPH6kj3brP0-QBnBvvDx1WZD7M71arhjEu9oL-2_SMcXH8aklAdmgLQbTCimzVSgmn8SovX9aKFvV7AZqVlPVwEfKzs7U7OHgWkZV5XMGZ1_KgRRAZhDDl1llbR7IvJkQBzZUjAVPtGAgcpZ3FR_Efn-Xs_0RVXCMyXqZRBOu4tg5mWgM"
-                },
-                new TopProduct
-                {
-                    Id = 2,
-                    Name = "Pastillas Freno Brembo",
-                    Category = "Frenos",
-                    UnitsSold = 98,
-                    Revenue = 8330.00m,
-                    Trend = "up",
-                    TrendPercentage = 8,
-                    ImageUrl = "https://lh3.googleusercontent.com/aida-public/AB6AXuCOz3tONHKIaAOG9OjRD-BhVcPZTtoGQu9tczLFBL-SaquR5SM7e3uEAzTGI8o579UNXA0CJGHzKz8BEbniV4TrjMva4JRZeS01_8ohm6zAMwkdPnanwdwNqIPcvhmHl73OGYXX_5IksWAJHNTzYiVpj5qHgfLGH4VrN1Lx07sSmrqmX5PMxjaiqY7ZSbOmHAzh1_dXKhMmydOm32lnVKBpQCagUL2TsvtgtrWMPX4eU1yjEp0UYAsX1S5lqCcnaG0qmZJQkgTtv8A"
-                },
-                new TopProduct
-                {
-                    Id = 3,
-                    Name = "Bujías Iridium (4 pack)",
-                    Category = "Eléctrico",
-                    UnitsSold = 87,
-                    Revenue = 3732.30m,
-                    Trend = "down",
-                    TrendPercentage = 3,
-                    ImageUrl = "https://lh3.googleusercontent.com/aida-public/AB6AXuA5ZwHq5SboWBdf1V4jV8rnureJKwvmHb_lOrx-kJ7WwiN37yHDETz8XnMZUF9mgTnjytBRanBT4sV_kgNW-yP01lVMzyldmd-Meavd8UYBl5-QKDKEqHYI9t_pLOveBdltGMyCULw3a8X6jjCFnposww9kgJyeqoX0nSIoQQ44szfFVIpqifcq33rHqu-bhX09P-YD7IQG-7MWb46tiKFhF8BJi20X_X3HCKiKBJHE2Mne6J61bnSCGF1MgD85aaWuURzmlECQlZs"
-                },
-                new TopProduct
-                {
-                    Id = 4,
-                    Name = "Amortiguador Monroe",
-                    Category = "Suspensión",
-                    UnitsSold = 64,
-                    Revenue = 7040.00m,
-                    Trend = "up",
-                    TrendPercentage = 15,
-                    ImageUrl = "https://lh3.googleusercontent.com/aida-public/AB6AXuAkC65h6BdIXOtTFGHvyR4S-3G6YpdxTUP5Se_rVVKDrA4dEPtdN5kAOYjpFcesozvpN7g6pgi6K85dslj7Jw4F_ll_7RhFVM56FYKGoQ9333jOujlFWfzEC0YE6ud49XbausyZZxsgV32L4ecPyINnKUbpkgfnCYCHHCpzkGbn1T1xyNRTBMZH8XlZ2Gc_vxVhu6GtPrbnGW-9ES59YI1dYSPcCJgaPPmvU7SCPaRetG3az3D2O00YfQ1kgNSm4ozRKXO-9YidcFQ"
-                },
-                new TopProduct
-                {
-                    Id = 5,
-                    Name = "Batería AGM 60Ah",
-                    Category = "Eléctrico",
-                    UnitsSold = 52,
-                    Revenue = 6240.00m,
-                    Trend = "up",
-                    TrendPercentage = 20,
-                    ImageUrl = "https://lh3.googleusercontent.com/aida-public/AB6AXuCfeqZOOmLto5AuFqiHyCkVj5jITAfAiump3dSS40ePery4jUahRV63eS3CzHfXe6YXoqhN7gxm6L--BbiG4AoBfwu_wBTXxrZQisNeVGAaP7O4chDg2CEPqII0aK3iwC3qFtH2KXUi3s6CUyO4k-CMK7_pTfxKl3pTRbUBSZDsquT1nu5uxIMu89yQjIq_Fx4dT51mXxxQtJA3uHvyMUk_8Mt2LpLZNKBXIP-HTBXj1LFaOznpYS9ndnazVkR3m_uRMyg2z98OWMc"
-                }
-            };
+                viewModel.ErrorMessage = $"Error al cargar datos iniciales: {ex.Message}";
+            }
+            finally
+            {
+                viewModel.IsLoading = false;
+                StateHasChanged();
+            }
         }
 
         private void GenerateCalendar()
@@ -173,7 +88,7 @@ namespace AutoPartesApp.Shared.Pages.Admin
             var lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddDays(-1);
             var firstDayOfWeek = (int)firstDayOfMonth.DayOfWeek;
 
-            // Días del mes anterior (grises)
+            // Días del mes anterior
             var previousMonth = firstDayOfMonth.AddMonths(-1);
             var daysInPreviousMonth = DateTime.DaysInMonth(previousMonth.Year, previousMonth.Month);
             for (int i = firstDayOfWeek - 1; i >= 0; i--)
@@ -195,8 +110,8 @@ namespace AutoPartesApp.Shared.Pages.Admin
                 });
             }
 
-            // Días del siguiente mes (para completar la grilla)
-            int remainingDays = 42 - calendarDays.Count; // 6 semanas completas
+            // Días del siguiente mes
+            int remainingDays = 42 - calendarDays.Count;
             for (int day = 1; day <= remainingDays; day++)
             {
                 calendarDays.Add(new CalendarDay
@@ -210,27 +125,42 @@ namespace AutoPartesApp.Shared.Pages.Admin
         // Event Handlers
         private void ToggleNotifications()
         {
-            Console.WriteLine("🔔 Toggle notifications");
+            // TODO: Implementar notificaciones
         }
 
-        private void ChangePeriod(string period)
+        private async Task ChangePeriod(string period)
         {
+            if (viewModel == null) return;
+
             selectedPeriod = period;
 
-            selectedPeriodText = period switch
+            var now = DateTime.UtcNow;
+
+            switch (period)
             {
-                "week" => "Última Semana",
-                "month" => "Octubre 2023",
-                "custom" => "Personalizado",
-                _ => "Octubre 2023"
-            };
+                case "week":
+                    viewModel.DateFrom = now.AddDays(-7);
+                    viewModel.DateTo = now;
+                    selectedPeriodText = "Última Semana";
+                    break;
+
+                case "month":
+                    viewModel.DateFrom = now.AddMonths(-1);
+                    viewModel.DateTo = now;
+                    selectedPeriodText = "Último Mes";
+                    break;
+
+                case "custom":
+                    selectedPeriodText = "Personalizado";
+                    break;
+            }
 
             // Resetear selección del calendario
             startDayIndex = -1;
             endDayIndex = -1;
 
-            StateHasChanged();
-            Console.WriteLine($"📅 Período cambiado a: {period}");
+            // Recargar datos del tab activo
+            await ReloadCurrentTab();
         }
 
         private void PreviousMonth()
@@ -249,22 +179,19 @@ namespace AutoPartesApp.Shared.Pages.Admin
             StateHasChanged();
         }
 
-        private void SelectCalendarDay(CalendarDay day, int index)
+        private async Task SelectCalendarDay(CalendarDay day, int index)
         {
-            if (!day.IsCurrentMonth) return;
+            if (!day.IsCurrentMonth || viewModel == null) return;
 
             if (startDayIndex == -1)
             {
-                // Primera selección
                 startDayIndex = index;
                 endDayIndex = -1;
             }
             else if (endDayIndex == -1)
             {
-                // Segunda selección
                 if (index < startDayIndex)
                 {
-                    // Si selecciona antes del inicio, intercambiar
                     endDayIndex = startDayIndex;
                     startDayIndex = index;
                 }
@@ -272,15 +199,96 @@ namespace AutoPartesApp.Shared.Pages.Admin
                 {
                     endDayIndex = index;
                 }
+
+                // Calcular fechas seleccionadas
+                var startDay = calendarDays[startDayIndex].DayNumber;
+                var endDay = calendarDays[endDayIndex].DayNumber;
+
+                viewModel.DateFrom = new DateTime(currentMonth.Year, currentMonth.Month, startDay);
+                viewModel.DateTo = new DateTime(currentMonth.Year, currentMonth.Month, endDay).AddDays(1).AddSeconds(-1);
+
+                selectedPeriodText = $"{viewModel.DateFrom:dd/MM/yyyy} - {viewModel.DateTo:dd/MM/yyyy}";
+
+                // Recargar datos
+                await ReloadCurrentTab();
             }
             else
             {
-                // Ya hay un rango, empezar de nuevo
                 startDayIndex = index;
                 endDayIndex = -1;
             }
 
             StateHasChanged();
+        }
+
+        private async Task ChangeTab(string tab)
+        {
+            if (activeTab == tab || viewModel == null) return;
+
+            activeTab = tab;
+
+            // Cargar datos del nuevo tab
+            switch (tab)
+            {
+                case "sales":
+                    if (viewModel.SalesReport == null)
+                        await viewModel.LoadSalesReportAsync();
+                    break;
+                case "inventory":
+                    if (viewModel.InventoryReport == null)
+                        await viewModel.LoadInventoryReportAsync();
+                    break;
+                case "customers":
+                    if (viewModel.CustomerReport == null)
+                        await viewModel.LoadCustomerReportAsync();
+                    break;
+                case "deliveries":
+                    if (viewModel.DeliveryReport == null)
+                        await viewModel.LoadDeliveryReportAsync();
+                    break;
+                case "orders":
+                    if (viewModel.OrderReport == null)
+                        await viewModel.LoadOrderReportAsync();
+                    break;
+                case "financial":
+                    if (viewModel.FinancialReport == null)
+                        await viewModel.LoadFinancialReportAsync();
+                    break;
+            }
+
+            StateHasChanged();
+        }
+
+        private async Task ReloadCurrentTab()
+        {
+            if (viewModel == null) return;
+
+            switch (activeTab)
+            {
+                case "sales":
+                    await viewModel.LoadSalesReportAsync();
+                    break;
+                case "inventory":
+                    await viewModel.LoadInventoryReportAsync();
+                    break;
+                case "customers":
+                    await viewModel.LoadCustomerReportAsync();
+                    break;
+                case "deliveries":
+                    await viewModel.LoadDeliveryReportAsync();
+                    break;
+                case "orders":
+                    await viewModel.LoadOrderReportAsync();
+                    break;
+                case "financial":
+                    await viewModel.LoadFinancialReportAsync();
+                    break;
+            }
+        }
+
+        private async Task RetryLoadData()
+        {
+            await LoadInitialData();
         }
 
         // UI Helpers
@@ -332,77 +340,469 @@ namespace AutoPartesApp.Shared.Pages.Admin
             return $"{baseClass} hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg cursor-pointer";
         }
 
-        private string GetTrendClass(string trend)
+        private string GetTabClass(string tab)
         {
-            return trend == "up" ? "text-[#0bda5b]" : "text-[#fa6238]";
+            var baseClass = "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap";
+            if (activeTab == tab)
+            {
+                return $"{baseClass} bg-primary text-white";
+            }
+            return $"{baseClass} bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700";
         }
 
-        private string GetTrendIcon(string trend)
+        // Export Actions
+        private async Task ExportPDF()
         {
-            return trend == "up" ? "trending_up" : "trending_down";
+            if (viewModel == null || ExportService == null) return;
+
+            try
+            {
+                viewModel.IsLoading = true;
+
+                string title = GetReportTitle();
+                string fileName = $"reporte_{activeTab}_{DateTime.Now:yyyyMMdd}.pdf";
+
+                object? reportData = activeTab switch
+                {
+                    "sales" => viewModel.SalesReport,
+                    "inventory" => viewModel.InventoryReport,
+                    "customers" => viewModel.CustomerReport,
+                    "deliveries" => viewModel.DeliveryReport,
+                    "orders" => viewModel.OrderReport,
+                    "financial" => viewModel.FinancialReport,
+                    _ => null
+                };
+
+                if (reportData != null)
+                {
+                    await ExportService.ExportToPdfAsync(title, reportData, fileName);
+                }
+            }
+            catch (Exception ex)
+            {
+                viewModel.ErrorMessage = $"Error al exportar PDF: {ex.Message}";
+            }
+            finally
+            {
+                viewModel.IsLoading = false;
+                StateHasChanged();
+            }
         }
 
-        // Action Handlers
-        private void ViewAllProducts()
+        private async Task ExportExcel()
         {
-            Console.WriteLine("📦 Ver todos los productos");
-            NavigationManager?.NavigateTo("/admin/inventory");
+            if (viewModel == null || ExportService == null) return;
+
+            try
+            {
+                viewModel.IsLoading = true;
+
+                string title = GetReportTitle();
+                string fileName = $"reporte_{activeTab}_{DateTime.Now:yyyyMMdd}.csv";
+
+                var csvData = ConvertReportToCSV();
+
+                if (csvData != null && csvData.Any())
+                {
+                    await ExportService.ExportToExcelAsync(title, csvData, fileName);
+                }
+            }
+            catch (Exception ex)
+            {
+                viewModel.ErrorMessage = $"Error al exportar Excel: {ex.Message}";
+            }
+            finally
+            {
+                viewModel.IsLoading = false;
+                StateHasChanged();
+            }
         }
 
-        private void ExportPDF()
+        // Helper Methods
+        private string GetReportTitle()
         {
-            Console.WriteLine("📄 Exportar reporte a PDF");
-            // Implementar exportación a PDF
+            return activeTab switch
+            {
+                "sales" => "Reporte de Ventas",
+                "inventory" => "Reporte de Inventario",
+                "customers" => "Reporte de Clientes",
+                "deliveries" => "Reporte de Entregas",
+                "orders" => "Reporte de Órdenes",
+                "financial" => "Reporte Financiero",
+                _ => "Reporte"
+            };
         }
 
-        private void ExportExcel()
+        private List<Dictionary<string, object>>? ConvertReportToCSV()
         {
-            Console.WriteLine("📊 Exportar reporte a Excel");
-            // Implementar exportación a Excel
+            if (viewModel == null) return null;
+
+            return activeTab switch
+            {
+                "sales" => ConvertSalesReportToCSV(),
+                "inventory" => ConvertInventoryReportToCSV(),
+                "customers" => ConvertCustomerReportToCSV(),
+                "deliveries" => ConvertDeliveryReportToCSV(),
+                "orders" => ConvertOrderReportToCSV(),
+                "financial" => ConvertFinancialReportToCSV(),
+                _ => null
+            };
         }
 
-        // Data Models
-        private class StatCard
+        private List<Dictionary<string, object>>? ConvertSalesReportToCSV()
         {
-            public string Title { get; set; } = string.Empty;
-            public string Value { get; set; } = string.Empty;
-            public string Icon { get; set; } = string.Empty;
-            public string IconColor { get; set; } = string.Empty;
-            public string TrendText { get; set; } = string.Empty;
-            public string TrendColor { get; set; } = string.Empty;
-            public string TrendIcon { get; set; } = string.Empty;
+            if (viewModel?.SalesReport == null) return null;
+
+            var data = new List<Dictionary<string, object>>();
+
+            // Resumen general
+            data.Add(new Dictionary<string, object>
+    {
+        { "Métrica", "Total Ingresos" },
+        { "Valor", viewModel.SalesReport.TotalRevenue },
+        { "Período", $"{viewModel.DateFrom:dd/MM/yyyy} - {viewModel.DateTo:dd/MM/yyyy}" }
+    });
+
+            data.Add(new Dictionary<string, object>
+    {
+        { "Métrica", "Total Órdenes" },
+        { "Valor", viewModel.SalesReport.TotalOrders },
+        { "Período", $"{viewModel.DateFrom:dd/MM/yyyy} - {viewModel.DateTo:dd/MM/yyyy}" }
+    });
+
+            data.Add(new Dictionary<string, object>
+    {
+        { "Métrica", "Ticket Promedio" },
+        { "Valor", viewModel.SalesReport.AverageOrderValue },
+        { "Período", $"{viewModel.DateFrom:dd/MM/yyyy} - {viewModel.DateTo:dd/MM/yyyy}" }
+    });
+
+            // Top productos
+            if (viewModel.SalesReport.TopProducts?.Any() == true)
+            {
+                data.Add(new Dictionary<string, object>
+        {
+            { "Métrica", "" },
+            { "Valor", "" },
+            { "Período", "" }
+        });
+
+                data.Add(new Dictionary<string, object>
+        {
+            { "Producto", "Producto" },
+            { "Categoría", "Categoría" },
+            { "Unidades", "Unidades Vendidas" },
+            { "Ingresos", "Ingresos" }
+        });
+
+                foreach (var product in viewModel.SalesReport.TopProducts)
+                {
+                    data.Add(new Dictionary<string, object>
+            {
+                { "Producto", product.Name },
+                { "Categoría", product.CategoryName },
+                { "Unidades", product.UnitsSold },
+                { "Ingresos", product.Revenue }
+            });
+                }
+            }
+
+            return data;
         }
 
+        private List<Dictionary<string, object>>? ConvertInventoryReportToCSV()
+        {
+            if (viewModel?.InventoryReport == null) return null;
+
+            var data = new List<Dictionary<string, object>>
+    {
+        new()
+        {
+            { "Métrica", "Total Productos" },
+            { "Valor", viewModel.InventoryReport.TotalProducts }
+        },
+        new()
+        {
+            { "Métrica", "Valor Total Inventario" },
+            { "Valor", viewModel.InventoryReport.TotalValue }
+        },
+        new()
+        {
+            { "Métrica", "Productos Sin Stock" },
+            { "Valor", viewModel.InventoryReport.OutOfStock }
+        },
+        new()
+        {
+            { "Métrica", "Productos Bajo Stock" },
+            { "Valor", viewModel.InventoryReport.LowStock }
+        }
+    };
+
+            // Valor por categoría
+            if (viewModel.InventoryReport.ValueByCategory?.Any() == true)
+            {
+                data.Add(new Dictionary<string, object>
+        {
+            { "Métrica", "" },
+            { "Valor", "" }
+        });
+
+                data.Add(new Dictionary<string, object>
+        {
+            { "Categoría", "Categoría" },
+            { "Valor Total", "Valor Total" },
+            { "Unidades", "Total Unidades" },
+            { "Porcentaje", "Porcentaje" }
+        });
+
+                foreach (var category in viewModel.InventoryReport.ValueByCategory)
+                {
+                    data.Add(new Dictionary<string, object>
+            {
+                { "Categoría", category.CategoryName },
+                { "Valor Total", category.TotalValue },
+                { "Unidades", category.TotalUnits },
+                { "Porcentaje", $"{category.Percentage}%" }
+            });
+                }
+            }
+
+            return data;
+        }
+
+        private List<Dictionary<string, object>>? ConvertCustomerReportToCSV()
+        {
+            if (viewModel?.CustomerReport == null) return null;
+
+            var data = new List<Dictionary<string, object>>
+    {
+        new()
+        {
+            { "Métrica", "Total Clientes" },
+            { "Valor", viewModel.CustomerReport.TotalCustomers }
+        },
+        new()
+        {
+            { "Métrica", "Nuevos Clientes" },
+            { "Valor", viewModel.CustomerReport.NewCustomers }
+        },
+        new()
+        {
+            { "Métrica", "Tasa de Retención" },
+            { "Valor", $"{viewModel.CustomerReport.RetentionRate}%" }
+        }
+    };
+
+            // Top clientes
+            if (viewModel.CustomerReport.TopCustomers?.Any() == true)
+            {
+                data.Add(new Dictionary<string, object>
+        {
+            { "Métrica", "" },
+            { "Valor", "" }
+        });
+
+                data.Add(new Dictionary<string, object>
+        {
+            { "Cliente", "Nombre" },
+            { "Email", "Email" },
+            { "Órdenes", "Total Órdenes" },
+            { "Gastado", "Total Gastado" }
+        });
+
+                foreach (var customer in viewModel.CustomerReport.TopCustomers)
+                {
+                    data.Add(new Dictionary<string, object>
+            {
+                { "Cliente", customer.FullName },
+                { "Email", customer.Email },
+                { "Órdenes", customer.TotalOrders },
+                { "Gastado", customer.TotalSpent }
+            });
+                }
+            }
+
+            return data;
+        }
+
+        private List<Dictionary<string, object>>? ConvertDeliveryReportToCSV()
+        {
+            if (viewModel?.DeliveryReport == null) return null;
+
+            var data = new List<Dictionary<string, object>>
+    {
+        new()
+        {
+            { "Métrica", "Total Entregas" },
+            { "Valor", viewModel.DeliveryReport.TotalDeliveries }
+        },
+        new()
+        {
+            { "Métrica", "Entregas Completadas" },
+            { "Valor", viewModel.DeliveryReport.CompletedDeliveries }
+        },
+        new()
+        {
+            { "Métrica", "Entregas Pendientes" },
+            { "Valor", viewModel.DeliveryReport.PendingDeliveries }
+        },
+        new()
+        {
+            { "Métrica", "Tiempo Promedio" },
+            { "Valor", $"{viewModel.DeliveryReport.AverageDeliveryTime} min" }
+        },
+        new()
+        {
+            { "Métrica", "Tasa de Eficiencia" },
+            { "Valor", $"{viewModel.DeliveryReport.EfficiencyRate}%" }
+        }
+    };
+
+            // Top drivers
+            if (viewModel.DeliveryReport.TopDrivers?.Any() == true)
+            {
+                data.Add(new Dictionary<string, object>
+        {
+            { "Métrica", "" },
+            { "Valor", "" }
+        });
+
+                data.Add(new Dictionary<string, object>
+        {
+            { "Repartidor", "Nombre" },
+            { "Entregas", "Total Entregas" },
+            { "Completadas", "Completadas" },
+            { "Tiempo Prom", "Tiempo Promedio" },
+            { "Eficiencia", "Eficiencia" }
+        });
+
+                foreach (var driver in viewModel.DeliveryReport.TopDrivers)
+                {
+                    data.Add(new Dictionary<string, object>
+            {
+                { "Repartidor", driver.FullName },
+                { "Entregas", driver.TotalDeliveries },
+                { "Completadas", driver.CompletedDeliveries },
+                { "Tiempo Prom", $"{driver.AverageTime} min" },
+                { "Eficiencia", $"{driver.EfficiencyRate}%" }
+            });
+                }
+            }
+
+            return data;
+        }
+
+        private List<Dictionary<string, object>>? ConvertOrderReportToCSV()
+        {
+            if (viewModel?.OrderReport == null) return null;
+
+            var data = new List<Dictionary<string, object>>
+    {
+        new()
+        {
+            { "Métrica", "Total Órdenes" },
+            { "Valor", viewModel.OrderReport.TotalOrders }
+        },
+        new()
+        {
+            { "Métrica", "Tiempo Promedio Procesamiento" },
+            { "Valor", $"{viewModel.OrderReport.AverageProcessingTime} min" }
+        },
+        new()
+        {
+            { "Métrica", "Tasa de Cancelación" },
+            { "Valor", $"{viewModel.OrderReport.CancellationRate}%" }
+        },
+        new()
+        {
+            { "Métrica", "Órdenes Pendientes" },
+            { "Valor", viewModel.OrderReport.PendingOrders }
+        }
+    };
+
+            // Órdenes por estado
+            if (viewModel.OrderReport.OrdersByStatus?.Any() == true)
+            {
+                data.Add(new Dictionary<string, object>
+        {
+            { "Métrica", "" },
+            { "Valor", "" }
+        });
+
+                data.Add(new Dictionary<string, object>
+        {
+            { "Estado", "Estado" },
+            { "Cantidad", "Cantidad" },
+            { "Porcentaje", "Porcentaje" }
+        });
+
+                foreach (var status in viewModel.OrderReport.OrdersByStatus)
+                {
+                    data.Add(new Dictionary<string, object>
+            {
+                { "Estado", status.Status },
+                { "Cantidad", status.Count },
+                { "Porcentaje", $"{status.Percentage}%" }
+            });
+                }
+            }
+
+            return data;
+        }
+
+        private List<Dictionary<string, object>>? ConvertFinancialReportToCSV()
+        {
+            if (viewModel?.FinancialReport == null) return null;
+
+            var data = new List<Dictionary<string, object>>
+    {
+        new()
+        {
+            { "Métrica", "Ingresos Totales" },
+            { "Valor", viewModel.FinancialReport.TotalRevenue }
+        },
+        new()
+        {
+            { "Métrica", "Ticket Promedio" },
+            { "Valor", viewModel.FinancialReport.AverageTicket }
+        }
+    };
+
+            // Ingresos por período
+            if (viewModel.FinancialReport.RevenueByPeriod?.Any() == true)
+            {
+                data.Add(new Dictionary<string, object>
+        {
+            { "Métrica", "" },
+            { "Valor", "" }
+        });
+
+                data.Add(new Dictionary<string, object>
+        {
+            { "Período", "Período" },
+            { "Ingresos", "Ingresos" },
+            { "Órdenes", "Cantidad Órdenes" }
+        });
+
+                foreach (var period in viewModel.FinancialReport.RevenueByPeriod)
+                {
+                    data.Add(new Dictionary<string, object>
+            {
+                { "Período", period.Period },
+                { "Ingresos", period.Revenue },
+                { "Órdenes", period.OrderCount }
+            });
+                }
+            }
+
+            return data;
+        }
+
+        // Data Model
         private class CalendarDay
         {
             public int DayNumber { get; set; }
             public bool IsCurrentMonth { get; set; }
-        }
-
-        private class CategoryStat
-        {
-            public string Name { get; set; } = string.Empty;
-            public int Percentage { get; set; }
-            public string Color { get; set; } = string.Empty;
-        }
-
-        private class DeliveryStat
-        {
-            public string Label { get; set; } = string.Empty;
-            public int Height { get; set; }
-            public string Color { get; set; } = string.Empty;
-        }
-
-        private class TopProduct
-        {
-            public int Id { get; set; }
-            public string Name { get; set; } = string.Empty;
-            public string Category { get; set; } = string.Empty;
-            public int UnitsSold { get; set; }
-            public decimal Revenue { get; set; }
-            public string Trend { get; set; } = string.Empty; // "up" or "down"
-            public int TrendPercentage { get; set; }
-            public string ImageUrl { get; set; } = string.Empty;
         }
     }
 }

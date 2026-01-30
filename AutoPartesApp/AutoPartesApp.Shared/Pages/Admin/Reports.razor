@@ -25,254 +25,157 @@
 <main class="pb-24 lg:pb-8">
     <div class="max-w-7xl mx-auto p-4 space-y-6">
 
-        <!-- Date Picker Section - Responsive -->
-        <section class="bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 rounded-xl p-4 lg:p-6 shadow-sm border border-slate-200 dark:border-slate-800">
-            <div class="flex flex-col lg:flex-row lg:items-center justify-between mb-4 gap-4">
-                <div>
-                    <h3 class="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Período</h3>
-                    <span class="text-primary text-base lg:text-lg font-bold">@selectedPeriodText</span>
-                </div>
-                <div class="flex gap-2">
-                    <button class="px-4 py-2 rounded-lg @GetPeriodButtonClass("week")" @onclick='() => ChangePeriod("week")'>
-                        Semana
-                    </button>
-                    <button class="px-4 py-2 rounded-lg @GetPeriodButtonClass("month")" @onclick='() => ChangePeriod("month")'>
-                        Mes
-                    </button>
-                    <button class="px-4 py-2 rounded-lg @GetPeriodButtonClass("custom")" @onclick='() => ChangePeriod("custom")'>
-                        Personalizado
-                    </button>
+        @if (viewModel.IsLoading)
+        {
+            <!-- Loading State -->
+            <div class="flex items-center justify-center py-20">
+                <div class="text-center space-y-4">
+                    <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mx-auto"></div>
+                    <p class="text-slate-600 dark:text-slate-400">Cargando reportes...</p>
                 </div>
             </div>
-
-            @if (selectedPeriod == "custom")
-            {
-                <!-- Calendar View - Responsive -->
-                <div class="flex flex-col gap-2">
-                    <div class="flex items-center p-2 justify-between">
-                        <button class="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
-                                @onclick="PreviousMonth">
-                            <span class="material-symbols-outlined text-lg">chevron_left</span>
-                        </button>
-                        <p class="text-base lg:text-lg font-bold flex-1 text-center">@currentMonthYear</p>
-                        <button class="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
-                                @onclick="NextMonth">
-                            <span class="material-symbols-outlined text-lg">chevron_right</span>
-                        </button>
-                    </div>
-
-                    <!-- Calendar Grid -->
-                    <div class="grid grid-cols-7 text-center gap-1">
-                        @foreach (var day in daysOfWeek)
-                        {
-                            <p class="text-[11px] font-bold py-2 opacity-50 uppercase">@day</p>
-                        }
-
-                        @for (int i = 0; i < calendarDays.Count; i++)
-                        {
-                            var day = calendarDays[i];
-                            <button class="@GetCalendarDayClass(day, i)"
-                                    @onclick="() => SelectCalendarDay(day, i)">
-                                @day.DayNumber
-                            </button>
-                        }
-                    </div>
-                </div>
-            }
-        </section>
-
-        <!-- Stats Cards - Responsive Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            @foreach (var stat in statsCards)
-            {
-                <div class="flex flex-col gap-2 rounded-xl p-5 lg:p-6 bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 shadow-sm border border-slate-200 dark:border-transparent">
-                    <div class="flex items-center justify-between">
-                        <p class="text-slate-500 dark:text-slate-300 text-xs font-bold uppercase tracking-wide">
-                            @stat.Title
-                        </p>
-                        <span class="material-symbols-outlined @stat.IconColor text-xl">@stat.Icon</span>
-                    </div>
-                    <p class="text-2xl lg:text-3xl font-bold leading-tight">@stat.Value</p>
-                    <div class="flex items-center gap-1">
-                        <p class="@stat.TrendColor text-sm font-bold flex items-center gap-1">
-                            <span class="material-symbols-outlined text-sm">@stat.TrendIcon</span>
-                            @stat.TrendText
-                        </p>
-                    </div>
-                </div>
-            }
-        </div>
-
-        <!-- Sales by Category Chart - Responsive -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Pie Chart Card -->
-            <div class="flex flex-col gap-4 rounded-xl border border-slate-200 dark:border-[#324d67] p-5 lg:p-6 bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10">
-                <div class="flex justify-between items-start">
+        }
+        else if (!string.IsNullOrEmpty(viewModel.ErrorMessage))
+        {
+            <!-- Error State -->
+            <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6">
+                <div class="flex items-start gap-3">
+                    <span class="material-symbols-outlined text-red-500 text-2xl">error</span>
                     <div>
-                        <p class="text-slate-500 dark:text-slate-300 text-sm font-medium">Ventas por Categoría</p>
-                        <p class="text-3xl lg:text-4xl font-bold truncate mt-1">@totalSales</p>
+                        <h3 class="font-bold text-red-900 dark:text-red-200 mb-1">Error al cargar reportes</h3>
+                        <p class="text-red-700 dark:text-red-300 text-sm">@viewModel.ErrorMessage</p>
+                        <button class="mt-3 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
+                                @onclick="RetryLoadData">
+                            Reintentar
+                        </button>
                     </div>
-                    <div class="flex items-center gap-1 bg-[#0bda5b]/10 px-2 py-1 rounded text-[#0bda5b] text-xs font-bold shrink-0">
-                        <span class="material-symbols-outlined text-xs">trending_up</span>
-                        8%
-                    </div>
-                </div>
-
-                <!-- Pie Chart Visual Representation -->
-                <div class="flex items-center justify-center py-6 lg:py-8">
-                    <div class="relative size-40 lg:size-48 rounded-full border-[16px] lg:border-[20px] border-slate-100 dark:border-[#233648] flex items-center justify-center">
-                        <!-- Segment Overlays -->
-                        <div class="absolute inset-[-16px] lg:inset-[-20px] rounded-full border-[16px] lg:border-[20px] border-primary border-t-transparent border-l-transparent rotate-45"></div>
-                        <div class="absolute inset-[-16px] lg:inset-[-20px] rounded-full border-[16px] lg:border-[20px] border-indigo-400 border-b-transparent border-r-transparent -rotate-12"></div>
-                        <div class="text-center">
-                            <span class="block text-xs font-bold text-slate-400 uppercase">Top</span>
-                            <span class="block text-sm lg:text-base font-bold">@topCategory</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Legend -->
-                <div class="grid grid-cols-2 gap-y-3 gap-x-4 lg:gap-x-6">
-                    @foreach (var category in salesByCategory)
-                    {
-                        <div class="flex items-center gap-2">
-                            <span class="size-2 rounded-full @category.Color"></span>
-                            <span class="text-xs font-medium text-slate-600 dark:text-slate-300 truncate">
-                                @category.Name (@category.Percentage%)
-                            </span>
-                        </div>
-                    }
                 </div>
             </div>
-
-            <!-- Delivery Performance Bar Chart -->
-            <div class="flex flex-col gap-4 rounded-xl border border-slate-200 dark:border-[#324d67] p-5 lg:p-6 bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10">
-                <div>
-                    <p class="text-slate-500 dark:text-slate-300 text-sm font-medium">Desempeño de Entregas</p>
-                    <p class="text-3xl lg:text-4xl font-bold truncate mt-1">@deliveryRate%</p>
-                    <div class="flex gap-1 items-center mt-1">
-                        <p class="text-slate-400 text-xs font-normal">Eficiencia mensual</p>
-                        <p class="text-[#0bda5b] text-xs font-bold">+2%</p>
+        }
+        else
+        {
+            <!-- Date Picker Section - Responsive -->
+            <section class="bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 rounded-xl p-4 lg:p-6 shadow-sm border border-slate-200 dark:border-slate-800">
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between mb-4 gap-4">
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Período</h3>
+                        <span class="text-primary text-base lg:text-lg font-bold">@selectedPeriodText</span>
+                    </div>
+                    <div class="flex gap-2">
+                        <button class="px-4 py-2 rounded-lg @GetPeriodButtonClass("week")" @onclick='() => ChangePeriod("week")'>
+                            Semana
+                        </button>
+                        <button class="px-4 py-2 rounded-lg @GetPeriodButtonClass("month")" @onclick='() => ChangePeriod("month")'>
+                            Mes
+                        </button>
+                        <button class="px-4 py-2 rounded-lg @GetPeriodButtonClass("custom")" @onclick='() => ChangePeriod("custom")'>
+                            Personalizado
+                        </button>
                     </div>
                 </div>
 
-                <!-- Bar Chart -->
-                <div class="grid min-h-[160px] lg:min-h-[200px] grid-flow-col gap-6 lg:gap-8 grid-rows-[1fr_auto] items-end justify-items-center px-4 pt-4">
-                    @foreach (var delivery in deliveryStats)
-                    {
-                        <div class="group relative w-full flex flex-col items-center">
-                            <div class="@delivery.Color rounded-t-sm w-full transition-all duration-300 hover:opacity-80"
-                                 style="height: @(delivery.Height)px;"></div>
-                            <p class="mt-2 text-slate-400 text-[10px] font-bold uppercase tracking-widest text-center">
-                                @delivery.Label
-                            </p>
-                        </div>
-                    }
-                </div>
-            </div>
-        </div>
-
-        <!-- Top Products Table - Responsive -->
-        <section class="bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 rounded-xl p-4 lg:p-6 shadow-sm border border-slate-200 dark:border-slate-800">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-3">
-                <h3 class="text-slate-900 dark:text-white text-base lg:text-lg font-bold">Productos Más Vendidos</h3>
-                <button class="text-primary text-sm font-bold hover:underline self-start sm:self-auto"
-                        @onclick="ViewAllProducts">
-                    Ver todos
-                </button>
-            </div>
-
-            <!-- Desktop Table -->
-            <div class="hidden md:block overflow-x-auto">
-                <table class="w-full">
-                    <thead>
-                        <tr class="border-b border-slate-200 dark:border-slate-700">
-                            <th class="text-left py-3 px-2 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                Producto
-                            </th>
-                            <th class="text-center py-3 px-2 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                Unidades
-                            </th>
-                            <th class="text-right py-3 px-2 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                Ingresos
-                            </th>
-                            <th class="text-center py-3 px-2 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                Tendencia
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var product in topProducts)
-                        {
-                            <tr class="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                                <td class="py-3 px-2">
-                                    <div class="flex items-center gap-3">
-                                        <div class="size-10 rounded-lg bg-slate-100 dark:bg-slate-700 overflow-hidden shrink-0">
-                                            <img src="@product.ImageUrl" alt="@product.Name" class="w-full h-full object-cover" />
-                                        </div>
-                                        <div>
-                                            <p class="font-bold text-sm">@product.Name</p>
-                                            <p class="text-xs text-slate-500 dark:text-slate-400">@product.Category</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="py-3 px-2 text-center">
-                                    <span class="font-bold text-sm">@product.UnitsSold</span>
-                                </td>
-                                <td class="py-3 px-2 text-right">
-                                    <span class="font-bold text-sm text-primary">@product.Revenue.ToString("C")</span>
-                                </td>
-                                <td class="py-3 px-2 text-center">
-                                    <span class="@GetTrendClass(product.Trend) text-xs font-bold flex items-center justify-center gap-1">
-                                        <span class="material-symbols-outlined text-sm">@GetTrendIcon(product.Trend)</span>
-                                        @product.TrendPercentage%
-                                    </span>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Mobile Cards -->
-            <div class="md:hidden space-y-3">
-                @foreach (var product in topProducts)
+                @if (selectedPeriod == "custom")
                 {
-                    <div class="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
-                        <div class="size-16 rounded-lg bg-slate-200 dark:bg-slate-700 overflow-hidden shrink-0">
-                            <img src="@product.ImageUrl" alt="@product.Name" class="w-full h-full object-cover" />
+                    <!-- Calendar View - Responsive -->
+                    <div class="flex flex-col gap-2">
+                        <div class="flex items-center p-2 justify-between">
+                            <button class="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                                    @onclick="PreviousMonth">
+                                <span class="material-symbols-outlined text-lg">chevron_left</span>
+                            </button>
+                            <p class="text-base lg:text-lg font-bold flex-1 text-center">@currentMonthYear</p>
+                            <button class="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                                    @onclick="NextMonth">
+                                <span class="material-symbols-outlined text-lg">chevron_right</span>
+                            </button>
                         </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="font-bold text-sm truncate">@product.Name</p>
-                            <p class="text-xs text-slate-500 dark:text-slate-400">@product.Category</p>
-                            <div class="flex items-center justify-between mt-2">
-                                <span class="text-xs font-medium text-slate-600 dark:text-slate-400">
-                                    @product.UnitsSold unidades
-                                </span>
-                                <span class="font-bold text-sm text-primary">@product.Revenue.ToString("C")</span>
-                            </div>
-                        </div>
-                        <div class="@GetTrendClass(product.Trend) text-xs font-bold flex flex-col items-center gap-1 shrink-0">
-                            <span class="material-symbols-outlined text-base">@GetTrendIcon(product.Trend)</span>
-                            <span>@product.TrendPercentage%</span>
+
+                        <!-- Calendar Grid -->
+                        <div class="grid grid-cols-7 text-center gap-1">
+                            @foreach (var day in daysOfWeek)
+                            {
+                                <p class="text-[11px] font-bold py-2 opacity-50 uppercase">@day</p>
+                            }
+
+                            @for (int i = 0; i < calendarDays.Count; i++)
+                            {
+                                var day = calendarDays[i];
+                                <button class="@GetCalendarDayClass(day, i)"
+                                        @onclick="() => SelectCalendarDay(day, i)">
+                                    @day.DayNumber
+                                </button>
+                            }
                         </div>
                     </div>
                 }
-            </div>
-        </section>
+            </section>
 
-        <!-- Export Buttons - Responsive -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 py-4">
-            <button class="flex items-center justify-center gap-2 h-12 bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 rounded-xl border border-slate-200 dark:border-transparent text-sm font-bold transition-all active:scale-95 shadow-sm hover:shadow-md"
-                    @onclick="ExportPDF">
-                <span class="material-symbols-outlined text-red-500">picture_as_pdf</span>
-                Exportar PDF
-            </button>
-            <button class="flex items-center justify-center gap-2 h-12 bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 rounded-xl border border-slate-200 dark:border-transparent text-sm font-bold transition-all active:scale-95 shadow-sm hover:shadow-md"
-                    @onclick="ExportExcel">
-                <span class="material-symbols-outlined text-green-500">description</span>
-                Exportar Excel
-            </button>
-        </div>
+            <!-- Tabs Navigation -->
+            <div class="flex overflow-x-auto gap-2 pb-2 border-b border-slate-200 dark:border-slate-700">
+                <button class="@GetTabClass("sales")" @onclick='() => ChangeTab("sales")'>
+                    <span class="material-symbols-outlined text-lg">trending_up</span>
+                    Ventas
+                </button>
+                <button class="@GetTabClass("inventory")" @onclick='() => ChangeTab("inventory")'>
+                    <span class="material-symbols-outlined text-lg">inventory_2</span>
+                    Inventario
+                </button>
+                <button class="@GetTabClass("customers")" @onclick='() => ChangeTab("customers")'>
+                    <span class="material-symbols-outlined text-lg">people</span>
+                    Clientes
+                </button>
+                <button class="@GetTabClass("deliveries")" @onclick='() => ChangeTab("deliveries")'>
+                    <span class="material-symbols-outlined text-lg">local_shipping</span>
+                    Entregas
+                </button>
+                <button class="@GetTabClass("orders")" @onclick='() => ChangeTab("orders")'>
+                    <span class="material-symbols-outlined text-lg">shopping_cart</span>
+                    Órdenes
+                </button>
+                <button class="@GetTabClass("financial")" @onclick='() => ChangeTab("financial")'>
+                    <span class="material-symbols-outlined text-lg">attach_money</span>
+                    Financiero
+                </button>
+            </div>
+
+            <!-- Tab Content -->
+            @switch (activeTab)
+            {
+                case "sales":
+                    <SalesReportTab SalesReport="viewModel.SalesReport" />
+                    break;
+                case "inventory":
+                    <InventoryReportTab InventoryReport="viewModel.InventoryReport" />
+                    break;
+                case "customers":
+                    <CustomerReportTab CustomerReport="viewModel.CustomerReport" />
+                    break;
+                case "deliveries":
+                    <DeliveryReportTab DeliveryReport="viewModel.DeliveryReport" />
+                    break;
+                case "orders":
+                    <OrderReportTab OrderReport="viewModel.OrderReport" />
+                    break;
+                case "financial":
+                    <FinancialReportTab FinancialReport="viewModel.FinancialReport" />
+                    break;
+            }
+
+            <!-- Export Buttons - Responsive -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 py-4">
+                <button class="flex items-center justify-center gap-2 h-12 bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 rounded-xl border border-slate-200 dark:border-transparent text-sm font-bold transition-all active:scale-95 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                        @onclick="ExportPDF"
+                        disabled="@(viewModel.IsLoading)">
+                    <span class="material-symbols-outlined text-red-500">picture_as_pdf</span>
+                    Exportar PDF
+                </button>
+                <button class="flex items-center justify-center gap-2 h-12 bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 rounded-xl border border-slate-200 dark:border-transparent text-sm font-bold transition-all active:scale-95 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                        @onclick="ExportExcel"
+                        disabled="@(viewModel.IsLoading)">
+                    <span class="material-symbols-outlined text-green-500">description</span>
+                    Exportar Excel
+                </button>
+            </div>
+        }
     </div>
 </main>

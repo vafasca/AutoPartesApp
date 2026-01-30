@@ -55,6 +55,16 @@ builder.Services.AddScoped<UserManagementService>(sp =>
 builder.Services.AddScoped<LoginUseCase>();
 builder.Services.AddScoped<LoginService>();
 builder.Services.AddScoped<AuthState>();
+// ========== REPORTES Y EXPORTACIÓN ==========
+builder.Services.AddScoped<ReportService>(sp =>
+{
+    var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
+    var httpClient = httpClientFactory.CreateClient("AutoPartesAPI");
+    return new ReportService(httpClient);
+});
+
+builder.Services.AddScoped<ExportService>();
+
 
 // Extensión común para Web
 builder.Services.AddAutoPartesWebServices();

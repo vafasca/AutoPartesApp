@@ -1,0 +1,217 @@
+﻿@namespace AutoPartesApp.Shared.Pages.Admin
+
+@if (SalesReport == null)
+{
+    <div class="text-center py-10 text-slate-500 dark:text-slate-400">
+        <span class="material-symbols-outlined text-4xl mb-2">info</span>
+        <p>No hay datos de ventas para el período seleccionado</p>
+    </div>
+}
+else
+{
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 rounded-xl p-5 shadow-sm border border-slate-200 dark:border-transparent">
+            <div class="flex items-center justify-between mb-2">
+                <p class="text-slate-500 dark:text-slate-300 text-xs font-bold uppercase">Total Ventas</p>
+                <span class="material-symbols-outlined text-primary text-xl">trending_up</span>
+            </div>
+            <p class="text-3xl font-bold">@SalesReport.TotalRevenue.ToString("C")</p>
+            @if (SalesReport.GrowthPercentage != 0)
+            {
+                <p class="@(SalesReport.GrowthPercentage > 0 ? "text-green-500" : "text-red-500") text-sm font-bold flex items-center gap-1 mt-1">
+                    <span class="material-symbols-outlined text-sm">@(SalesReport.GrowthPercentage > 0 ? "trending_up" : "trending_down")</span>
+                    @Math.Abs(SalesReport.GrowthPercentage).ToString("F1")%
+                </p>
+            }
+        </div>
+
+        <div class="bg-gradient-to-br from-orange-500/10 to-orange-500/5 dark:from-orange-500/20 dark:to-orange-500/10 rounded-xl p-5 shadow-sm border border-slate-200 dark:border-transparent">
+            <div class="flex items-center justify-between mb-2">
+                <p class="text-slate-500 dark:text-slate-300 text-xs font-bold uppercase">Total Órdenes</p>
+                <span class="material-symbols-outlined text-orange-500 text-xl">shopping_cart</span>
+            </div>
+            <p class="text-3xl font-bold">@SalesReport.TotalOrders</p>
+        </div>
+
+        <div class="bg-gradient-to-br from-green-500/10 to-green-500/5 dark:from-green-500/20 dark:to-green-500/10 rounded-xl p-5 shadow-sm border border-slate-200 dark:border-transparent">
+            <div class="flex items-center justify-between mb-2">
+                <p class="text-slate-500 dark:text-slate-300 text-xs font-bold uppercase">Ticket Promedio</p>
+                <span class="material-symbols-outlined text-green-500 text-xl">attach_money</span>
+            </div>
+            <p class="text-3xl font-bold">@SalesReport.AverageOrderValue.ToString("C")</p>
+        </div>
+
+        <div class="bg-gradient-to-br from-blue-500/10 to-blue-500/5 dark:from-blue-500/20 dark:to-blue-500/10 rounded-xl p-5 shadow-sm border border-slate-200 dark:border-transparent">
+            <div class="flex items-center justify-between mb-2">
+                <p class="text-slate-500 dark:text-slate-300 text-xs font-bold uppercase">Top Producto</p>
+                <span class="material-symbols-outlined text-blue-500 text-xl">star</span>
+            </div>
+            <p class="text-lg font-bold truncate">@(SalesReport.TopProducts?.FirstOrDefault()?.Name ?? "N/A")</p>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <!-- Line Chart - Evolución Temporal -->
+        <div class="bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-transparent">
+            <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">show_chart</span>
+                Evolución de Ventas
+            </h3>
+
+            @if (SalesReport.ChartData != null && SalesReport.ChartData.Any())
+            {
+                <div class="space-y-3">
+                    @foreach (var item in SalesReport.ChartData.TakeLast(10))
+                    {
+                        var maxValue = SalesReport.ChartData.Max(x => x.Value);
+                        var percentage = maxValue > 0 ? (item.Value / maxValue) * 100 : 0;
+
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="font-medium">@item.Label</span>
+                                <span class="text-primary font-bold">@item.Value.ToString("C")</span>
+                            </div>
+                            <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+                                <div class="bg-primary h-2 rounded-full transition-all duration-300" style="width: @percentage%"></div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="text-slate-500 dark:text-slate-400 text-center py-8">No hay datos de gráfico disponibles</p>
+            }
+        </div>
+
+        <!-- Pie Chart - Ventas por Categoría -->
+        <div class="bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-transparent">
+            <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">pie_chart</span>
+                Ventas por Categoría
+            </h3>
+
+            @if (SalesReport.SalesByCategory != null && SalesReport.SalesByCategory.Any())
+            {
+                <div class="space-y-3">
+                    @foreach (var category in SalesReport.SalesByCategory.Take(5))
+                    {
+                        var percentage = SalesReport.TotalRevenue > 0 ? (category.TotalRevenue / SalesReport.TotalRevenue) * 100 : 0;
+
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="font-medium">@category.CategoryName</span>
+                                <span class="text-primary font-bold">@category.TotalRevenue.ToString("C") (@percentage.ToString("F1")%)</span>
+                            </div>
+                            <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+                                <div class="bg-gradient-to-r from-primary to-indigo-500 h-2 rounded-full transition-all duration-300"
+                                     style="width: @percentage%"></div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="text-slate-500 dark:text-slate-400 text-center py-8">No hay datos de categorías disponibles</p>
+            }
+        </div>
+    </div>
+
+    <!-- Top Products Table -->
+    <div class="bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-transparent">
+        <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary">inventory_2</span>
+            Productos Más Vendidos
+        </h3>
+
+        @if (SalesReport.TopProducts != null && SalesReport.TopProducts.Any())
+        {
+            <!-- Desktop Table -->
+            <div class="hidden md:block overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="border-b border-slate-200 dark:border-slate-700">
+                            <th class="text-left py-3 px-2 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Producto</th>
+                            <th class="text-center py-3 px-2 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Categoría</th>
+                            <th class="text-center py-3 px-2 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Unidades</th>
+                            <th class="text-right py-3 px-2 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Ingresos</th>
+                            <th class="text-center py-3 px-2 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Tendencia</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var product in SalesReport.TopProducts.Take(10))
+                        {
+                            <tr class="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                                <td class="py-3 px-2">
+                                    <div class="flex items-center gap-3">
+                                        @if (!string.IsNullOrEmpty(product.ImageUrl))
+                                        {
+                                            <div class="size-10 rounded-lg bg-slate-100 dark:bg-slate-700 overflow-hidden shrink-0">
+                                                <img src="@product.ImageUrl" alt="@product.Name" class="w-full h-full object-cover" />
+                                            </div>
+                                        }
+                                        <span class="font-bold text-sm">@product.Name</span>
+                                    </div>
+                                </td>
+                                <td class="py-3 px-2 text-center">
+                                    <span class="text-xs text-slate-600 dark:text-slate-400">@product.CategoryName</span>
+                                </td>
+                                <td class="py-3 px-2 text-center">
+                                    <span class="font-bold text-sm">@product.UnitsSold</span>
+                                </td>
+                                <td class="py-3 px-2 text-right">
+                                    <span class="font-bold text-sm text-primary">@product.Revenue.ToString("C")</span>
+                                </td>
+                                <td class="py-3 px-2 text-center">
+                                    <span class="@(product.TrendPercentage >= 0 ? "text-green-500" : "text-red-500") text-xs font-bold flex items-center justify-center gap-1">
+                                        <span class="material-symbols-outlined text-sm">@(product.TrendPercentage >= 0 ? "trending_up" : "trending_down")</span>
+                                        @Math.Abs(product.TrendPercentage).ToString("F1")%
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Mobile Cards -->
+            <div class="md:hidden space-y-3">
+                @foreach (var product in SalesReport.TopProducts.Take(10))
+                {
+                    <div class="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                        @if (!string.IsNullOrEmpty(product.ImageUrl))
+                        {
+                            <div class="size-16 rounded-lg bg-slate-200 dark:bg-slate-700 overflow-hidden shrink-0">
+                                <img src="@product.ImageUrl" alt="@product.Name" class="w-full h-full object-cover" />
+                            </div>
+                        }
+                        <div class="flex-1 min-w-0">
+                            <p class="font-bold text-sm truncate">@product.Name</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">@product.CategoryName</p>
+                            <div class="flex items-center justify-between mt-2">
+                                <span class="text-xs font-medium text-slate-600 dark:text-slate-400">@product.UnitsSold unidades</span>
+                                <span class="font-bold text-sm text-primary">@product.Revenue.ToString("C")</span>
+                            </div>
+                        </div>
+                        <div class="@(product.TrendPercentage >= 0 ? "text-green-500" : "text-red-500") text-xs font-bold flex flex-col items-center gap-1 shrink-0">
+                            <span class="material-symbols-outlined text-base">@(product.TrendPercentage >= 0 ? "trending_up" : "trending_down")</span>
+                            <span>@Math.Abs(product.TrendPercentage).ToString("F1")%</span>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <p class="text-slate-500 dark:text-slate-400 text-center py-8">No hay productos para mostrar</p>
+        }
+    </div>
+}
+
+@code {
+    [Parameter]
+    public AutoPartesApp.Core.Application.DTOs.ReportDTOs.SalesReportDto? SalesReport { get; set; }
+}

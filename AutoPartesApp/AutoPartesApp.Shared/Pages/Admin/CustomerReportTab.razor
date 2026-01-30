@@ -1,0 +1,163 @@
+﻿@namespace AutoPartesApp.Shared.Pages.Admin
+
+@if (CustomerReport == null)
+{
+    <div class="text-center py-10 text-slate-500 dark:text-slate-400">
+        <span class="material-symbols-outlined text-4xl mb-2">info</span>
+        <p>No hay datos de clientes disponibles</p>
+    </div>
+}
+else
+{
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 rounded-xl p-5 shadow-sm border border-slate-200 dark:border-transparent">
+            <div class="flex items-center justify-between mb-2">
+                <p class="text-slate-500 dark:text-slate-300 text-xs font-bold uppercase">Total Clientes</p>
+                <span class="material-symbols-outlined text-primary text-xl">people</span>
+            </div>
+            <p class="text-3xl font-bold">@CustomerReport.TotalCustomers</p>
+        </div>
+
+        <div class="bg-gradient-to-br from-green-500/10 to-green-500/5 dark:from-green-500/20 dark:to-green-500/10 rounded-xl p-5 shadow-sm border border-slate-200 dark:border-transparent">
+            <div class="flex items-center justify-between mb-2">
+                <p class="text-slate-500 dark:text-slate-300 text-xs font-bold uppercase">Nuevos Clientes</p>
+                <span class="material-symbols-outlined text-green-500 text-xl">person_add</span>
+            </div>
+            <p class="text-3xl font-bold">@CustomerReport.NewCustomers</p>
+        </div>
+
+        <div class="bg-gradient-to-br from-orange-500/10 to-orange-500/5 dark:from-orange-500/20 dark:to-orange-500/10 rounded-xl p-5 shadow-sm border border-slate-200 dark:border-transparent">
+            <div class="flex items-center justify-between mb-2">
+                <p class="text-slate-500 dark:text-slate-300 text-xs font-bold uppercase">Clientes Inactivos</p>
+                <span class="material-symbols-outlined text-orange-500 text-xl">person_off</span>
+            </div>
+            <p class="text-3xl font-bold">@CustomerReport.InactiveCustomers</p>
+        </div>
+
+        <div class="bg-gradient-to-br from-blue-500/10 to-blue-500/5 dark:from-blue-500/20 dark:to-blue-500/10 rounded-xl p-5 shadow-sm border border-slate-200 dark:border-transparent">
+            <div class="flex items-center justify-between mb-2">
+                <p class="text-slate-500 dark:text-slate-300 text-xs font-bold uppercase">Tasa Retención</p>
+                <span class="material-symbols-outlined text-blue-500 text-xl">trending_up</span>
+            </div>
+            <p class="text-3xl font-bold">@CustomerReport.RetentionRate.ToString("F1")%</p>
+        </div>
+    </div>
+
+    <!-- Top Customers Table -->
+    <div class="bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-transparent mb-6">
+        <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary">star</span>
+            Top Clientes
+        </h3>
+
+        @if (CustomerReport.TopCustomers != null && CustomerReport.TopCustomers.Any())
+        {
+            <!-- Desktop Table -->
+            <div class="hidden md:block overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="border-b border-slate-200 dark:border-slate-700">
+                            <th class="text-left py-3 px-2 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Cliente</th>
+                            <th class="text-center py-3 px-2 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Órdenes</th>
+                            <th class="text-right py-3 px-2 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Total Gastado</th>
+                            <th class="text-center py-3 px-2 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Última Compra</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var customer in CustomerReport.TopCustomers.Take(10))
+                        {
+                            <tr class="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                                <td class="py-3 px-2">
+                                    <div>
+                                        <p class="font-bold text-sm">@customer.FullName</p>
+                                        <p class="text-xs text-slate-500 dark:text-slate-400">@customer.Email</p>
+                                    </div>
+                                </td>
+                                <td class="py-3 px-2 text-center">
+                                    <span class="font-bold text-sm">@customer.TotalOrders</span>
+                                </td>
+                                <td class="py-3 px-2 text-right">
+                                    <span class="font-bold text-sm text-primary">@customer.TotalSpent.ToString("C")</span>
+                                </td>
+                                <td class="py-3 px-2 text-center">
+                                    <span class="text-xs text-slate-600 dark:text-slate-400">
+                                        @(customer.LastOrderDate?.ToString("dd/MM/yyyy") ?? "N/A")
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Mobile Cards -->
+            <div class="md:hidden space-y-3">
+                @foreach (var customer in CustomerReport.TopCustomers.Take(10))
+                {
+                    <div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                        <div class="flex items-center justify-between mb-2">
+                            <div>
+                                <p class="font-bold text-sm">@customer.FullName</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">@customer.Email</p>
+                            </div>
+                            <span class="font-bold text-lg text-primary">@customer.TotalSpent.ToString("C")</span>
+                        </div>
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="text-slate-600 dark:text-slate-400">@customer.TotalOrders órdenes</span>
+                            <span class="text-slate-600 dark:text-slate-400">
+                                Última: @(customer.LastOrderDate?.ToString("dd/MM/yyyy") ?? "N/A")
+                            </span>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <p class="text-slate-500 dark:text-slate-400 text-center py-8">No hay clientes para mostrar</p>
+        }
+    </div>
+
+    <!-- Geographic Distribution -->
+    <div class="bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-transparent">
+        <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary">map</span>
+            Distribución Geográfica
+        </h3>
+
+        @if (CustomerReport.GeographicDistribution != null && CustomerReport.GeographicDistribution.Any())
+        {
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                @foreach (var location in CustomerReport.GeographicDistribution.Take(9))
+                {
+                    var totalCustomers = CustomerReport.GeographicDistribution.Sum(x => x.TotalCustomers);
+                    var percentage = totalCustomers > 0 ? (location.TotalCustomers / (decimal)totalCustomers) * 100 : 0;
+
+                    <div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                        <div class="flex items-start justify-between mb-2">
+                            <div>
+                                <p class="font-bold text-sm">@location.City</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">@location.State, @location.Country</p>
+                            </div>
+                            <span class="font-bold text-primary">@location.TotalCustomers</span>
+                        </div>
+                        <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5">
+                            <div class="bg-primary h-1.5 rounded-full transition-all duration-300" style="width: @percentage%"></div>
+                        </div>
+                        <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">@percentage.ToString("F1")% del total</p>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <p class="text-slate-500 dark:text-slate-400 text-center py-8">No hay datos geográficos disponibles</p>
+        }
+    </div>
+}
+
+@code {
+    [Parameter]
+    public AutoPartesApp.Core.Application.DTOs.ReportDTOs.CustomerReportDto? CustomerReport { get; set; }
+}

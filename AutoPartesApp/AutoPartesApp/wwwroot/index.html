@@ -58,9 +58,24 @@
 
     <link rel="icon" href="data:,">
 </head>
+
 <body>
     <div class="status-bar-safe-area"></div>
     <div id="app">Loading...</div>
+
+    <!-- Blazor WebView JS -->
     <script src="_framework/blazor.webview.js" autostart="false"></script>
+
+    <!-- ========================================
+         SCRIPTS DE EXPORTACIÓN
+         ======================================== -->
+    <!-- jsPDF - Generación de PDF (Opcional pero recomendado) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <!-- SheetJS - Generación de Excel mejorado (Opcional) -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+
+    <!-- Funciones personalizadas de exportación -->
+    <script src="_content/AutoPartesApp.Shared/js/fileExport.js"></script>
 </body>
 </html>

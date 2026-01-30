@@ -68,7 +68,7 @@ namespace AutoPartesApp.Infrastructure.Persistence.Repositories
             return true;
         }
 
-        // ========== MÉTODOS NUEVOS ==========
+        // MÉTODOS EXISTENTES AGREGADOS ANTERIORMENTE
 
         public async Task<(List<Product> Products, int TotalCount)> GetPagedAsync(
             string? searchQuery,
@@ -161,9 +161,11 @@ namespace AutoPartesApp.Infrastructure.Persistence.Repositories
 
         public async Task<decimal> GetTotalValueAsync()
         {
-            return await _context.Products
+            var products = await _context.Products
                 .Where(p => p.IsActive)
-                .SumAsync(p => p.Price.Amount * p.Stock);
+                .ToListAsync();
+
+            return products.Sum(p => p.Price.Amount * p.Stock);
         }
 
         public async Task<int> GetOutOfStockCountAsync()
@@ -220,6 +222,140 @@ namespace AutoPartesApp.Infrastructure.Persistence.Repositories
             return await _context.Products
                 .Include(p => p.Category)
                 .FirstOrDefaultAsync(p => p.Sku == sku);
+        }
+
+        // ========== MÉTODOS NUEVOS PARA REPORTES DE INVENTARIO ==========
+
+        public async Task<List<Product>> GetLowRotationProductsAsync(
+            DateTime dateFrom,
+            DateTime dateTo,
+            int maxSales = 5)
+        {
+            // Obtener IDs de productos vendidos en el período
+            var productSales = await _context.Orders
+                .Where(o => o.CreatedAt >= dateFrom && o.CreatedAt <= dateTo)
+                .SelectMany(o => o.Items)
+                .GroupBy(oi => oi.ProductId)
+                .Select(g => new
+                {
+                    ProductId = g.Key,
+                    TotalSold = g.Sum(oi => oi.Quantity)
+                })
+                .Where(x => x.TotalSold <= maxSales)
+                .Select(x => x.ProductId)
+                .ToListAsync();
+
+            // Obtener productos con baja rotación
+            return await _context.Products
+                .Include(p => p.Category)
+                .Where(p => p.IsActive && productSales.Contains(p.Id))
+                .ToListAsync();
+        }
+
+        public async Task<List<(string CategoryId, string CategoryName, decimal TotalValue, int TotalUnits)>>
+            GetInventoryValueByCategoryAsync()
+        {
+            var result = await _context.Products
+                .Where(p => p.IsActive)
+                .GroupBy(p => new
+                {
+                    CategoryId = p.CategoryId,
+                    CategoryName = p.Category.Name
+                })
+                .Select(g => new
+                {
+                    CategoryId = g.Key.CategoryId,
+                    CategoryName = g.Key.CategoryName,
+                    TotalValue = g.Sum(p => p.Price.Amount * p.Stock),
+                    TotalUnits = g.Sum(p => p.Stock)
+                })
+                .OrderByDescending(x => x.TotalValue)
+                .ToListAsync();
+
+            return result.Select(x => (
+                x.CategoryId,
+                x.CategoryName,
+                x.TotalValue,
+                x.TotalUnits
+            )).ToList();
+        }
+
+        public async Task<List<(string ProductId, string ProductName, int TotalSold, decimal Revenue)>>
+            GetMostMovedProductsAsync(
+                DateTime dateFrom,
+                DateTime dateTo,
+                int topN = 10)
+        {
+            var result = await _context.Orders
+                .Where(o => o.CreatedAt >= dateFrom && o.CreatedAt <= dateTo)
+                .SelectMany(o => o.Items)
+                .GroupBy(oi => new
+                {
+                    oi.Product.Id,
+                    oi.Product.Name
+                })
+                .Select(g => new
+                {
+                    ProductId = g.Key.Id,
+                    ProductName = g.Key.Name,
+                    TotalSold = g.Sum(oi => oi.Quantity),
+                    Revenue = g.Sum(oi => oi.Quantity * oi.UnitPrice)
+                })
+                .OrderByDescending(x => x.TotalSold)
+                .Take(topN)
+                .ToListAsync();
+
+            return result.Select(x => (
+                x.ProductId,
+                x.ProductName,
+                x.TotalSold,
+                x.Revenue
+            )).ToList();
+        }
+
+        public async Task<List<Product>> GetProductsWithoutMovementAsync(
+            DateTime dateFrom,
+            DateTime dateTo)
+        {
+            // Obtener IDs de productos vendidos en el período
+            var soldProductIds = await _context.Orders
+                .Where(o => o.CreatedAt >= dateFrom && o.CreatedAt <= dateTo)
+                .SelectMany(o => o.Items)
+                .Select(oi => oi.ProductId)
+                .Distinct()
+                .ToListAsync();
+
+            // Obtener productos que NO se vendieron
+            return await _context.Products
+                .Include(p => p.Category)
+                .Where(p => p.IsActive && !soldProductIds.Contains(p.Id))
+                .ToListAsync();
+        }
+
+        public async Task<List<(string CategoryName, int TotalProducts, int InStock, int OutOfStock, int LowStock)>>
+            GetStockStatsByCategoryAsync()
+        {
+            var result = await _context.Products
+                .Where(p => p.IsActive)
+                .GroupBy(p => p.Category.Name)
+                .Select(g => new
+                {
+                    CategoryName = g.Key,
+                    TotalProducts = g.Count(),
+                    InStock = g.Count(p => p.Stock > 10),
+                    OutOfStock = g.Count(p => p.Stock == 0),
+                    LowStock = g.Count(p => p.Stock > 0 && p.Stock <= 10)
+                })
+                .OrderBy(x => x.CategoryName)
+                .ToListAsync();
+
+            return result.Select(x => (
+                x.CategoryName,
+                x.TotalProducts,
+                x.InStock,
+                x.OutOfStock,
+                x.LowStock
+            )).ToList();
         }
     }
 }

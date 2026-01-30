@@ -1,0 +1,120 @@
+﻿@namespace AutoPartesApp.Shared.Pages.Admin
+
+@if (InventoryReport == null)
+{
+    <div class="text-center py-10 text-slate-500 dark:text-slate-400">
+        <span class="material-symbols-outlined text-4xl mb-2">info</span>
+        <p>No hay datos de inventario disponibles</p>
+    </div>
+}
+else
+{
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 rounded-xl p-5 shadow-sm border border-slate-200 dark:border-transparent">
+            <div class="flex items-center justify-between mb-2">
+                <p class="text-slate-500 dark:text-slate-300 text-xs font-bold uppercase">Total Productos</p>
+                <span class="material-symbols-outlined text-primary text-xl">inventory_2</span>
+            </div>
+            <p class="text-3xl font-bold">@InventoryReport.TotalProducts</p>
+        </div>
+
+        <div class="bg-gradient-to-br from-green-500/10 to-green-500/5 dark:from-green-500/20 dark:to-green-500/10 rounded-xl p-5 shadow-sm border border-slate-200 dark:border-transparent">
+            <div class="flex items-center justify-between mb-2">
+                <p class="text-slate-500 dark:text-slate-300 text-xs font-bold uppercase">Valor Total</p>
+                <span class="material-symbols-outlined text-green-500 text-xl">attach_money</span>
+            </div>
+            <p class="text-3xl font-bold">@InventoryReport.TotalValue.ToString("C")</p>
+        </div>
+
+        <div class="bg-gradient-to-br from-red-500/10 to-red-500/5 dark:from-red-500/20 dark:to-red-500/10 rounded-xl p-5 shadow-sm border border-slate-200 dark:border-transparent">
+            <div class="flex items-center justify-between mb-2">
+                <p class="text-slate-500 dark:text-slate-300 text-xs font-bold uppercase">Sin Stock</p>
+                <span class="material-symbols-outlined text-red-500 text-xl">error</span>
+            </div>
+            <p class="text-3xl font-bold">@InventoryReport.OutOfStock</p>
+        </div>
+
+        <div class="bg-gradient-to-br from-orange-500/10 to-orange-500/5 dark:from-orange-500/20 dark:to-orange-500/10 rounded-xl p-5 shadow-sm border border-slate-200 dark:border-transparent">
+            <div class="flex items-center justify-between mb-2">
+                <p class="text-slate-500 dark:text-slate-300 text-xs font-bold uppercase">Bajo Stock</p>
+                <span class="material-symbols-outlined text-orange-500 text-xl">warning</span>
+            </div>
+            <p class="text-3xl font-bold">@InventoryReport.LowStock</p>
+        </div>
+    </div>
+
+    <!-- Value by Category -->
+    <div class="bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-transparent mb-6">
+        <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary">pie_chart</span>
+            Valorización por Categoría
+        </h3>
+
+        @if (InventoryReport.ValueByCategory != null && InventoryReport.ValueByCategory.Any())
+        {
+            <div class="space-y-3">
+                @foreach (var category in InventoryReport.ValueByCategory)
+                {
+                    var percentage = InventoryReport.TotalValue > 0 ? (category.TotalValue / InventoryReport.TotalValue) * 100 : 0;
+
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <div>
+                                <span class="font-medium">@category.CategoryName</span>
+                                <span class="text-xs text-slate-500 dark:text-slate-400 ml-2">(@category.TotalUnits unidades)</span>
+                            </div>
+                            <span class="text-primary font-bold">@category.TotalValue.ToString("C") (@percentage.ToString("F1")%)</span>
+                        </div>
+                        <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+                            <div class="bg-gradient-to-r from-primary to-green-500 h-2 rounded-full transition-all duration-300"
+                                 style="width: @percentage%"></div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <p class="text-slate-500 dark:text-slate-400 text-center py-8">No hay datos de categorías disponibles</p>
+        }
+    </div>
+
+    <!-- Low Rotation Products -->
+    @if (InventoryReport.LowRotationProducts != null && InventoryReport.LowRotationProducts.Any())
+    {
+        <div class="bg-gradient-to-br from-orange-500/10 to-orange-500/5 dark:from-orange-500/20 dark:to-orange-500/10 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-transparent">
+            <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+                <span class="material-symbols-outlined text-orange-500">schedule</span>
+                Productos de Baja Rotación
+            </h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                @foreach (var product in InventoryReport.LowRotationProducts.Take(6))
+                {
+                    <div class="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                        @if (!string.IsNullOrEmpty(product.ImageUrl))
+                        {
+                            <div class="size-12 rounded-lg bg-slate-200 dark:bg-slate-700 overflow-hidden shrink-0">
+                                <img src="@product.ImageUrl" alt="@product.Name" class="w-full h-full object-cover" />
+                            </div>
+                        }
+                        <div class="flex-1 min-w-0">
+                            <p class="font-bold text-sm truncate">@product.Name</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">@product.CategoryName</p>
+                            <div class="flex items-center justify-between mt-1">
+                                <span class="text-xs font-medium">Stock: @product.Stock</span>
+                                <span class="text-xs font-bold text-orange-500">@product.SalesInPeriod ventas</span>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+}
+
+@code {
+    [Parameter]
+    public AutoPartesApp.Core.Application.DTOs.ReportDTOs.InventoryReportDto? InventoryReport { get; set; }
+}

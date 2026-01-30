@@ -1,11 +1,12 @@
 ﻿using AutoPartesApp.Core.Application.Auth;
 using AutoPartesApp.Domain.Interfaces;
-using AutoPartesApp.Services;
-using AutoPartesApp.Shared.Services;
-using AutoPartesApp.Shared.Extensions;
-using Microsoft.Extensions.Logging;
 using AutoPartesApp.Infrastructure.Identity;
+using AutoPartesApp.Services;
+using AutoPartesApp.Shared.Extensions;
+using AutoPartesApp.Shared.Services;
 using AutoPartesApp.Shared.Services.Admin;
+using Microsoft.Extensions.Logging;
+using Microsoft.JSInterop;
 
 namespace AutoPartesApp
 {
@@ -60,6 +61,19 @@ namespace AutoPartesApp
             builder.Services.AddScoped<AuthState>();
             builder.Services.AddScoped<DashboardService>();
             builder.Services.AddAutoPartesWebServices();
+            // ========== REPORTES Y EXPORTACIÓN ==========
+            builder.Services.AddScoped<ReportService>(sp =>
+            {
+                var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
+                var httpClient = httpClientFactory.CreateClient("AutoPartesAPI");
+                return new ReportService(httpClient);
+            });
+
+            builder.Services.AddScoped<ExportService>(sp =>
+            {
+                var jsRuntime = sp.GetRequiredService<IJSRuntime>();
+                return new ExportService(jsRuntime);
+            });
 
             builder.Services.AddScoped<UserManagementService>(sp =>
             {

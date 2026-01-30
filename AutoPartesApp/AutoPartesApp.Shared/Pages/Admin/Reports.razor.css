@@ -1,2 +1,46 @@
-﻿body {
+﻿/* Animación para loading spinner */
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
 }
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+/* Animación suave para tabs */
+.tab-content-enter {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Mejora para botones de período */
+button[disabled] {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+/* Smooth transitions para calendar */
+.calendar-day {
+    transition: all 0.2s ease;
+}
+
+    .calendar-day:hover {
+        transform: scale(1.05);
+    }

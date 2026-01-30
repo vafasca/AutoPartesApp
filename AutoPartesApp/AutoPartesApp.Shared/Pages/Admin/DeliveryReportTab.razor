@@ -1,0 +1,146 @@
+﻿@namespace AutoPartesApp.Shared.Pages.Admin
+
+@if (DeliveryReport == null)
+{
+    <div class="text-center py-10 text-slate-500 dark:text-slate-400">
+        <span class="material-symbols-outlined text-4xl mb-2">info</span>
+        <p>No hay datos de entregas disponibles</p>
+    </div>
+}
+else
+{
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 rounded-xl p-5 shadow-sm border border-slate-200 dark:border-transparent">
+            <div class="flex items-center justify-between mb-2">
+                <p class="text-slate-500 dark:text-slate-300 text-xs font-bold uppercase">Total Entregas</p>
+                <span class="material-symbols-outlined text-primary text-xl">local_shipping</span>
+            </div>
+            <p class="text-3xl font-bold">@DeliveryReport.TotalDeliveries</p>
+        </div>
+
+        <div class="bg-gradient-to-br from-green-500/10 to-green-500/5 dark:from-green-500/20 dark:to-green-500/10 rounded-xl p-5 shadow-sm border border-slate-200 dark:border-transparent">
+            <div class="flex items-center justify-between mb-2">
+                <p class="text-slate-500 dark:text-slate-300 text-xs font-bold uppercase">Completadas</p>
+                <span class="material-symbols-outlined text-green-500 text-xl">check_circle</span>
+            </div>
+            <p class="text-3xl font-bold">@DeliveryReport.CompletedDeliveries</p>
+        </div>
+
+        <div class="bg-gradient-to-br from-orange-500/10 to-orange-500/5 dark:from-orange-500/20 dark:to-orange-500/10 rounded-xl p-5 shadow-sm border border-slate-200 dark:border-transparent">
+            <div class="flex items-center justify-between mb-2">
+                <p class="text-slate-500 dark:text-slate-300 text-xs font-bold uppercase">Pendientes</p>
+                <span class="material-symbols-outlined text-orange-500 text-xl">schedule</span>
+            </div>
+            <p class="text-3xl font-bold">@DeliveryReport.PendingDeliveries</p>
+        </div>
+
+        <div class="bg-gradient-to-br from-blue-500/10 to-blue-500/5 dark:from-blue-500/20 dark:to-blue-500/10 rounded-xl p-5 shadow-sm border border-slate-200 dark:border-transparent">
+            <div class="flex items-center justify-between mb-2">
+                <p class="text-slate-500 dark:text-slate-300 text-xs font-bold uppercase">Eficiencia</p>
+                <span class="material-symbols-outlined text-blue-500 text-xl">speed</span>
+            </div>
+            <p class="text-3xl font-bold">@DeliveryReport.EfficiencyRate.ToString("F1")%</p>
+        </div>
+    </div>
+
+    <!-- Tiempo Promedio -->
+    <div class="bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-transparent mb-6">
+        <h3 class="text-lg font-bold mb-2 flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary">timer</span>
+            Tiempo Promedio de Entrega
+        </h3>
+        <p class="text-2xl font-bold text-primary">@FormatTimeSpan(DeliveryReport.AverageDeliveryTime)</p>
+    </div>
+
+    <!-- Top Drivers -->
+    <div class="bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-transparent mb-6">
+        <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary">star</span>
+            Top Repartidores
+        </h3>
+
+        @if (DeliveryReport.TopDrivers != null && DeliveryReport.TopDrivers.Any())
+        {
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                @foreach (var driver in DeliveryReport.TopDrivers.Take(6))
+                {
+                    <div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                        <div class="flex items-center justify-between mb-2">
+                            <p class="font-bold text-sm">@driver.FullName</p>
+                            <span class="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full text-xs font-bold">
+                                @driver.EfficiencyRate.ToString("F1")%
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between text-xs text-slate-600 dark:text-slate-400">
+                            <span>@driver.TotalDeliveries entregas</span>
+                            <span>@driver.CompletedDeliveries completadas</span>
+                        </div>
+                        <div class="mt-2">
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Tiempo promedio</p>
+                            <p class="text-sm font-bold text-primary">@FormatTimeSpan(driver.AverageTime)</p>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <p class="text-slate-500 dark:text-slate-400 text-center py-8">No hay datos de repartidores disponibles</p>
+        }
+    </div>
+
+    <!-- Deliveries by Zone -->
+    <div class="bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-transparent">
+        <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary">map</span>
+            Entregas por Zona
+        </h3>
+
+        @if (DeliveryReport.DeliveriesByZone != null && DeliveryReport.DeliveriesByZone.Any())
+        {
+            <div class="space-y-3">
+                @foreach (var zone in DeliveryReport.DeliveriesByZone.Take(10))
+                {
+                    var maxDeliveries = DeliveryReport.DeliveriesByZone.Max(z => z.TotalDeliveries);
+                    var percentage = maxDeliveries > 0 ? (zone.TotalDeliveries / (decimal)maxDeliveries) * 100 : 0;
+
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <div>
+                                <span class="font-medium">@zone.City, @zone.State</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-primary font-bold">@zone.TotalDeliveries entregas</span>
+                                <span class="text-xs text-slate-500 dark:text-slate-400 ml-2">
+                                    (⌀ @FormatTimeSpan(zone.AverageTime))
+                                </span>
+                            </div>
+                        </div>
+                        <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+                            <div class="bg-gradient-to-r from-primary to-green-500 h-2 rounded-full transition-all duration-300"
+                                 style="width: @percentage%"></div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <p class="text-slate-500 dark:text-slate-400 text-center py-8">No hay datos de zonas disponibles</p>
+        }
+    </div>
+}
+
+@code {
+    [Parameter]
+    public AutoPartesApp.Core.Application.DTOs.ReportDTOs.DeliveryReportDto? DeliveryReport { get; set; }
+
+    private string FormatTimeSpan(TimeSpan timeSpan)
+    {
+        if (timeSpan.TotalHours >= 1)
+            return $"{timeSpan.TotalHours:F1}h";
+        else
+            return $"{timeSpan.TotalMinutes:F0}min";
+    }
+}

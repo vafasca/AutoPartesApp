@@ -27,6 +27,22 @@ builder.Services.AddScoped<LoginUseCase>();
 builder.Services.AddScoped<LoginService>();
 builder.Services.AddScoped<AuthState>();
 builder.Services.AddScoped<DashboardService>();
+// ========== REPORTES Y EXPORTACIÓN ==========
+builder.Services.AddHttpClient("AutoPartesAPI", client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7120/");
+    client.Timeout = TimeSpan.FromSeconds(30);
+});
+
+builder.Services.AddScoped<ReportService>(sp =>
+{
+    var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
+    var httpClient = httpClientFactory.CreateClient("AutoPartesAPI");
+    return new ReportService(httpClient);
+});
+
+builder.Services.AddScoped<ExportService>();
+
 // Extensión común para Web (sin repositorios ni DbContext)
 builder.Services.AddAutoPartesWebServices();
 builder.Services.AddScoped<UserManagementService>(sp =>

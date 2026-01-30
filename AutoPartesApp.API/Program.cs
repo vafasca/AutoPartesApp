@@ -13,6 +13,13 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 
+// ========================================
+// ⚠️ CONFIGURACIÓN CRÍTICA POSTGRESQL + DATETIME
+// ========================================
+// Habilita compatibilidad con DateTime sin UTC explícito
+// DEBE IR ANTES de cualquier builder.Services.AddDbContext
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
 var builder = WebApplication.CreateBuilder(args);
 
 // ========================================
@@ -73,6 +80,7 @@ builder.Services.AddDbContext<AutoPartesDbContext>(options =>
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IDeliveryRepository, DeliveryRepository>();
 
 // Use Cases
 builder.Services.AddScoped<GetLowStockUseCase>();
@@ -115,6 +123,20 @@ builder.Services.AddScoped<SearchUsersUseCase>();
 builder.Services.AddScoped<ResetPasswordUseCase>();
 builder.Services.AddScoped<GetCustomersUseCase>();
 builder.Services.AddScoped<GetDeliveriesUsersUseCase>();
+
+//Use Cases - Reports (12 nuevos)
+builder.Services.AddScoped<GetSalesReportUseCase>();
+builder.Services.AddScoped<GetSalesByCategoryUseCase>();
+builder.Services.AddScoped<GetTopSellingProductsUseCase>();
+builder.Services.AddScoped<GetInventoryReportUseCase>();
+builder.Services.AddScoped<GetLowRotationProductsUseCase>();
+builder.Services.AddScoped<GetCustomerReportUseCase>();
+builder.Services.AddScoped<GetTopCustomersUseCase>();
+builder.Services.AddScoped<GetDeliveryReportUseCase>();
+builder.Services.AddScoped<GetTopDriversUseCase>();
+builder.Services.AddScoped<GetOrderReportUseCase>();
+builder.Services.AddScoped<GetFinancialReportUseCase>();
+builder.Services.AddScoped<GetRevenueByPeriodUseCase>();
 
 // JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");

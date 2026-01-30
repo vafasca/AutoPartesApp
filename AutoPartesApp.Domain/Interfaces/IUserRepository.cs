@@ -8,7 +8,6 @@ namespace AutoPartesApp.Domain.Interfaces
 {
     public interface IUserRepository
     {
-        // Métodos existentes
         Task<User?> GetByIdAsync(string id);
         Task<User?> GetByEmailAsync(string email);
         Task<List<User>> GetAllAsync();
@@ -16,11 +15,6 @@ namespace AutoPartesApp.Domain.Interfaces
         Task<User> UpdateAsync(User user);
         Task<bool> DeleteAsync(string id);
 
-        // 🆕 NUEVOS MÉTODOS
-
-        /// <summary>
-        /// Obtener usuarios paginados con filtros
-        /// </summary>
         Task<(List<User> Users, int TotalCount)> GetPagedAsync(
             string? searchQuery = null,
             RoleType? roleType = null,
@@ -31,44 +25,65 @@ namespace AutoPartesApp.Domain.Interfaces
             int pageSize = 20
         );
 
-        /// <summary>
-        /// Obtener usuarios por rol específico
-        /// </summary>
         Task<List<User>> GetByRoleAsync(RoleType roleType);
-
-        /// <summary>
-        /// Obtener usuario con sus órdenes
-        /// </summary>
         Task<User?> GetUserWithOrdersAsync(string userId);
-
-        /// <summary>
-        /// Obtener usuario (delivery) con sus entregas
-        /// </summary>
         Task<User?> GetUserWithDeliveriesAsync(string userId);
-
-        /// <summary>
-        /// Cambiar estado activo/inactivo
-        /// </summary>
         Task<bool> ToggleUserStatusAsync(string userId);
-
-        /// <summary>
-        /// Cambiar rol de usuario
-        /// </summary>
         Task<bool> ChangeUserRoleAsync(string userId, RoleType newRole);
-
-        /// <summary>
-        /// Buscar usuarios por nombre o email
-        /// </summary>
         Task<List<User>> SearchAsync(string query);
-
-        /// <summary>
-        /// Obtener estadísticas de usuarios
-        /// </summary>
         Task<(int Total, int Clients, int Deliveries, int Admins, int Active, int Inactive)> GetUserStatsAsync();
+        Task<bool> EmailExistsAsync(string email, string? excludeUserId = null);
 
         /// <summary>
-        /// Verificar si existe un email (excepto el userId dado)
+        /// Obtener top clientes por total gastado
         /// </summary>
-        Task<bool> EmailExistsAsync(string email, string? excludeUserId = null);
+        Task<List<(string UserId, string FullName, string Email, int TotalOrders, decimal TotalSpent, DateTime? LastOrderDate)>>
+            GetTopCustomersAsync(
+                DateTime? dateFrom = null,
+                DateTime? dateTo = null,
+                int topN = 10);
+
+        /// <summary>
+        /// Obtener clientes inactivos (sin órdenes en el período)
+        /// </summary>
+        Task<List<User>> GetInactiveCustomersAsync(
+            int inactiveDays = 90);
+
+        /// <summary>
+        /// Obtener nuevos usuarios registrados por período
+        /// </summary>
+        Task<List<(DateTime Period, int Count)>> GetNewUsersByPeriodAsync(
+            DateTime dateFrom,
+            DateTime dateTo,
+            string periodType = "day"); // "day", "week", "month"
+
+        /// <summary>
+        /// Obtener distribución geográfica de clientes
+        /// </summary>
+        Task<List<(string City, string State, string Country, int TotalCustomers)>>
+            GetUsersByGeographicDistributionAsync(RoleType? roleType = null);
+
+        /// <summary>
+        /// Obtener tasa de retención de clientes
+        /// </summary>
+        Task<decimal> GetRetentionRateAsync(
+            DateTime periodStart,
+            DateTime periodEnd);
+
+        /// <summary>
+        /// Obtener clientes con más de N órdenes
+        /// </summary>
+        Task<List<User>> GetFrequentCustomersAsync(
+            int minOrders = 5,
+            DateTime? dateFrom = null,
+            DateTime? dateTo = null);
+
+        /// <summary>
+        /// Obtener estadísticas de clientes por período
+        /// </summary>
+        Task<(int TotalCustomers, int NewCustomers, int ActiveCustomers, int InactiveCustomers)>
+            GetCustomerStatsByPeriodAsync(
+                DateTime dateFrom,
+                DateTime dateTo);
     }
 }
